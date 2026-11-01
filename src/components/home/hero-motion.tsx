@@ -2,24 +2,27 @@
 
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { cx } from "@/components/ui";
-import type { Locale } from "@/lib/i18n";
-import { getHomeCopy } from "./copy.en";
+import type { Dict } from "@/lib/i18n";
+import type { homeCopy } from "./copy";
 
 /**
  * Shared pause state for the hero's looping motion (the block's dot cycle)
  * — WCAG 2.2.2 Pause, Stop, Hide. Renders the hero <section> with
  * `data-paused` so CSS-only loops can pause via `group-data-[paused]/motion:`.
  */
-const MotionContext = createContext<{ paused: boolean; toggle: () => void; locale: Locale }>({ paused: false, toggle: () => {}, locale: "ko" });
+/** The hero strings (already merged with admin overrides by the server component; client code cannot call getCopy). */
+export type HeroCopy = Dict<typeof homeCopy>["heroCopy"];
+
+const MotionContext = createContext<{ paused: boolean; toggle: () => void; copy: HeroCopy | null }>({ paused: false, toggle: () => {}, copy: null });
 
 export function useHeroMotion() {
   return useContext(MotionContext);
 }
 
-export function HeroMotion({ className, children, locale = "ko" }: { className?: string; children: ReactNode; locale?: Locale }) {
+export function HeroMotion({ className, children, copy }: { className?: string; children: ReactNode; copy: HeroCopy }) {
   const [paused, setPaused] = useState(false);
   return (
-    <MotionContext.Provider value={{ paused, toggle: () => setPaused((p) => !p), locale }}>
+    <MotionContext.Provider value={{ paused, toggle: () => setPaused((p) => !p), copy }}>
       <section className={className} data-paused={paused || undefined}>
         {children}
       </section>
@@ -32,8 +35,8 @@ export function HeroMotion({ className, children, locale = "ko" }: { className?:
  * prefers reduced motion — nothing moves then.
  */
 export function MotionToggle({ className }: { className?: string }) {
-  const { paused, toggle, locale } = useHeroMotion();
-  const { heroCopy } = getHomeCopy(locale);
+  const { paused, toggle, copy: heroCopy } = useHeroMotion();
+  if (!heroCopy) return null;
   return (
     <button
       type="button"

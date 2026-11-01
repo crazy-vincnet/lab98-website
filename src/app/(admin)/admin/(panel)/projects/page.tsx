@@ -1,8 +1,11 @@
-import { ComingSoon } from "@/components/admin/coming-soon";
+import type { Metadata } from "next";
+import { DocList } from "@/components/admin/content/doc-list";
 import { requireAdmin } from "@/lib/admin/auth";
+import { GROUPS_BY_PAGE } from "@/lib/content-registry";
 
-// Placeholder. The stage that builds this section replaces the page (keep the requireAdmin() call first).
+export const metadata: Metadata = { title: "프로젝트" };
+
 export default async function Page() {
   await requireAdmin();
-  return <ComingSoon href="/admin/projects" />;
+  return <DocList title="프로젝트" description="프로젝트 목록과 상세 페이지의 문구를 고쳐요." groups={GROUPS_BY_PAGE["/admin/projects"]} />;
 }

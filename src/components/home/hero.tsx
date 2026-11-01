@@ -1,5 +1,6 @@
 import { ButtonLink } from "@/components/ui";
 import { getContent } from "@/lib/get-content";
+import { getCopy } from "@/lib/copy-store";
 import { localePath, type Locale } from "@/lib/i18n";
 import { routes } from "./copy";
 import { getHomeCopy } from "./copy.en";
@@ -9,16 +10,17 @@ import { HeroMotion } from "./hero-motion";
 /** Stagger helper for the entrance animation. */
 const rise = (i: number) => ({ animationDelay: `${80 + i * 90}ms` });
 
-export function Hero({ locale = "ko" }: { locale?: Locale }) {
+export async function Hero({ locale = "ko" }: { locale?: Locale }) {
   const { site, divisions } = getContent(locale);
-  const { heroCopy } = getHomeCopy(locale);
+  // Admin-editable (registry key "home.hero"): published overrides merged over the code defaults.
+  const heroCopy = await getCopy("home.hero", locale, getHomeCopy(locale).heroCopy);
   const lp = (path: string) => localePath(locale, path);
   const [line1, line2] = site.sloganLines;
   // The closing period becomes the brand red dot (the period stays for screen readers).
   const line2Text = line2.replace(/\.$/, "");
 
   return (
-    <HeroMotion locale={locale} className="group/motion overflow-hidden">
+    <HeroMotion copy={heroCopy} className="group/motion overflow-hidden">
       <div className="wrap grid items-end gap-10 pb-14 pt-10 md:gap-14 md:pb-20 md:pt-16 lg:grid-cols-[1.5fr_1fr] lg:gap-12 lg:pb-24 lg:pt-20 xl:gap-16 xl:pb-28 xl:pt-24">
         <div className="min-w-0">
           <p className="label mb-6 animate-rise text-gray motion-reduce:animate-none md:mb-8" style={rise(0)}>
@@ -49,7 +51,7 @@ export function Hero({ locale = "ko" }: { locale?: Locale }) {
           </div>
         </div>
         <div className="animate-rise motion-reduce:animate-none" style={rise(2)}>
-          <HeroBlock locale={locale} divisions={divisions.map(({ slug, short, name }) => ({ slug, short, name }))} />
+          <HeroBlock locale={locale} copy={heroCopy} divisions={divisions.map(({ slug, short, name }) => ({ slug, short, name }))} />
         </div>
       </div>
     </HeroMotion>

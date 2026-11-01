@@ -13,7 +13,8 @@ src/
   app/(admin)/admin/(panel)/       everything behind login; layout.tsx = sidebar/topbar shell
     page.tsx                       dashboard         audit/ search/ (built)
     blog/ media/                   built (stage 3, see "Blog + media" below)
-    inquiries/ launch/ privacy/ optouts/ content/ projects/ praise-tool/ faq/ legal/   placeholders (<ComingSoon/>) until their stage lands
+    inquiries/ launch/ privacy/ optouts/   built (stage 2)
+    content/ projects/ praise-tool/ faq/ legal/   built (stage 4a): content override engine, see docs/admin-content.md
   app/(admin)/admin/api/media/route.ts   media upload + list (adminRoute). Lives under /admin so proxy.ts refreshes the session cookies for it
   components/admin/*               primitives (below)
   lib/admin/*                      server helpers (below)
@@ -143,6 +144,10 @@ Migration `20261101140000_blog-media-stage3.sql`: `posts.translation_key` (+ uni
 * RSS (`insights/rss.xml`), `sitemap.ts`, the per-post OG image (`insights/[slug]/opengraph-image.tsx`, Korean) and the home "latest insights"
   block read the same merged list. A post's own SEO share image replaces the generated card in its metadata.
 * Not covered yet: `llms.txt` / `llms-full.txt` (still static notes only), per-post English OG cards (English uses the generic card unless a share image is set).
+
+## Content override engine (stage 4a)
+
+See **docs/admin-content.md** (API `getCopy`, registry, conversion recipe, pitfalls). Migration `20261101150000_content-engine-stage4a.sql` adds `draft` columns to `content_entries`.
 
 ## File ownership
 

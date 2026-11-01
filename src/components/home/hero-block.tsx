@@ -6,8 +6,7 @@ import { cx } from "@/components/ui";
 import type { Division, DivisionSlug } from "@/lib/content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { routes } from "./copy";
-import { getHomeCopy } from "./copy.en";
-import { MotionToggle, useHeroMotion } from "./hero-motion";
+import { MotionToggle, useHeroMotion, type HeroCopy } from "./hero-motion";
 import { useReducedMotion } from "./use-reduced-motion";
 
 /** Full class names so Tailwind can detect them. */
@@ -33,8 +32,7 @@ const CYCLE_MS = 2500;
  * is hovered / focused and when the pause toggle (top-left, hidden under
  * reduced motion) is on.
  */
-export function HeroBlock({ divisions, locale = "ko" }: { divisions: { slug: DivisionSlug; short: string; name: string }[]; locale?: Locale }) {
-  const { heroCopy } = getHomeCopy(locale);
+export function HeroBlock({ divisions, copy: heroCopy, locale = "ko" }: { divisions: { slug: DivisionSlug; short: string; name: string }[]; copy: HeroCopy; locale?: Locale }) {
   const reduced = useReducedMotion();
   const [active, setActive] = useState<Division>("master");
   const [pinned, setPinned] = useState(false);

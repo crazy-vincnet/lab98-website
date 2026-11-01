@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getContent } from "@/lib/get-content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getChromeCopy } from "@/components/chrome/copy.en";
+import { getCopy } from "@/lib/copy-store";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Lockup, cx } from "@/components/ui";
 import {
@@ -23,9 +24,10 @@ import { routes } from "@/components/home/copy";
 /** ≥44px touch target; text stays in the mono meta row. */
 const legalLinkClass = "inline-flex min-h-11 items-center px-2 hover:text-paper hover:underline hover:underline-offset-4";
 
-export function SiteFooter({ locale = "ko" }: { locale?: Locale }) {
+export async function SiteFooter({ locale = "ko" }: { locale?: Locale }) {
   const { site, divisions } = getContent(locale);
-  const t = getChromeCopy(locale).footer;
+  // Admin-editable (registry key "chrome.footer").
+  const t = await getCopy("chrome.footer", locale, getChromeCopy(locale).footer);
   const lp = (path: string) => localePath(locale, path);
   const host = site.url.replace(/^https?:\/\//, "");
   const hasSocial = site.social.length > 0;
