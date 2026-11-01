@@ -33,11 +33,9 @@ export const chromeCopyEn: Dict<typeof chromeCopy> = {
   },
   legalDoc: {
     effective: "Effective",
-    bizLine: (biz) => ({
-      prefix: `Business: ${biz.name} · Representative: ${biz.representative} · Business reg. no. ${biz.registrationNumber}`,
-      address: biz.address ? ` · Address: ${biz.address}` : "",
-      contact: " · Contact: ",
-    }),
+    bizPrefix: "Business: {name} · Representative: {representative} · Business reg. no. {registrationNumber}",
+    bizAddress: " · Address: {address}",
+    bizContact: " · Contact: ",
     toc: "Contents",
     history: "Revision history",
   },
@@ -70,3 +68,7 @@ export const chromeCopyEn: Dict<typeof chromeCopy> = {
 export function getChromeCopy(locale: Locale = "ko"): Dict<typeof chromeCopy> {
   return locale === "en" ? chromeCopyEn : chromeCopy;
 }
+
+/** Merged (admin-editable) shapes handed to client components as props. */
+export type ChromeHeaderCopy = Dict<typeof chromeCopy>["header"];
+export type ChromeCookieBannerCopy = Dict<typeof chromeCopy>["cookieBanner"];

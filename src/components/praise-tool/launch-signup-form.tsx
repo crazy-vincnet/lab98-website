@@ -7,8 +7,11 @@ import { PrivacyNotice } from "@/components/consent/privacy-notice";
 import { LAUNCH_FIELDS, LAUNCH_LIMITS, validateLaunchSignup, type LaunchFieldErrors } from "@/lib/launch-signup";
 import { signupLaunch } from "@/app/actions/launch";
 import { PRIVACY_PATH } from "@/components/experiments/paths";
-import { getPraiseTool } from "@/lib/praise-tool.en";
+import type { getPraiseTool } from "@/lib/praise-tool.en";
 import { localePath, type Locale } from "@/lib/i18n";
+
+/** Merged (admin-editable, key "praise-tool.page") form copy; the server page passes it as a prop. */
+export type LaunchFormCopy = ReturnType<typeof getPraiseTool>["form"];
 
 const inputBase =
   "block w-full border-2 bg-paper px-[18px] text-body-sm text-ink placeholder:text-placeholder transition-colors duration-150 hover:bg-concrete/40 focus:bg-paper";
@@ -18,8 +21,8 @@ const inputBase =
  * (stored in InsForge `launch_signups`, team gets an email; nothing is sent to the visitor).
  * `to` is only shown as a fallback address when signing up fails and on the success screen.
  */
-export function LaunchSignupForm({ to, locale = "ko" }: { to: string; locale?: Locale }) {
-  const t = getPraiseTool(locale).form;
+export function LaunchSignupForm({ to, locale = "ko", copy }: { to: string; locale?: Locale; copy: LaunchFormCopy }) {
+  const t = copy;
   const uid = useId();
   const [email, setEmail] = useState("");
   const [org, setOrg] = useState("");

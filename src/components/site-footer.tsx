@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getContent } from "@/lib/get-content";
+import { getSiteContent } from "@/lib/site-content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getChromeCopy } from "@/components/chrome/copy.en";
 import { getCopy } from "@/lib/copy-store";
@@ -25,9 +25,10 @@ import { routes } from "@/components/home/copy";
 const legalLinkClass = "inline-flex min-h-11 items-center px-2 hover:text-paper hover:underline hover:underline-offset-4";
 
 export async function SiteFooter({ locale = "ko" }: { locale?: Locale }) {
-  const { site, divisions } = getContent(locale);
+  const { site, divisions } = await getSiteContent(locale); // admin-editable site data
   // Admin-editable (registry key "chrome.footer").
   const t = await getCopy("chrome.footer", locale, getChromeCopy(locale).footer);
+  const switcherAria = (await getCopy("chrome.header", locale, getChromeCopy(locale).header)).switcherAria;
   const lp = (path: string) => localePath(locale, path);
   const host = site.url.replace(/^https?:\/\//, "");
   const hasSocial = site.social.length > 0;
@@ -100,7 +101,7 @@ export async function SiteFooter({ locale = "ko" }: { locale?: Locale }) {
                   </li>
                 ))}
                 <li>
-                  <LanguageSwitcher locale={locale} full className="px-2" />
+                  <LanguageSwitcher locale={locale} ariaLabel={switcherAria} full className="px-2" />
                 </li>
               </ul>
             </nav>

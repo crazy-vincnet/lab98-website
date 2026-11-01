@@ -14,23 +14,23 @@ export const projectsCopyEn: Dict<typeof projectsCopy> = {
   index: {
     eyebrow: "PROJECTS",
     title: "Sites built by Lab98 Dev",
-    lead: (count: number) => `We took on the planning, design and development of websites for ${count} organizations.`,
+    lead: "We took on the planning, design and development of websites for {count} organizations.",
     leadMore: "Every project is custom-made, with no templates. We hand over the source code when the site opens.",
     listLabel: "Project list",
-    count: (count: number) => `${count} PROJECTS`,
+    count: "{count} PROJECTS",
   },
   detail: {
     back: "← Projects",
     backBottom: "← All projects",
     meta: { division: "Field", scope: "Scope", type: "Type", languages: "Languages" },
     visit: "Visit the site",
-    visitAria: (client: string) => `Visit the ${client} website (opens in a new window)`,
+    visitAria: "Visit the {client} website (opens in a new window)",
     shots: { eyebrow: "Screens", title: "Desktop and mobile screens" },
     highlights: { eyebrow: "Features", title: "Key features" },
     pager: { label: "Other projects", prev: "← Previous project", next: "Next project →" },
     alt: {
-      desktop: (client: string) => `${client} website, desktop home screen`,
-      mobile: (client: string) => `${client} website, mobile home screen`,
+      desktop: "{client} website, desktop home screen",
+      mobile: "{client} website, mobile home screen",
     },
   },
   cta: {

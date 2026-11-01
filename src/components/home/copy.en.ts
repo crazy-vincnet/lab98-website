@@ -22,7 +22,7 @@ export const homeCopyEn: Dict<typeof homeCopy> = {
     label: "Why work with Lab98",
     code: { title: "Source code included", body: "You get the source code along with the finished work" },
     price: { title: "Custom builds from KRW 2M", body: "No templates, built from scratch" },
-    clients: (n: number) => `Worked with ${n} organizations`,
+    clients: "Worked with {n} organizations",
   },
   praiseCopy: {
     name: "Praise Tool",
@@ -40,7 +40,7 @@ export const homeCopyEn: Dict<typeof homeCopy> = {
     title: "We build the tools you need, and help you use them well",
     lead: "We build custom websites and software, and teach you how to use AI properly. For churches and mission organizations, we stay with you through operations.",
     hook: { dev: "From KRW 2M · source code included" },
-    cardFoot: (short: string) => `View ${short} services`,
+    cardFoot: "View {short} services",
   },
   projectsCopy: {
     index: "02",
@@ -136,6 +136,12 @@ export const homeCopyEn: Dict<typeof homeCopy> = {
     faith: "Faith · Software for churches & missions",
   },
 };
+
+/** Defaults of registry doc "home.contact": the contact section copy plus the form interest chip labels. */
+export function getHomeContactDoc(locale: Locale = "ko") {
+  const c = getHomeCopy(locale);
+  return { ...c.contactCopy, interestLabel: c.interestLabel };
+}
 
 export function getHomeCopy(locale: Locale = "ko"): Dict<typeof homeCopy> {
   return locale === "en" ? homeCopyEn : homeCopy;

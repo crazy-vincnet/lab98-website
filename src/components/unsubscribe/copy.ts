@@ -13,6 +13,8 @@ export const unsubscribeCopy = {
     "수신거부한 주소로는 출시 알림, 소식 등 꼭 필요하지 않은 메일을 보내지 않아요.",
     "직접 보내신 문의나 개인정보 요청에는 수신거부와 관계없이 답장을 보내 드려요.",
   ],
+  // Sentence around the "개인정보 요청" and "개인정보처리방침" links under the points.
+  inline: { before: "보관 중인 정보를 확인하거나 지우고 싶다면", request: "개인정보 요청", middle: "을 이용해 주세요. 자세한 내용은", policy: "개인정보처리방침", after: "에서 확인할 수 있어요." },
   form: {
     ariaLabel: "이메일 수신거부 양식",
     emailLabel: "이메일",

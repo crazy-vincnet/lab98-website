@@ -50,7 +50,7 @@ export const trustCopy = {
   label: "Lab98과 일하면 좋은 점",
   code: { title: "코드까지 드려요", body: "결과물과 함께 소스 코드를 넘겨 드려요" },
   price: { title: "200만 원부터 맞춤 제작", body: "템플릿 없이 처음부터" },
-  clients: (n: number) => `${n}개 기관과 함께했어요`,
+  clients: "{n}개 기관과 함께했어요",
 } as const;
 
 export const praiseCopy = {
@@ -72,7 +72,7 @@ export const servicesCopy = {
   lead: "웹과 프로그램을 맞춤으로 만들고, AI를 제대로 쓰는 법을 알려 드려요. 교회와 선교단체에 필요한 프로그램은 운영까지 함께해요.",
   /** Card hook line per division; falls back to the division headline. */
   hook: { dev: "200만 원부터 · 코드 제공" } as Partial<Record<DivisionSlug, string>>,
-  cardFoot: (short: string) => `${short} 서비스 보기`,
+  cardFoot: "{short} 서비스 보기",
 } as const;
 
 export const projectsCopy = {

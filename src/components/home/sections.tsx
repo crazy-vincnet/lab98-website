@@ -3,12 +3,13 @@ import type { ReactNode } from "react";
 import { InsightRow, ProjectCard } from "@/components/cards";
 import { ButtonLink, SectionHead, Symbol, cx } from "@/components/ui";
 import type { Division, DivisionSlug } from "@/lib/content";
-import { getContent } from "@/lib/get-content";
+import { getSiteContent } from "@/lib/site-content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getInsights } from "@/lib/insights";
 import { ContactForm } from "./contact-form";
 import { anchors, clientShort, routes } from "./copy";
-import { getHomeCopy } from "./copy.en";
+import { fill } from "@/lib/fill-template";
+import { loadHomeCopy } from "./load";
 import { PraiseCountdown } from "./praise-countdown";
 
 /* Consistent section rhythm: 64 / 96 / 112px vertical padding. */
@@ -42,13 +43,13 @@ const subText = "text-gray group-hover:text-ink-text group-focus-visible:text-in
 
 /* ----------------------------------------------------------- Trust strip */
 
-export function TrustStrip({ locale = "ko" }: { locale?: Locale }) {
-  const { projects } = getContent(locale);
-  const { trustCopy } = getHomeCopy(locale);
+export async function TrustStrip({ locale = "ko" }: { locale?: Locale }) {
+  const { projects } = await getSiteContent(locale); // admin-editable site data
+  const trustCopy = await loadHomeCopy.trust(locale);
   const items = [
     trustCopy.code,
     trustCopy.price,
-    { title: trustCopy.clients(projects.length), body: projects.map(clientShort).join(" · ") },
+    { title: fill(trustCopy.clients, { n: projects.length }), body: projects.map(clientShort).join(" · ") },
   ];
   return (
     <section aria-label={trustCopy.label} className="border-y-2 border-ink">
@@ -77,9 +78,9 @@ export function TrustStrip({ locale = "ko" }: { locale?: Locale }) {
 
 /* --------------------------------------------------- Praise Tool banner */
 
-export function PraiseToolBanner({ locale = "ko" }: { locale?: Locale }) {
+export async function PraiseToolBanner({ locale = "ko" }: { locale?: Locale }) {
   const lp = (path: string) => localePath(locale, path);
-  const { praiseCopy } = getHomeCopy(locale);
+  const praiseCopy = await loadHomeCopy.praise(locale);
   return (
     <section aria-labelledby="praise-tool-banner" className="bg-ink text-paper">
       <div className="wrap flex flex-col gap-8 py-10 md:py-14 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
@@ -94,7 +95,7 @@ export function PraiseToolBanner({ locale = "ko" }: { locale?: Locale }) {
                 · {praiseCopy.launch}
               </span>
             </h2>
-            <PraiseCountdown locale={locale} />
+            <PraiseCountdown copy={{ fallback: praiseCopy.fallback, today: praiseCopy.today, after: praiseCopy.after }} />
           </div>
           <p className="mt-4 max-w-[640px] text-body text-ink-text text-pretty">{praiseCopy.line}</p>
         </div>
@@ -116,10 +117,10 @@ export function PraiseToolBanner({ locale = "ko" }: { locale?: Locale }) {
 
 /* ------------------------------------------------------------- 01 Services */
 
-export function Services({ locale = "ko" }: { locale?: Locale }) {
+export async function Services({ locale = "ko" }: { locale?: Locale }) {
   const lp = (path: string) => localePath(locale, path);
-  const { divisions } = getContent(locale);
-  const { servicesCopy } = getHomeCopy(locale);
+  const { divisions } = await getSiteContent(locale); // admin-editable site data
+  const servicesCopy = await loadHomeCopy.services(locale);
   return (
     <Section id={anchors.services}>
       <SectionHead index={servicesCopy.index} eyebrow={servicesCopy.eyebrow} title={servicesCopy.title} lead={servicesCopy.lead} />
@@ -153,7 +154,7 @@ export function Services({ locale = "ko" }: { locale?: Locale }) {
                   ))}
                 </dl>
                 <div className="mt-auto flex items-center justify-between border-t-2 border-current pt-5">
-                  <span className={cx("label ko-tight", footText[d.slug])}>{servicesCopy.cardFoot(d.short)}</span>
+                  <span className={cx("label ko-tight", footText[d.slug])}>{fill(servicesCopy.cardFoot, { short: d.short })}</span>
                   <Arrow className="font-bold" />
                 </div>
               </article>
@@ -167,10 +168,10 @@ export function Services({ locale = "ko" }: { locale?: Locale }) {
 
 /* ------------------------------------------------------------- 02 Projects */
 
-export function Projects({ locale = "ko" }: { locale?: Locale }) {
+export async function Projects({ locale = "ko" }: { locale?: Locale }) {
   const lp = (path: string) => localePath(locale, path);
-  const { projects } = getContent(locale);
-  const { projectsCopy } = getHomeCopy(locale);
+  const { projects } = await getSiteContent(locale); // admin-editable site data
+  const projectsCopy = await loadHomeCopy.projects(locale);
   return (
     <Section id={anchors.projects} className="bg-concrete">
       <SectionHead index={projectsCopy.index} eyebrow={projectsCopy.eyebrow} title={projectsCopy.title} lead={projectsCopy.lead} />
@@ -220,9 +221,9 @@ export function Projects({ locale = "ko" }: { locale?: Locale }) {
 /** The step that sets Lab98 apart (배포 및 코드 공유). */
 const HIGHLIGHT_STEP = 4;
 
-export function Process({ locale = "ko" }: { locale?: Locale }) {
-  const { divisions } = getContent(locale);
-  const { processCopy } = getHomeCopy(locale);
+export async function Process({ locale = "ko" }: { locale?: Locale }) {
+  const { divisions } = await getSiteContent(locale); // admin-editable site data
+  const processCopy = await loadHomeCopy.process(locale);
   const steps = divisions.find((d) => d.slug === "dev")?.process ?? [];
   return (
     <section id={anchors.process} className="border-t-2 border-ink bg-ink text-paper">
@@ -257,10 +258,10 @@ export function Process({ locale = "ko" }: { locale?: Locale }) {
 
 /* ------------------------------------------------------------- 04 Founder */
 
-export function Founder({ locale = "ko" }: { locale?: Locale }) {
+export async function Founder({ locale = "ko" }: { locale?: Locale }) {
   const lp = (path: string) => localePath(locale, path);
-  const { site } = getContent(locale);
-  const { founderCopy } = getHomeCopy(locale);
+  const { site } = await getSiteContent(locale); // admin-editable site data
+  const founderCopy = await loadHomeCopy.founder(locale);
   return (
     <Section id={anchors.about}>
       <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12">
@@ -292,7 +293,7 @@ export function Founder({ locale = "ko" }: { locale?: Locale }) {
 
 export async function Insights({ locale = "ko" }: { locale?: Locale }) {
   const lp = (path: string) => localePath(locale, path);
-  const { insightsCopy } = getHomeCopy(locale);
+  const insightsCopy = await loadHomeCopy.insights(locale);
   const latest = (await getInsights(locale)).slice(0, 3); // static notes + published posts (DB)
   if (latest.length === 0) return null;
   return (
@@ -319,9 +320,10 @@ export async function Insights({ locale = "ko" }: { locale?: Locale }) {
 
 /* ------------------------------------------------------------ 06 Contact */
 
-export function Contact({ locale = "ko" }: { locale?: Locale }) {
-  const { divisions, site } = getContent(locale);
-  const { contactCopy, interestLabel } = getHomeCopy(locale);
+export async function Contact({ locale = "ko" }: { locale?: Locale }) {
+  const { divisions, site } = await getSiteContent(locale); // admin-editable site data
+  const contactCopy = await loadHomeCopy.contact(locale);
+  const { interestLabel } = contactCopy;
   const interests: { value: Division; label: string }[] = [
     { value: "master", label: interestLabel.master },
     ...divisions.map((d) => ({ value: d.slug, label: interestLabel[d.slug] })),
@@ -350,7 +352,7 @@ export function Contact({ locale = "ko" }: { locale?: Locale }) {
             <dd className="py-2">{site.replyTime}</dd>
           </dl>
         </div>
-        <ContactForm locale={locale} to={site.email} interests={interests} />
+        <ContactForm locale={locale} to={site.email} interests={interests} copy={contactCopy.form} />
       </div>
     </Section>
   );

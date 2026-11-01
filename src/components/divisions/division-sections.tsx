@@ -4,7 +4,8 @@ import { ButtonLink, Lockup, SectionHead, Symbol, Tag, cx } from "@/components/u
 import { ProjectCard } from "@/components/cards";
 import { localePath, type Locale } from "@/lib/i18n";
 import { routes } from "./copy";
-import { getDivisionCopy } from "./copy.en";
+import { loadDivisionCopy } from "./load";
+import { fill } from "@/lib/fill-template";
 import { divisionTheme, type DivisionInfo, type DivisionSlug, type Project } from "@/lib/content";
 
 /**
@@ -44,8 +45,8 @@ export const pad2 = (n: number) => String(n).padStart(2, "0");
 
 /* ---------- Hero ---------- */
 
-export function DivisionHero({ division, locale = "ko" }: { division: DivisionInfo; locale?: Locale }) {
-  const C = getDivisionCopy(locale);
+export async function DivisionHero({ division, locale = "ko" }: { division: DivisionInfo; locale?: Locale }) {
+  const C = await loadDivisionCopy(locale);
   const lp = (path: string) => localePath(locale, path);
 
   const theme = divisionTheme[division.slug];
@@ -107,8 +108,8 @@ export function DivisionHero({ division, locale = "ko" }: { division: DivisionIn
 
 /* ---------- Status notice (e.g. AI community "오픈 예정") ---------- */
 
-export function StatusNotice({ division, locale = "ko" }: { division: DivisionInfo; locale?: Locale }) {
-  const C = getDivisionCopy(locale);
+export async function StatusNotice({ division, locale = "ko" }: { division: DivisionInfo; locale?: Locale }) {
+  const C = await loadDivisionCopy(locale);
 
   if (!division.status) return null;
   const theme = divisionTheme[division.slug];
@@ -127,8 +128,8 @@ export function StatusNotice({ division, locale = "ko" }: { division: DivisionIn
 
 /* ---------- Description ("why") ---------- */
 
-export function DivisionAbout({ division, index, locale = "ko" }: { division: DivisionInfo; index?: string; locale?: Locale }) {
-  const C = getDivisionCopy(locale);
+export async function DivisionAbout({ division, index, locale = "ko" }: { division: DivisionInfo; index?: string; locale?: Locale }) {
+  const C = await loadDivisionCopy(locale);
 
   const contrast = division.slug === "ai" ? C.about.aiContrast : null;
   const theme = divisionTheme[division.slug];
@@ -162,8 +163,8 @@ export function DivisionAbout({ division, index, locale = "ko" }: { division: Di
 
 /* ---------- Faith: Praise Tool feature ---------- */
 
-export function PraiseToolFeature({ index, locale = "ko" }: { index?: string; locale?: Locale }) {
-  const C = getDivisionCopy(locale);
+export async function PraiseToolFeature({ index, locale = "ko" }: { index?: string; locale?: Locale }) {
+  const C = await loadDivisionCopy(locale);
   const lp = (path: string) => localePath(locale, path);
 
   const P = C.praiseTool;
@@ -207,8 +208,8 @@ export function PraiseToolFeature({ index, locale = "ko" }: { index?: string; lo
 
 /* ---------- What we do ---------- */
 
-export function Services({ division, index, locale = "ko" }: { division: DivisionInfo; index?: string; locale?: Locale }) {
-  const C = getDivisionCopy(locale);
+export async function Services({ division, index, locale = "ko" }: { division: DivisionInfo; index?: string; locale?: Locale }) {
+  const C = await loadDivisionCopy(locale);
 
   const theme = divisionTheme[division.slug];
   const statusTitle = C.statusService[division.slug];
@@ -244,8 +245,8 @@ export function Services({ division, index, locale = "ko" }: { division: Divisio
 
 /* ---------- Process (numbered steps) ---------- */
 
-export function Process({ division, index, locale = "ko" }: { division: DivisionInfo; index?: string; locale?: Locale }) {
-  const C = getDivisionCopy(locale);
+export async function Process({ division, index, locale = "ko" }: { division: DivisionInfo; index?: string; locale?: Locale }) {
+  const C = await loadDivisionCopy(locale);
 
   const theme = divisionTheme[division.slug];
   const head = C.process.byDivision[division.slug];
@@ -286,8 +287,8 @@ export function Process({ division, index, locale = "ko" }: { division: Division
 
 /* ---------- Dev: projects ---------- */
 
-export function DivisionProjects({ items, index, locale = "ko" }: { items: Project[]; index?: string; locale?: Locale }) {
-  const C = getDivisionCopy(locale);
+export async function DivisionProjects({ items, index, locale = "ko" }: { items: Project[]; index?: string; locale?: Locale }) {
+  const C = await loadDivisionCopy(locale);
   const lp = (path: string) => localePath(locale, path);
 
   if (items.length === 0) return null;
@@ -318,8 +319,8 @@ const cardFootText: Record<DivisionSlug, string> = {
 };
 
 /** Same hover language as ProjectCard: border stays, footer bar inverts, arrow nudges, title underlines. */
-export function DivisionCard({ division, headingLevel = "h3", locale = "ko" }: { division: DivisionInfo; headingLevel?: "h2" | "h3"; locale?: Locale }) {
-  const C = getDivisionCopy(locale);
+export async function DivisionCard({ division, headingLevel = "h3", locale = "ko" }: { division: DivisionInfo; headingLevel?: "h2" | "h3"; locale?: Locale }) {
+  const C = await loadDivisionCopy(locale);
   const lp = (path: string) => localePath(locale, path);
 
   const theme = divisionTheme[division.slug];
@@ -347,7 +348,7 @@ export function DivisionCard({ division, headingLevel = "h3", locale = "ko" }: {
       >
         <span className="flex items-center gap-2.5">
           <i className={cx("size-2 rounded-full", theme.bg)} aria-hidden />
-          {C.divisionCard.cta(division.short)}
+          {fill(C.divisionCard.cta, { short: division.short })}
         </span>
         <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
       </div>
@@ -355,8 +356,8 @@ export function DivisionCard({ division, headingLevel = "h3", locale = "ko" }: {
   );
 }
 
-export function OtherDivisions({ items, index, locale = "ko" }: { items: DivisionInfo[]; index?: string; locale?: Locale }) {
-  const C = getDivisionCopy(locale);
+export async function OtherDivisions({ items, index, locale = "ko" }: { items: DivisionInfo[]; index?: string; locale?: Locale }) {
+  const C = await loadDivisionCopy(locale);
 
   return (
     <Section id="other-divisions">
@@ -372,7 +373,7 @@ export function OtherDivisions({ items, index, locale = "ko" }: { items: Divisio
 
 /* ---------- Contact band ---------- */
 
-export function ContactBand({
+export async function ContactBand({
   title,
   lead,
   cta,
@@ -386,7 +387,7 @@ export function ContactBand({
   secondary?: { label: string; href: string };
   locale?: Locale;
 }) {
-  const C = getDivisionCopy(locale);
+  const C = await loadDivisionCopy(locale);
   const lp = (path: string) => localePath(locale, path);
   title ??= C.contactBand.title;
   lead ??= C.contactBand.lead;

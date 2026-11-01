@@ -1,10 +1,13 @@
+import type { Metadata } from "next";
 import { ButtonLink } from "@/components/ui";
 import { PROJECTS_PATH } from "@/components/experiments/paths";
 import { getChromeCopy } from "@/components/chrome/copy.en";
+import { getCopy } from "@/lib/copy-store";
 import { localePath, type Locale } from "@/lib/i18n";
 
-export function NotFoundView({ locale }: { locale: Locale }) {
-  const t = getChromeCopy(locale).notFound;
+export async function NotFoundView({ locale }: { locale: Locale }) {
+  // Admin-editable (registry key "chrome.notFound").
+  const t = await getCopy("chrome.notFound", locale, getChromeCopy(locale).notFound);
   return (
     <section className="wrap py-20 md:py-32">
       <p className="label text-gray">{t.label}</p>
@@ -24,4 +27,14 @@ export function NotFoundView({ locale }: { locale: Locale }) {
       </div>
     </section>
   );
+}
+
+/** <title>/description of the 404 pages: reads the admin-editable "chrome.notFound" copy (async, so it is not frozen at build time). */
+export async function notFoundMeta(locale: Locale) {
+  const t = await getCopy("chrome.notFound", locale, getChromeCopy(locale).notFound);
+  return { title: t.metaTitle, description: t.metaDescription };
+}
+
+export async function notFoundMetadata(locale: Locale): Promise<Metadata> {
+  return { ...(await notFoundMeta(locale)), robots: { index: false, follow: true } };
 }

@@ -44,6 +44,8 @@ export function ContentEditor(p: Props) {
   const [pubState, pubAction] = useActionState<EditorState, FormData>(publishAction, {});
   const state = pubState.error || pubState.fieldErrors ? pubState : saveState;
   const formRef = useRef<HTMLFormElement>(null);
+  /** Legal documents (legal.*): warning banner + a change note is mandatory to publish. */
+  const legal = p.docKey.startsWith("legal.");
 
   const overrides = useMemo(() => {
     const o: Record<string, string> = {};
@@ -137,6 +139,11 @@ export function ContentEditor(p: Props) {
           </p>
         </div>
 
+        {legal && (
+          <Alert kind="info">
+            <strong>법적 문서: 수정 전 법률 검토를 권해요.</strong> 시행일·버전을 함께 고치고, 공개할 때는 변경 메모(무엇을 왜 바꿨는지)를 꼭 적어야 해요.
+          </Alert>
+        )}
         {state.error && <Alert kind="error">{state.error}</Alert>}
         {p.staleCount > 0 && (
           <Alert kind="info">
@@ -148,12 +155,18 @@ export function ContentEditor(p: Props) {
         {q && visibleCount === 0 && <p className="text-gray">찾는 문구가 없어요.</p>}
 
         <div className="sticky bottom-0 z-20 grid gap-3 border-t-2 border-ink bg-paper py-3">
-          <TextInput name="note" maxLength={200} placeholder="공개 메모 (선택) 예: 버튼 문구 수정" aria-label="공개 메모" />
+          <TextInput
+            name="note"
+            maxLength={200}
+            required={legal}
+            placeholder={legal ? "변경 메모 (필수) 예: 보유 기간 문구 수정, 시행일 변경" : "공개 메모 (선택) 예: 버튼 문구 수정"}
+            aria-label={legal ? "변경 메모 (필수)" : "공개 메모"}
+          />
           <div className="flex flex-wrap items-center gap-2">
             <SubmitButton variant="secondary" pendingLabel="저장 중…">
               초안 저장
             </SubmitButton>
-            <PublishButton action={pubAction} />
+            <PublishButton action={pubAction} requireNote={legal} />
             <Button
               variant="ghost"
               disabled={editedCount === 0}
@@ -196,13 +209,22 @@ export function ContentEditor(p: Props) {
   );
 }
 
-function PublishButton({ action }: { action: (fd: FormData) => void }) {
+function PublishButton({ action, requireNote }: { action: (fd: FormData) => void; requireNote?: boolean }) {
   return (
     <button
       type="submit"
       formAction={action}
       className={buttonClass("primary")}
       onClick={(e) => {
+        if (requireNote) {
+          const note = e.currentTarget.form?.elements.namedItem("note");
+          if (!(note instanceof HTMLInputElement) || note.value.trim().length < 2) {
+            e.preventDefault();
+            window.alert("법적 문서는 변경 메모를 꼭 적어야 공개할 수 있어요.");
+            if (note instanceof HTMLInputElement) note.focus();
+            return;
+          }
+        }
         if (!window.confirm("지금 사이트에 공개할까요? 방문자에게 바로 보여요.")) e.preventDefault();
       }}
     >

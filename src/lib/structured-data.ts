@@ -4,7 +4,7 @@
  * Facts come from content.ts / praise-tool.ts only — no ratings, reviews, addresses or dates we don't have.
  * Validate after deploy: https://search.google.com/test/rich-results · https://validator.schema.org/
  */
-import { PRAISE_TOOL_LAUNCH, site, type DivisionInfo, type Faq, type Note, type Project } from "@/lib/content";
+import { PRAISE_TOOL_LAUNCH, site, type DivisionInfo, type Faq, type Note, type Project, type SiteInfo } from "@/lib/content";
 import { getContent } from "@/lib/get-content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { praiseTool } from "@/lib/praise-tool";
@@ -36,8 +36,9 @@ export function graph(...nodes: (Node | false | null | undefined)[]) {
 
 /* ------------------------------------------------------------ site-wide */
 
-export function organization(locale: Locale = "ko"): Node {
-  const { site } = getContent(locale);
+/** `info` = the admin-merged site info (await getSiteContent(locale)).site; defaults to the code defaults. */
+export function organization(locale: Locale = "ko", info?: SiteInfo): Node {
+  const site = info ?? getContent(locale).site;
   const en = locale === "en";
   return {
     "@type": "Organization",
@@ -61,8 +62,9 @@ export function organization(locale: Locale = "ko"): Node {
   };
 }
 
-export function website(locale: Locale = "ko"): Node {
-  const { site } = getContent(locale);
+/** `info` = the admin-merged site info (await getSiteContent(locale)).site; defaults to the code defaults. */
+export function website(locale: Locale = "ko", info?: SiteInfo): Node {
+  const site = info ?? getContent(locale).site;
   return {
     "@type": "WebSite",
     "@id": websiteId(locale),
@@ -74,8 +76,9 @@ export function website(locale: Locale = "ko"): Node {
   };
 }
 
-export function person(locale: Locale = "ko"): Node {
-  const { site } = getContent(locale);
+/** `info` = the admin-merged site info (await getSiteContent(locale)).site; defaults to the code defaults. */
+export function person(locale: Locale = "ko", info?: SiteInfo): Node {
+  const site = info ?? getContent(locale).site;
   return {
     "@type": "Person",
     "@id": PERSON_ID,
@@ -198,8 +201,9 @@ export function service(d: DivisionInfo, locale: Locale = "ko"): Node {
 /** Price shown on the page ("100,000원") as a number. */
 export const PRAISE_TOOL_PRICE_KRW = Number(praiseTool.pricing.price.replace(/\D/g, ""));
 
-export function praiseToolApp(locale: Locale = "ko"): Node {
-  const praiseTool = getPraiseTool(locale);
+/** `copy` = the admin-merged Praise Tool copy (await getPraiseToolCopy(locale)); defaults to the code defaults. */
+export function praiseToolApp(locale: Locale = "ko", copy?: ReturnType<typeof getPraiseTool>): Node {
+  const praiseTool = copy ?? getPraiseTool(locale);
   const url = abs(lp(locale, PRAISE_TOOL_PATH));
   return {
     "@type": "SoftwareApplication",

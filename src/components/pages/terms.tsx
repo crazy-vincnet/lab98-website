@@ -2,303 +2,22 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/json-ld";
 import { pageMetadata } from "@/components/seo/metadata";
 import { ORG_ID, breadcrumb, graph, webPage } from "@/lib/structured-data";
-import Link from "next/link";
 import { site } from "@/lib/content";
+import { getContent } from "@/lib/get-content";
+import { getCopy } from "@/lib/copy-store";
 import { localePath, type Locale } from "@/lib/i18n";
-import { CONTACT_HREF, PRAISE_TOOL_PATH, PRIVACY_PATH } from "@/components/experiments/paths";
-import { LegalDoc, type LegalSection } from "@/components/legal/legal-doc";
+import { LegalDocView } from "@/components/legal/legal-view";
+import { LEGAL_DEFAULT_VERSION, getLegalDocCopy, legalKey } from "@/components/legal/legal-copies";
 
-/** 이용약관 — covers the lab98.io website only. Paid services (Dev 제작, AI 교육, Praise Tool 구매) have separate contracts/terms. */
+/**
+ * 이용약관 - covers the lab98.io website only. Text lives in src/components/legal/terms.copy.ts (+ .en.ts); editable as `legal.terms`.
+ */
 const PATH = "/terms";
 
-
-
-const EFFECTIVE_DATE = "2026년 11월 1일";
-const EFFECTIVE_DATE_EN = "November 1, 2026";
 /** Keep in sync with site.business.name. */
 const OWNER = "제이제이드림(JJdream, 브랜드명 Lab98)";
 const OWNER_EN = "JJdream (제이제이드림, brand name Lab98)";
 const host = site.url.replace(/^https?:\/\//, "");
-const mail = <a href={`mailto:${site.email}`}>{site.email}</a>;
-
-const buildSectionsKo = (L: Locale): LegalSection[] => [
-  {
-    id: "purpose",
-    title: "목적",
-    body: <p>이 약관은 {OWNER}(이하 “회사”)이 운영하는 웹사이트 {host}(이하 “사이트”)의 이용 조건과 절차, 회사와 이용자의 권리·의무를 정하는 것을 목적으로 해요.</p>,
-  },
-  {
-    id: "definitions",
-    title: "정의",
-    body: (
-      <ul>
-        <li>“사이트”: 회사가 {host} 도메인으로 운영하는 웹사이트와 그 하위 페이지</li>
-        <li>“이용자”: 이 약관에 따라 사이트에 접속해 서비스를 이용하는 모든 사람</li>
-        <li>“서비스”: 회사가 사이트에서 무료로 제공하는 정보와 기능(4조에 적은 내용)</li>
-      </ul>
-    ),
-  },
-  {
-    id: "notice",
-    title: "약관의 게시와 변경",
-    body: (
-      <ul>
-        <li>회사는 이 약관을 이용자가 쉽게 볼 수 있도록 사이트에 게시해요.</li>
-        <li>회사는 관련 법령을 위반하지 않는 범위에서 약관을 바꿀 수 있어요.</li>
-        <li>약관을 바꿀 때는 시행일과 변경 이유를 밝혀 시행 7일 전부터 사이트에 알려요. 이용자에게 불리한 변경은 시행 30일 전부터 알려요.</li>
-        <li>바뀐 약관에 동의하지 않으면 사이트 이용을 멈출 수 있어요.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "service",
-    title: "서비스의 내용",
-    body: (
-      <>
-        <p>회사는 사이트에서 아래 서비스를 제공해요.</p>
-        <ul>
-          <li>회사와 서비스(Dev·AI·Faith) 소개, 프로젝트 사례 소개</li>
-          <li>
-            <Link href={localePath(L, CONTACT_HREF)}>문의</Link> 접수
-          </li>
-          <li>
-            <Link href={localePath(L, PRAISE_TOOL_PATH)}>Praise Tool</Link> 출시 알림 신청
-          </li>
-          <li>인사이트 글 등 정보 제공</li>
-        </ul>
-      </>
-    ),
-  },
-  {
-    id: "obligations",
-    title: "이용자의 의무",
-    body: (
-      <>
-        <p>이용자는 아래 행위를 해서는 안 돼요.</p>
-        <ul>
-          <li>허위 정보를 입력하거나 다른 사람의 이메일 등 정보를 도용하는 행위</li>
-          <li>프로그램 등 자동화 수단으로 양식을 대량 전송하는 행위</li>
-          <li>사이트의 운영을 방해하거나 보안을 해치는 행위(무단 접근, 악성 코드 전송, 과도한 요청 등)</li>
-          <li>회사나 다른 사람의 권리를 침해하거나 법령에 어긋나는 행위</li>
-        </ul>
-        <p>회사는 위 행위가 확인되면 해당 문의·신청을 처리하지 않거나 접속을 제한할 수 있어요.</p>
-      </>
-    ),
-  },
-  {
-    id: "inquiries",
-    title: "문의·견적의 성격",
-    body: (
-      <ul>
-        <li>사이트로 문의를 접수하거나 견적·상담 안내를 받는 것만으로는 계약이 성립하지 않아요.</li>
-        <li>Dev 제작 계약, AI 교육, Praise Tool 구매는 각각 별도 계약서나 약관에 따르고, 개별 계약서의 내용이 이 약관보다 우선해요.</li>
-        <li>Praise Tool 구매와 환불 조건은 판매를 시작하기 전에 따로 게시해요. 지금 사이트에서는 온라인 판매를 하지 않아요.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "ip",
-    title: "지식재산권",
-    body: (
-      <ul>
-        <li>사이트의 글, 이미지, 로고, 디자인 등 콘텐츠의 권리는 회사에 있어요. 회사의 허락 없이 복제·배포·변경해 상업적으로 이용할 수 없어요.</li>
-        <li>프로젝트 사례에 나오는 고객 사이트의 화면과 명칭은 각 기관의 권리이며, 회사는 해당 기관의 동의를 받아 게시해요.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "links",
-    title: "외부 링크",
-    body: <p>사이트에는 고객 사이트 등 외부 사이트로 가는 링크가 있을 수 있어요. 외부 사이트는 회사가 운영하지 않으므로, 그 내용과 개인정보 처리에 대해 회사는 책임지지 않아요.</p>,
-  },
-  {
-    id: "changes-service",
-    title: "서비스의 변경과 중단",
-    body: (
-      <ul>
-        <li>회사는 운영상·기술상 필요에 따라 서비스의 전부나 일부를 바꾸거나 중단할 수 있어요.</li>
-        <li>설비 점검, 장애, 천재지변 등으로 서비스가 일시 중단될 수 있고, 미리 알릴 수 있으면 사이트에 알려요.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "disclaimer",
-    title: "면책",
-    body: (
-      <ul>
-        <li>사이트의 정보는 무료로 제공되는 일반 정보이며, 특정 목적에 맞는다고 보증하지 않아요. 구체적인 판단이 필요하면 문의해 주세요.</li>
-        <li>회사는 이용자의 잘못으로 생긴 손해, 무료로 제공되는 정보의 이용으로 생긴 손해에 대해 책임지지 않아요. 다만 회사의 고의나 중대한 과실로 생긴 손해는 예외예요.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "privacy",
-    title: "개인정보 보호",
-    body: (
-      <p>
-        회사는 관련 법령에 따라 이용자의 개인정보를 보호해요. 자세한 내용은 <Link href={localePath(L, PRIVACY_PATH)}>개인정보처리방침</Link>을 확인해 주세요.
-      </p>
-    ),
-  },
-  {
-    id: "disputes",
-    title: "분쟁 해결",
-    body: (
-      <ul>
-        <li>이 약관과 사이트 이용에는 대한민국 법이 적용돼요.</li>
-        <li>분쟁이 생기면 먼저 {mail}로 연락해 주세요. 원만히 해결되지 않으면 「민사소송법」에 따른 관할 법원에서 해결해요.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "addendum",
-    title: "부칙",
-    body: <p>이 약관은 {EFFECTIVE_DATE}부터 시행해요.</p>,
-  },
-];
-
-const buildSectionsEn = (L: Locale): LegalSection[] => [
-  {
-    id: "purpose",
-    title: "Purpose",
-    body: <p>These Terms set out the conditions and procedures for using the website {host} (the “Site”) operated by {OWNER_EN} (the “Company”), and the rights and duties of the Company and users.</p>,
-  },
-  {
-    id: "definitions",
-    title: "Definitions",
-    body: (
-      <ul>
-        <li>“Site”: the website the Company operates at the {host} domain and its subpages</li>
-        <li>“User”: anyone who visits the Site and uses the Service under these Terms</li>
-        <li>“Service”: the information and features the Company provides free of charge on the Site (described in Section 4)</li>
-      </ul>
-    ),
-  },
-  {
-    id: "notice",
-    title: "Posting and changing the Terms",
-    body: (
-      <ul>
-        <li>The Company posts these Terms on the Site where users can easily find them.</li>
-        <li>The Company may change these Terms as long as the change does not violate applicable laws.</li>
-        <li>When the Terms change, the Company will post the effective date and the reason on the Site starting 7 days before the change takes effect. For changes that are unfavorable to users, the notice starts 30 days before.</li>
-        <li>If you do not agree to the changed Terms, you can stop using the Site.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "service",
-    title: "What the Service includes",
-    body: (
-      <>
-        <p>The Company provides the following services on the Site.</p>
-        <ul>
-          <li>Introductions to the Company and its services (Dev, AI, Faith) and to project case studies</li>
-          <li>
-            Receiving <Link href={localePath(L, CONTACT_HREF)}>inquiries</Link>
-          </li>
-          <li>
-            <Link href={localePath(L, PRAISE_TOOL_PATH)}>Praise Tool</Link> launch notification sign-up
-          </li>
-          <li>Information such as Insights articles</li>
-        </ul>
-      </>
-    ),
-  },
-  {
-    id: "obligations",
-    title: "User obligations",
-    body: (
-      <>
-        <p>Users must not do any of the following.</p>
-        <ul>
-          <li>Enter false information, or use another person&apos;s email address or other information without permission</li>
-          <li>Send forms in bulk using programs or other automated means</li>
-          <li>Interfere with the operation of the Site or harm its security (unauthorized access, sending malicious code, excessive requests, and so on)</li>
-          <li>Infringe the rights of the Company or others, or break the law</li>
-        </ul>
-        <p>If the Company confirms any of these acts, it may decline to process the related inquiry or sign-up, or restrict access.</p>
-      </>
-    ),
-  },
-  {
-    id: "inquiries",
-    title: "Nature of inquiries and quotes",
-    body: (
-      <ul>
-        <li>Submitting an inquiry through the Site, or receiving a quote or consultation, does not by itself create a contract.</li>
-        <li>Dev development contracts, AI training and Praise Tool purchases are each governed by a separate contract or terms, and the individual contract prevails over these Terms.</li>
-        <li>Purchase and refund conditions for Praise Tool will be posted separately before sales begin. The Site does not currently sell anything online.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "ip",
-    title: "Intellectual property",
-    body: (
-      <ul>
-        <li>The Company owns the rights to the content on the Site, including text, images, logos and designs. You may not copy, distribute or modify it for commercial use without the Company&apos;s permission.</li>
-        <li>The screens and names of client sites shown in project case studies belong to the respective organizations, and the Company publishes them with their consent.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "links",
-    title: "External links",
-    body: <p>The Site may contain links to external sites, such as client sites. The Company does not operate those sites and is not responsible for their content or their handling of personal information.</p>,
-  },
-  {
-    id: "changes-service",
-    title: "Changing or suspending the Service",
-    body: (
-      <ul>
-        <li>The Company may change or suspend all or part of the Service when operational or technical needs require it.</li>
-        <li>The Service may be suspended temporarily for equipment maintenance, outages, natural disasters and similar causes. When we can give notice in advance, we will post it on the Site.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "disclaimer",
-    title: "Disclaimer",
-    body: (
-      <ul>
-        <li>Information on the Site is general information provided free of charge, and we do not guarantee that it suits any particular purpose. If you need a specific judgment, please contact us.</li>
-        <li>The Company is not liable for damage caused by the user&apos;s own fault, or for damage arising from use of information provided free of charge. This does not apply to damage caused by the Company&apos;s intent or gross negligence.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "privacy",
-    title: "Privacy",
-    body: (
-      <p>
-        The Company protects users&apos; personal information in accordance with applicable laws. For details, please see the <Link href={localePath(L, PRIVACY_PATH)}>Privacy Policy</Link>.
-      </p>
-    ),
-  },
-  {
-    id: "disputes",
-    title: "Dispute resolution",
-    body: (
-      <ul>
-        <li>The laws of the Republic of Korea apply to these Terms and to use of the Site.</li>
-        <li>If a dispute arises, please contact us first at {mail}. If it cannot be resolved amicably, it will be resolved in the court that has jurisdiction under the Civil Procedure Act.</li>
-      </ul>
-    ),
-  },
-  {
-    id: "addendum",
-    title: "Addendum",
-    body: <p>These Terms take effect on {EFFECTIVE_DATE_EN}.</p>,
-  },
-];
-
-const buildSections = (L: Locale): LegalSection[] => (L === "en" ? buildSectionsEn(L) : buildSectionsKo(L));
-
-const history = {
-  ko: [{ date: "2026. 11. 01", note: "제정" }],
-  en: [{ date: "2026. 11. 01", note: "Established" }],
-} as const;
 
 const docMeta: Record<Locale, { title: string; description: string }> = {
   ko: { title: "이용약관", description: `${site.name} 웹사이트(${site.url.replace(/^https?:\/\//, "")}) 이용 조건과 회사·이용자의 권리와 의무, 문의·견적의 성격, 지식재산권, 면책과 분쟁 해결 기준을 안내해요.` },
@@ -310,32 +29,17 @@ const docMeta: Record<Locale, { title: string; description: string }> = {
 
 export const termsMetadata = (locale: Locale): Metadata => pageMetadata({ ...docMeta[locale], path: PATH, locale });
 
-export function TermsPage({ locale }: { locale: Locale }) {
+export async function TermsPage({ locale }: { locale: Locale }) {
   const { title, description } = docMeta[locale];
   const path = localePath(locale, PATH);
   const crumbs = [{ name: title, path }];
   const jsonLd = graph(webPage({ path, name: title, description, crumbs, extra: { publisher: { "@id": ORG_ID } }, locale }), breadcrumb(path, crumbs, locale));
+  const copy = await getCopy(legalKey("terms"), locale, getLegalDocCopy("terms", locale));
+  const tokens = { email: site.email, company: locale === "en" ? OWNER_EN : OWNER, host, officer: getContent(locale).site.business.representative };
   return (
     <>
       <JsonLd data={jsonLd} />
-      <LegalDoc
-        locale={locale}
-        label="Terms"
-        title={title}
-        intro={
-          locale === "en" ? (
-            <>
-              <p>The conditions you must follow when using the {host} website, and the rights and duties of the Company and users. By using the Site, you are treated as having agreed to these Terms.</p>
-              <p className="mt-3 text-body-sm">This is an English translation for convenience; the Korean version prevails.</p>
-            </>
-          ) : (
-            <p>{host} 웹사이트를 이용할 때 지켜야 할 조건과 회사·이용자의 권리와 의무를 안내해요. 사이트를 이용하면 이 약관에 동의한 것으로 봐요.</p>
-          )
-        }
-        effectiveDate={locale === "en" ? EFFECTIVE_DATE_EN : EFFECTIVE_DATE}
-        sections={buildSections(locale)}
-        history={[...history[locale]]}
-      />
+      <LegalDocView locale={locale} label="Terms" copy={copy} defaultVersion={LEGAL_DEFAULT_VERSION.terms} tokens={tokens} />
     </>
   );
 }

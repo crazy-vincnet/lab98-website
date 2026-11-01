@@ -1,6 +1,10 @@
 import "server-only";
 import { createElement, type ReactNode } from "react";
 import type { Locale } from "@/lib/i18n";
+import { LEGAL_DOCS } from "@/lib/content-registry-legal";
+import { CONTENT_DOCS_PAGES } from "@/lib/content-registry-pages";
+import { SITE_CONTENT_DOCS } from "@/lib/content-registry-site";
+import { CHROME_CONTENT_DOCS } from "@/lib/content-registry-chrome";
 
 /**
  * REGISTRY OF EDITABLE COPY DOCUMENTS (docs/admin-content.md). One entry = one `key` in `content_entries`.
@@ -58,6 +62,8 @@ export type ContentDoc = {
 const prefix = (l: Locale) => (l === "en" ? "/en" : "");
 
 export const CONTENT_DOCS: ContentDoc[] = [
+  ...CHROME_CONTENT_DOCS, // stage 4b agent C: chrome.*, privacy-request.form, unsubscribe.form, seo.* (src/lib/content-registry-chrome.ts)
+  ...SITE_CONTENT_DOCS, // stage 4b agent A: site.info, site.nav, divisions.data, projects.data, faq.*, praise-tool.page (src/lib/content-registry-site.ts)
   {
     key: "home.hero",
     titleKo: "홈 · 첫 화면(히어로)",
@@ -94,6 +100,10 @@ export const CONTENT_DOCS: ContentDoc[] = [
     publicPath: (l) => `${prefix(l)}/`,
     labels: { legalNavAria: "약관 메뉴 설명(스크린리더)" },
   },
+  // Page-level copy (home sections, services, about, projects, insights): src/lib/content-registry-pages.ts
+  ...CONTENT_DOCS_PAGES,
+  // Legal documents (privacy, terms, cookies): src/lib/content-registry-legal.ts
+  ...LEGAL_DOCS,
 ];
 
 export const getDoc = (key: string) => CONTENT_DOCS.find((d) => d.key === key);
@@ -102,21 +112,4 @@ export const getDoc = (key: string) => CONTENT_DOCS.find((d) => d.key === key);
  * TODO for the converter agents: one registry entry + consumer switch each (see docs/admin-content.md, "Converting a copy file").
  * Default module paths (ko source / en twin) and the accessor to reuse as `defaults`:
  *
- *  사이트 공통   chrome.header / chrome.cookieBanner / chrome.legalDoc / chrome.notFound / chrome.skip   src/components/chrome/copy.ts + copy.en.ts  getChromeCopy(locale).{header,cookieBanner,legalDoc,notFound}
- *               site.info (name, slogan, business)  src/lib/content.ts `site` + content.en.ts  (via getContent(locale).site; mind non-string/URL fields)
- *               site.nav                            src/lib/content.ts `nav` + content.en.ts
- *  홈           home.trust home.praise home.services home.projects home.process home.founder home.insights home.contact
- *               src/components/home/copy.ts + copy.en.ts  getHomeCopy(locale).{trustCopy,praiseCopy,servicesCopy,projectsCopy,processCopy,founderCopy,insightsCopy,contactCopy}
- *  서비스        divisions.copy        src/components/divisions/copy.ts + copy.en.ts  getDivisionCopy(locale)
- *               divisions.data (headline/summary/description/services/process/facts per slug)  src/lib/content.ts `divisions` + content.en.ts
- *  소개          about.copy            src/components/about/copy.ts + copy.en.ts  getAboutCopy(locale)
- *  프로젝트       projects.page         src/components/experiments/copy.ts + copy.en.ts  getProjectsPageCopy(locale)
- *               projects.data (title/summary/highlights per project)  src/lib/content.ts `projects` + content.en.ts
- *  Praise Tool  praise-tool.page        src/lib/praise-tool.ts + praise-tool.en.ts  getPraiseTool(locale)
- *  FAQ          faq.home faq.dev faq.ai faq.faith faq.praise-tool   src/lib/content.ts `faqs` + content.en.ts  getContent(locale).faqs[key]
- *  인사이트 화면   insights.page         src/components/notes/copy.ts + copy.en.ts  getNotesCopy(locale)
- *  문의·개인정보   privacy-request.form  src/components/privacy-request/copy.ts + copy.en.ts  getPrivacyRequestCopy(locale)
- *               unsubscribe.form        src/components/unsubscribe/copy.ts + copy.en.ts  getUnsubscribeCopy(locale)
- *  법적 문서      legal.privacy legal.terms legal.cookies   src/components/pages/{privacy,terms,cookies}.tsx (move the section text into a copy file first; ko text only has buildSections today)
- *  SEO·메타      seo.home seo.about seo.projects seo.insights seo.praise-tool seo.services   the `seo` objects inside src/components/pages/*.tsx (move to a copy file; metadata functions are static: see docs pitfalls)
  */

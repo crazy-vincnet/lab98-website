@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui";
-import { getContent } from "@/lib/get-content";
+import { getSiteContent } from "@/lib/site-content";
 import { getCopy } from "@/lib/copy-store";
 import { localePath, type Locale } from "@/lib/i18n";
 import { routes } from "./copy";
@@ -11,7 +11,7 @@ import { HeroMotion } from "./hero-motion";
 const rise = (i: number) => ({ animationDelay: `${80 + i * 90}ms` });
 
 export async function Hero({ locale = "ko" }: { locale?: Locale }) {
-  const { site, divisions } = getContent(locale);
+  const { site, divisions } = await getSiteContent(locale); // admin-editable site data
   // Admin-editable (registry key "home.hero"): published overrides merged over the code defaults.
   const heroCopy = await getCopy("home.hero", locale, getHomeCopy(locale).heroCopy);
   const lp = (path: string) => localePath(locale, path);

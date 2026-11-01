@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { getProjectsPageCopy } from "@/components/experiments/copy.en";
+import { loadProjectsPageCopy } from "@/components/experiments/load";
+import { fill } from "@/lib/fill-template";
 import { CtaBand, DivisionDot, Pager } from "@/components/experiments/parts";
 import { divisionHref, projectHref, PROJECTS_PATH } from "@/components/experiments/paths";
 import { ProjectShots } from "@/components/experiments/project-shots";
@@ -11,6 +13,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { pageMetadata } from "@/components/seo/metadata";
 import { divisionTheme, type Project } from "@/lib/content";
 import { getContent } from "@/lib/get-content";
+import { getSiteContent } from "@/lib/site-content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { breadcrumb, graph, projectWork, webPage } from "@/lib/structured-data";
 
@@ -18,7 +21,7 @@ export const projectStaticParams = (locale: Locale = "ko") => getContent(locale)
 
 export async function projectMetadata(locale: Locale, params: Promise<{ slug: string }>): Promise<Metadata> {
   const { slug } = await params;
-  const p = getContent(locale).getProject(slug);
+  const p = (await getSiteContent(locale)).getProject(slug); // merged: summary/highlights feed the meta description
   if (!p) return { title: getProjectsPageCopy(locale).meta.notFoundTitle, robots: { index: false } };
   return pageMetadata({
     title: seoTitle(p, locale),
@@ -44,8 +47,8 @@ const seoDescription = (p: Project, locale: Locale) => {
 
 export async function ProjectPage({ locale, params }: { locale: Locale; params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { projects, getProject, getDivision } = getContent(locale);
-  const projectsCopy = getProjectsPageCopy(locale);
+  const { projects, getProject, getDivision } = await getSiteContent(locale); // admin-editable (projects.data, divisions.data)
+  const projectsCopy = await loadProjectsPageCopy(locale);
   const t = projectsCopy.detail;
   const lp = (path: string) => localePath(locale, path);
   const p = getProject(slug);
@@ -98,7 +101,7 @@ export async function ProjectPage({ locale, params }: { locale: Locale; params: 
           {p.languages && p.languages.length > 0 && <MetaCell term={t.meta.languages}>{p.languages.join(" · ")}</MetaCell>}
         </dl>
 
-        <ButtonLink href={p.url} target="_blank" rel="noopener noreferrer" aria-label={t.visitAria(p.client)} className="mt-8 w-full sm:w-auto md:mt-10">
+        <ButtonLink href={p.url} target="_blank" rel="noopener noreferrer" aria-label={fill(t.visitAria, { client: p.client })} className="mt-8 w-full sm:w-auto md:mt-10">
           {t.visit} <span aria-hidden>↗</span>
         </ButtonLink>
       </header>

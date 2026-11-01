@@ -61,7 +61,7 @@ export const aboutCopy = {
       { role: "작가", body: "기술과 사역 이야기를 쉬운 글로 풀어 줄 분" },
     ],
     /** mail subject for the apply link */
-    applySubject: (role: string) => `[${site.name} 지원] ${role}`,
+    applySubject: `[${site.name} 지원] {role}`,
   },
   contactBand: {
     title: "함께 만들 일이 있나요?",

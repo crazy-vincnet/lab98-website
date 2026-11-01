@@ -61,7 +61,7 @@ export const aboutCopyEn: Dict<typeof aboutCopy> = {
       { role: "Full-stack developer", body: "Someone to build websites and programs with us" },
       { role: "Writer", body: "Someone to explain technology and ministry in plain writing" },
     ],
-    applySubject: (role: string) => `[${site.name} application] ${role}`,
+    applySubject: `[${site.name} application] {role}`,
   },
   contactBand: {
     title: "Have something to build together?",

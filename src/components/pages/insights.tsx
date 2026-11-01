@@ -2,34 +2,23 @@ import type { Metadata } from "next";
 import { InsightRow } from "@/components/cards";
 import { INSIGHTS_PATH } from "@/components/experiments/paths";
 import { getNotesCopy } from "@/components/notes/copy.en";
+import { loadNotesCopy } from "@/components/notes/load";
 import { FeaturedInsight } from "@/components/notes/featured-insight";
 import { JsonLd } from "@/components/seo/json-ld";
 import { pageMetadata } from "@/components/seo/metadata";
+import { getSeoPage } from "@/components/seo/seo-copy";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getInsights } from "@/lib/insights";
 import { blog, breadcrumb, graph, webPage } from "@/lib/structured-data";
 
-const seo = (locale: Locale) => {
-  const t = getNotesCopy(locale);
-  return locale === "en"
-    ? {
-        title: `${t.meta.title} — Company blog`,
-        description:
-          "Posts about how Lab98 works and the stories of our three divisions: web and software development (Dev), AI training (AI) and software for churches (Faith). Written by our founder.",
-      }
-    : {
-        title: `${t.meta.title} — 회사 블로그`,
-        description: "Lab98이 일하는 방식과 홈페이지·프로그램 제작(Dev), AI 교육(AI), 교회 프로그램(Faith) 세 사업부의 이야기를 글로 나눠요. 파운더가 직접 쓴 글을 모았어요.",
-      };
-};
-
-export const insightsMetadata = (locale: Locale): Metadata => pageMetadata({ ...seo(locale), path: INSIGHTS_PATH, locale });
+export const insightsMetadata = async (locale: Locale): Promise<Metadata> =>
+  pageMetadata({ ...(await getSeoPage("insights", locale)), path: INSIGHTS_PATH, locale });
 
 export async function InsightsPage({ locale }: { locale: Locale }) {
-  const t = getNotesCopy(locale);
+  const t = await loadNotesCopy(locale);
   const notes = await getInsights(locale);
   const [featured, ...rest] = notes;
-  const { title, description } = seo(locale);
+  const { title, description } = await getSeoPage("insights", locale);
   const path = localePath(locale, INSIGHTS_PATH);
   const crumbs = [{ name: t.meta.title, path }];
   const jsonLd = graph(

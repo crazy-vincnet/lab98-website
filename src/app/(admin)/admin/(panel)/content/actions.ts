@@ -64,6 +64,7 @@ export const publishAction = adminAction(async ({ admin }, _prev: EditorState, f
   const r = readOverrides(fd, ctx.doc, ctx.defaults);
   if ("error" in r) return r.error;
   const note = str(fd, "note").trim().slice(0, 200);
+  if (ctx.key.startsWith("legal.") && note.length < 2) return { error: "법적 문서는 변경 메모(무엇을 왜 바꿨는지)를 적어야 공개할 수 있어요." };
   const before = await getRow(ctx.key, ctx.locale);
   const changed = changedPaths(before?.data ?? {}, r.flat);
   if (changed.length === 0 && !before?.draft) return { error: "공개 중인 내용과 달라진 곳이 없어요." };

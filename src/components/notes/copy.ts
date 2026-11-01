@@ -14,7 +14,7 @@ export const notesCopy = {
     listLabel: "인사이트 목록",
     moreLabel: "지난 글",
   },
-  list: { featured: "LATEST", read: "글 읽기", readTime: (min: number) => `${min}분 읽기`, by: "글" },
+  list: { featured: "LATEST", read: "글 읽기", readTime: "{min}분 읽기", by: "글" },
   detail: {
     back: "← 인사이트",
     backBottom: "← 모든 인사이트",

@@ -3,7 +3,7 @@ import { pageMetadata } from "@/components/seo/metadata";
 import Link from "next/link";
 import { Suspense } from "react";
 import { UnsubscribeForm, UnsubscribeFormFallback } from "@/components/unsubscribe/unsubscribe-form";
-import { getUnsubscribeCopy } from "@/components/unsubscribe/copy.en";
+import { loadUnsubscribeCopy } from "@/components/unsubscribe/load";
 import { PRIVACY_PATH, PRIVACY_REQUEST_PATH, UNSUBSCRIBE_PATH } from "@/components/experiments/paths";
 import { getContent } from "@/lib/get-content";
 import { localePath, type Locale } from "@/lib/i18n";
@@ -13,24 +13,18 @@ import { localePath, type Locale } from "@/lib/i18n";
  * The page shell is static; `?email=` is read on the client inside <Suspense>.
  * Bulk / launch mail must skip opted-out addresses: see isOptedOut in src/lib/unsubscribe-server.ts.
  */
-export const unsubscribeMetadata = (locale: Locale): Metadata => {
-  const C = getUnsubscribeCopy(locale);
+export const unsubscribeMetadata = async (locale: Locale): Promise<Metadata> => {
+  const C = await loadUnsubscribeCopy(locale);
   return pageMetadata({ title: C.meta.title, description: C.meta.description, path: UNSUBSCRIBE_PATH, noindex: true, locale });
 };
 
-/** Inline sentences around the two links (ko source, en translated). */
-const inline = {
-  ko: { before: "보관 중인 정보를 확인하거나 지우고 싶다면", request: "개인정보 요청", middle: "을 이용해 주세요. 자세한 내용은", policy: "개인정보처리방침", after: "에서 확인할 수 있어요." },
-  en: { before: "To check or delete the information we hold about you, use", request: "Privacy requests", middle: ". For details, see our", policy: "Privacy Policy", after: "." },
-} as const;
-
 const link = "font-bold text-ink underline underline-offset-4 hover:text-red-text";
 
-export function UnsubscribePage({ locale }: { locale: Locale }) {
-  const C = getUnsubscribeCopy(locale);
+export async function UnsubscribePage({ locale }: { locale: Locale }) {
+  const C = await loadUnsubscribeCopy(locale);
   const { site } = getContent(locale);
   const lp = (path: string) => localePath(locale, path);
-  const i = inline[locale];
+  const i = C.inline;
   return (
     <section className="wrap py-16 md:py-24">
       <p lang="en" className="label text-gray">
@@ -62,7 +56,7 @@ export function UnsubscribePage({ locale }: { locale: Locale }) {
         </div>
 
         <Suspense fallback={<UnsubscribeFormFallback />}>
-          <UnsubscribeForm to={site.email} locale={locale} />
+          <UnsubscribeForm to={site.email} locale={locale} copy={C.form} />
         </Suspense>
       </div>
     </section>

@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, useTransition, type FormEvent } fro
 import { Button, cx } from "@/components/ui";
 import {
   PRIVACY_REQUEST_FIELDS,
+  PRIVACY_REQUEST_DAYS,
   PRIVACY_REQUEST_LIMITS,
   validatePrivacyRequest,
   type PrivacyRequestFieldErrors,
@@ -11,7 +12,8 @@ import {
 } from "@/lib/privacy-request";
 import { submitPrivacyRequest } from "@/app/actions/privacy-request";
 import type { Locale } from "@/lib/i18n";
-import { getPrivacyRequestCopy } from "./copy.en";
+import type { PrivacyRequestFormCopy } from "./copy.en";
+import { fill } from "@/lib/fill-template";
 
 
 const inputBase =
@@ -22,8 +24,8 @@ const inputBase =
  * the team and the requester each get an email). Nothing is changed until the requester replies.
  * `to` is the fallback address shown when sending fails and on the success screen.
  */
-export function PrivacyRequestForm({ to, locale = "ko" }: { to: string; locale?: Locale }) {
-  const t = getPrivacyRequestCopy(locale).form;
+export function PrivacyRequestForm({ to, copy }: { to: string; locale?: Locale; copy: PrivacyRequestFormCopy }) {
+  const t = copy;
   const uid = useId();
   const [email, setEmail] = useState("");
   const [type, setType] = useState<RequestType | "">("");
@@ -115,7 +117,7 @@ export function PrivacyRequestForm({ to, locale = "ko" }: { to: string; locale?:
           {t.success.eyebrow}
         </p>
         <h2 ref={successRef} tabIndex={-1} className="text-h3 text-balance outline-none">
-          {t.success.title}
+          {fill(t.success.title, { days: PRIVACY_REQUEST_DAYS })}
         </h2>
         <p className="text-body-sm text-gray">
           {t.success.fallbackBefore}{" "}

@@ -9,7 +9,8 @@ import { FIELDS, LIMITS, validateInquiry, type FieldErrors } from "@/lib/inquiry
 import { submitInquiry } from "@/app/actions/contact";
 import { PRIVACY_PATH } from "@/components/experiments/paths";
 import { localePath, type Locale } from "@/lib/i18n";
-import { getHomeCopy } from "./copy.en";
+import type { homeCopy } from "./copy";
+import type { Dict } from "@/lib/i18n";
 
 type Interest = { value: Division; label: string };
 
@@ -22,8 +23,7 @@ const inputBase =
  * Contact form. Submits to the `submitInquiry` Server Action (stored in InsForge, team gets an email).
  * `to` is only shown as a fallback address when sending fails and on the success screen.
  */
-export function ContactForm({ to, interests, locale = "ko" }: { to: string; interests: Interest[]; locale?: Locale }) {
-  const t = getHomeCopy(locale).contactCopy.form;
+export function ContactForm({ to, interests, copy: t, locale = "ko" }: { to: string; interests: Interest[]; copy: Dict<typeof homeCopy>["contactCopy"]["form"]; locale?: Locale }) {
   const uid = useId();
   const [interest, setInterest] = useState<Division>(interests[0].value);
   const [name, setName] = useState("");

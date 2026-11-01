@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/components/seo/metadata";
 import Link from "next/link";
 import { PrivacyRequestForm } from "@/components/privacy-request/privacy-request-form";
-import { getPrivacyRequestCopy } from "@/components/privacy-request/copy.en";
+import { loadPrivacyRequestCopy } from "@/components/privacy-request/load";
 import { PRIVACY_PATH, PRIVACY_REQUEST_PATH, UNSUBSCRIBE_PATH } from "@/components/experiments/paths";
 import { getContent } from "@/lib/get-content";
+import { fill } from "@/lib/fill-template";
+import { PRIVACY_REQUEST_DAYS } from "@/lib/privacy-request";
 import { localePath, type Locale } from "@/lib/i18n";
 
 /**
@@ -13,24 +15,18 @@ import { localePath, type Locale } from "@/lib/i18n";
  * Nothing is deleted or changed from here: the team acts after the requester replies to the
  * confirmation email (identity check by email), within 10 days.
  */
-export const privacyRequestMetadata = (locale: Locale): Metadata => {
-  const C = getPrivacyRequestCopy(locale);
+export const privacyRequestMetadata = async (locale: Locale): Promise<Metadata> => {
+  const C = await loadPrivacyRequestCopy(locale);
   return pageMetadata({ title: C.meta.title, description: C.meta.description, path: PRIVACY_REQUEST_PATH, noindex: true, locale });
 };
 
-/** Inline sentence around the two links. */
-const inline = {
-  ko: { before: "안내 메일만 그만 받고 싶다면", unsubscribe: "수신거부", middle: "를 이용해 주세요. 보관 기간과 파기 기준은", policy: "개인정보처리방침", after: "에서 확인할 수 있어요." },
-  en: { before: "If you only want to stop receiving our emails, use", unsubscribe: "Unsubscribe", middle: ". Retention periods and deletion rules are in our", policy: "Privacy Policy", after: "." },
-} as const;
-
 const link = "font-bold text-ink underline underline-offset-4 hover:text-red-text";
 
-export function PrivacyRequestPage({ locale }: { locale: Locale }) {
-  const C = getPrivacyRequestCopy(locale);
+export async function PrivacyRequestPage({ locale }: { locale: Locale }) {
+  const C = await loadPrivacyRequestCopy(locale);
   const { site } = getContent(locale);
   const lp = (path: string) => localePath(locale, path);
-  const i = inline[locale];
+  const i = C.inline;
   return (
     <section className="wrap py-16 md:py-24">
       <p lang="en" className="label text-gray">
@@ -58,7 +54,7 @@ export function PrivacyRequestPage({ locale }: { locale: Locale }) {
                   <span className="w-6 shrink-0 font-mono text-meta font-bold text-red-text" aria-hidden>
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="text-pretty">{s}</span>
+                  <span className="text-pretty">{fill(s, { days: PRIVACY_REQUEST_DAYS })}</span>
                 </li>
               ))}
             </ol>
@@ -87,7 +83,7 @@ export function PrivacyRequestPage({ locale }: { locale: Locale }) {
           </div>
         </div>
 
-        <PrivacyRequestForm to={site.email} locale={locale} />
+        <PrivacyRequestForm to={site.email} locale={locale} copy={C.form} />
       </div>
     </section>
   );

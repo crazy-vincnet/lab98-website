@@ -83,7 +83,7 @@ export const divisionCopy = {
     secondaryCta: "출시 알림 받기",
   },
   others: { eyebrow: "Other services", title: "다른 사업부도 둘러보세요", lead: "분야는 달라도 기준은 같아요. 기술이 사람을 돕는지 먼저 봐요." },
-  divisionCard: { cta: (short: string) => `${short} 서비스 보기` },
+  divisionCard: { cta: "{short} 서비스 보기" },
   contactBand: {
     eyebrow: "Contact",
     title: "함께 만들 일이 있나요?",

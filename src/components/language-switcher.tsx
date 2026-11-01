@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LOCALES, LOCALE_LABEL, switchLocalePath, type Locale } from "@/lib/i18n";
-import { getChromeCopy } from "@/components/chrome/copy.en";
 import { cx } from "@/components/ui";
 
 const SHORT: Record<Locale, string> = { ko: "KO", en: "EN" };
@@ -13,10 +12,10 @@ const SHORT: Record<Locale, string> = { ko: "KO", en: "EN" };
  * `full` shows the native names ("한국어" / "English", used in the footer); the default is the compact header form.
  * The current locale is `aria-current`; the other is a normal link with `hrefLang` and `lang`.
  */
-export function LanguageSwitcher({ locale, full = false, className, onNavigate }: { locale: Locale; full?: boolean; className?: string; onNavigate?: () => void }) {
+export function LanguageSwitcher({ locale, ariaLabel, full = false, className, onNavigate }: { locale: Locale; ariaLabel: string; full?: boolean; className?: string; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <nav aria-label={getChromeCopy(locale).header.switcherAria} className={cx("flex items-center gap-1 font-mono text-[13px] font-bold", className)}>
+    <nav aria-label={ariaLabel} className={cx("flex items-center gap-1 font-mono text-[13px] font-bold", className)}>
       {LOCALES.map((l, i) => {
         const current = l === locale;
         const label = full ? LOCALE_LABEL[l] : SHORT[l];

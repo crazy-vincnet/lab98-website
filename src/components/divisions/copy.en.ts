@@ -72,7 +72,7 @@ export const divisionCopyEn: Dict<typeof divisionCopy> = {
     secondaryCta: "Get launch notice",
   },
   others: { eyebrow: "Other services", title: "See our other divisions", lead: "The fields differ, but the standard is the same. We first ask whether the technology helps people." },
-  divisionCard: { cta: (short: string) => `View ${short} services` },
+  divisionCard: { cta: "View {short} services" },
   contactBand: {
     eyebrow: "Contact",
     title: "Have something to build together?",

@@ -1,4 +1,4 @@
-import { PRIVACY_REQUEST_DAYS, type PrivacyRequestFieldError, type RequestType } from "@/lib/privacy-request";
+import type { PrivacyRequestFieldError, RequestType } from "@/lib/privacy-request";
 
 /** Copy for /privacy/request (해요체). */
 export const privacyRequestCopy = {
@@ -19,11 +19,13 @@ export const privacyRequestCopy = {
   how: [
     "아래 양식으로 요청해 주세요.",
     "요청하신 이메일 주소로 확인 메일을 드리고, 그 메일에 답장해 주시면 처리해요.",
-    `답장을 받으면 요청일로부터 ${PRIVACY_REQUEST_DAYS}일 안에 처리하고 결과를 알려 드려요.`,
+    "답장을 받으면 요청일로부터 {days}일 안에 처리하고 결과를 알려 드려요.",
   ],
   safety: "본인 확인 전에는 아무것도 바꾸거나 지우지 않아요. 다른 사람이 내 주소로 요청해도 답장이 없으면 그대로예요.",
   altBefore: "양식 대신",
   altAfter: "로 직접 메일을 보내셔도 돼요.",
+  // Sentence around the "수신거부" and "개인정보처리방침" links under the form.
+  inline: { before: "안내 메일만 그만 받고 싶다면", unsubscribe: "수신거부", middle: "를 이용해 주세요. 보관 기간과 파기 기준은", policy: "개인정보처리방침", after: "에서 확인할 수 있어요." },
 
   form: {
     ariaLabel: "개인정보 요청 양식",
@@ -67,7 +69,7 @@ export const privacyRequestCopy = {
     },
     success: {
       eyebrow: "요청 접수",
-      title: `요청을 받았어요. 입력하신 이메일로 확인 메일을 보냈어요. 답장해 주시면 ${PRIVACY_REQUEST_DAYS}일 안에 처리해요.`,
+      title: "요청을 받았어요. 입력하신 이메일로 확인 메일을 보냈어요. 답장해 주시면 {days}일 안에 처리해요.",
       fallbackBefore: "확인 메일이 오지 않으면 스팸함을 확인하거나",
       fallbackAfter: "로 알려 주세요.",
       reset: "다른 요청 보내기",

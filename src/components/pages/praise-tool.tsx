@@ -8,28 +8,15 @@ import { CONTACT_HREF, PRAISE_TOOL_PATH, divisionHref } from "@/components/exper
 import { FaqSection } from "@/components/faq/faq-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { pageMetadata } from "@/components/seo/metadata";
+import { getSeoPage } from "@/components/seo/seo-copy";
 import { divisionTheme } from "@/lib/content";
-import { getContent } from "@/lib/get-content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { type PtItem } from "@/lib/praise-tool";
-import { getPraiseTool } from "@/lib/praise-tool.en";
+import { getPraiseToolCopy, getSiteContent } from "@/lib/site-content";
 import { breadcrumb, faqPage, graph, praiseToolApp, webPage } from "@/lib/structured-data";
 
-const seo = (locale: Locale) =>
-  locale === "en"
-    ? {
-        title: "Praise Tool — Worship Lyrics Presentation Software | Lab98",
-        description:
-          "Praise Tool puts lyrics, sermon slides, Bible verses and video on screen from one program. NDI broadcast output, macOS and Windows support, launching November 11, 2026, KRW 100,000 perpetual license.",
-      }
-    : {
-        title: "Praise Tool — 찬양 가사 송출 프로그램 | Lab98",
-        description:
-          "예배용 찬양 가사 송출 프로그램 Praise Tool로 가사, 설교 슬라이드, 성경 구절, 영상을 한 번에 띄워요. NDI 방송 출력, macOS·Windows 지원, 2026년 11월 11일 출시, 100,000원 영구 라이선스예요.",
-      };
-
-export const praiseToolMetadata = (locale: Locale): Metadata =>
-  pageMetadata({ ...seo(locale), absoluteTitle: true, ogTitle: getPraiseTool(locale).meta.title, path: PRAISE_TOOL_PATH, locale });
+export const praiseToolMetadata = async (locale: Locale): Promise<Metadata> =>
+  pageMetadata({ ...(await getSeoPage("praise-tool", locale)), absoluteTitle: true, ogTitle: (await getPraiseToolCopy(locale)).meta.title, path: PRAISE_TOOL_PATH, locale });
 
 const faith = divisionTheme.faith;
 const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -59,15 +46,16 @@ function ItemGrid({ items }: { items: readonly PtItem[] }) {
   );
 }
 
-export function PraiseToolPage({ locale }: { locale: Locale }) {
-  const P = getPraiseTool(locale);
-  const { faqs, getDivision, site } = getContent(locale);
+export async function PraiseToolPage({ locale }: { locale: Locale }) {
+  // Admin-editable: "praise-tool.page" (this page), "faq.praise-tool", "divisions.data", "site.info".
+  const P = await getPraiseToolCopy(locale);
+  const { faqs, getDivision, site } = await getSiteContent(locale);
   const lp = (path: string) => localePath(locale, path);
-  const { title, description } = seo(locale);
+  const { title, description } = await getSeoPage("praise-tool", locale);
   const path = lp(PRAISE_TOOL_PATH);
   const faithDivision = getDivision("faith");
   const crumbs = [...(faithDivision ? [{ name: faithDivision.name, path: lp(divisionHref("faith")) }] : []), { name: P.hero.title, path }];
-  const app = praiseToolApp(locale);
+  const app = praiseToolApp(locale, P);
   const jsonLd = graph(
     webPage({ path, name: title, description, type: "ItemPage", crumbs, extra: { mainEntity: { "@id": app["@id"] } }, locale }),
     app,
@@ -111,7 +99,7 @@ export function PraiseToolPage({ locale }: { locale: Locale }) {
                 <dt className="font-mono text-meta text-gray">{h.launchLabel}</dt>
                 <dd className="flex flex-col items-start gap-2">
                   <span className="text-title">{h.launch}</span>
-                  <LaunchDday locale={locale} className="inline-flex border-2 border-ink bg-faith px-2.5 py-1 font-mono text-meta font-bold text-ink" />
+                  <LaunchDday locale={locale} copy={P.dday} className="inline-flex border-2 border-ink bg-faith px-2.5 py-1 font-mono text-meta font-bold text-ink" />
                 </dd>
               </div>
             </dl>
@@ -243,11 +231,11 @@ export function PraiseToolPage({ locale }: { locale: Locale }) {
               <p className="mt-1 text-body-sm text-gray">{P.pricing.note}</p>
               <div className="mt-6 flex flex-wrap items-center gap-3 border-t-2 border-ink pt-5">
                 <span className="text-body-sm font-bold">{h.launch}</span>
-                <LaunchDday locale={locale} className="inline-flex border-2 border-ink bg-faith px-2.5 py-1 font-mono text-meta font-bold text-ink" />
+                <LaunchDday locale={locale} copy={P.dday} className="inline-flex border-2 border-ink bg-faith px-2.5 py-1 font-mono text-meta font-bold text-ink" />
               </div>
             </div>
           </div>
-          <LaunchSignupForm to={site.email} locale={locale} />
+          <LaunchSignupForm to={site.email} locale={locale} copy={P.form} />
         </div>
       </Section>
 

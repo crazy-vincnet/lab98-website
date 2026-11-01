@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/lib/content";
+import { getSiteContent } from "@/lib/site-content";
 
 /** /manifest.webmanifest — colors match globals.css (--color-paper #ffffff, --color-ink #111111). */
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const { site } = await getSiteContent("ko"); // admin-editable (site.info)
   return {
     name: site.name,
     short_name: site.name,

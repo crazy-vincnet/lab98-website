@@ -1,16 +1,17 @@
 import { ButtonLink, SectionHead, cx } from "@/components/ui";
 import { DivisionCard, Section, pad2 } from "@/components/divisions/division-sections";
 import { divisionTheme, type Division } from "@/lib/content";
-import { getContent } from "@/lib/get-content";
+import { getSiteContent } from "@/lib/site-content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { routes } from "@/components/divisions/copy";
-import { getAboutCopy } from "./copy.en";
+import { fill } from "@/lib/fill-template";
+import { loadAboutCopy } from "./load";
 
 /* ---------- Hero ---------- */
 
-export function AboutHero({ locale = "ko" }: { locale?: Locale }) {
-  const C = getAboutCopy(locale);
-  const { site } = getContent(locale);
+export async function AboutHero({ locale = "ko" }: { locale?: Locale }) {
+  const C = await loadAboutCopy(locale);
+  const { site } = await getSiteContent(locale); // admin-editable site data
   const lp = (path: string) => localePath(locale, path);
   return (
     <section>
@@ -35,9 +36,9 @@ export function AboutHero({ locale = "ko" }: { locale?: Locale }) {
 
 /* ---------- Founder's words (dark) ---------- */
 
-export function FounderWords({ locale = "ko" }: { locale?: Locale }) {
-  const C = getAboutCopy(locale);
-  const { site } = getContent(locale);
+export async function FounderWords({ locale = "ko" }: { locale?: Locale }) {
+  const C = await loadAboutCopy(locale);
+  const { site } = await getSiteContent(locale); // admin-editable site data
   return (
     <section className="border-t-2 border-ink bg-ink text-paper" aria-label={C.founderWords.eyebrow}>
       <div className="wrap py-16 md:py-24 xl:py-28">
@@ -67,9 +68,9 @@ export function FounderWords({ locale = "ko" }: { locale?: Locale }) {
 
 /* ---------- Name: what 98 means ---------- */
 
-export function NameMeaning({ locale = "ko" }: { locale?: Locale }) {
-  const C = getAboutCopy(locale);
-  const { site } = getContent(locale);
+export async function NameMeaning({ locale = "ko" }: { locale?: Locale }) {
+  const C = await loadAboutCopy(locale);
+  const { site } = await getSiteContent(locale); // admin-editable site data
   return (
     <Section id="name">
       <div className="grid gap-10 lg:grid-cols-[280px_1fr] lg:items-end lg:gap-12">
@@ -94,9 +95,9 @@ export function NameMeaning({ locale = "ko" }: { locale?: Locale }) {
 
 const swatchOrder: Division[] = ["master", "dev", "ai", "faith"];
 
-export function DivisionsOverview({ locale = "ko" }: { locale?: Locale }) {
-  const C = getAboutCopy(locale);
-  const { divisions } = getContent(locale);
+export async function DivisionsOverview({ locale = "ko" }: { locale?: Locale }) {
+  const C = await loadAboutCopy(locale);
+  const { divisions } = await getSiteContent(locale); // admin-editable site data
   const roles: Record<Division, string> = {
     master: C.divisions.masterRole,
     ...Object.fromEntries(divisions.map((d) => [d.slug, d.role])),
@@ -133,8 +134,8 @@ export function DivisionsOverview({ locale = "ko" }: { locale?: Locale }) {
 
 /* ---------- Principles ---------- */
 
-export function Principles({ locale = "ko" }: { locale?: Locale }) {
-  const C = getAboutCopy(locale);
+export async function Principles({ locale = "ko" }: { locale?: Locale }) {
+  const C = await loadAboutCopy(locale);
   return (
     <Section dark id="principles">
       <SectionHead dark index={C.principles.index} eyebrow={C.principles.eyebrow} title={C.principles.title} />
@@ -157,9 +158,9 @@ export function Principles({ locale = "ko" }: { locale?: Locale }) {
 
 /* ---------- Team ---------- */
 
-function FounderCard({ locale = "ko" }: { locale?: Locale }) {
-  const C = getAboutCopy(locale);
-  const { site } = getContent(locale);
+async function FounderCard({ locale = "ko" }: { locale?: Locale }) {
+  const C = await loadAboutCopy(locale);
+  const { site } = await getSiteContent(locale); // admin-editable site data
   return (
     <article className="flex flex-col border-2 border-ink bg-paper">
       {/* TODO(content): founder photo — replace this monogram block with a square photo of the founder. */}
@@ -177,12 +178,12 @@ function FounderCard({ locale = "ko" }: { locale?: Locale }) {
 }
 
 /** Open role: dashed 2px frame + mono OPEN ROLE label. */
-function OpenRoleCard({ role, body, index, locale = "ko" }: { role: string; body: string; index: number; locale?: Locale }) {
-  const C = getAboutCopy(locale);
-  const { site } = getContent(locale);
+async function OpenRoleCard({ role, body, index, locale = "ko" }: { role: string; body: string; index: number; locale?: Locale }) {
+  const C = await loadAboutCopy(locale);
+  const { site } = await getSiteContent(locale); // admin-editable site data
   return (
     <a
-      href={`mailto:${site.email}?subject=${encodeURIComponent(C.team.applySubject(role))}`}
+      href={`mailto:${site.email}?subject=${encodeURIComponent(fill(C.team.applySubject, { role }))}`}
       className="group flex flex-col border-2 border-dashed border-ink bg-paper"
     >
       <div className="flex flex-1 flex-col gap-6 p-6">
@@ -207,8 +208,8 @@ function OpenRoleCard({ role, body, index, locale = "ko" }: { role: string; body
   );
 }
 
-export function Team({ locale = "ko" }: { locale?: Locale }) {
-  const C = getAboutCopy(locale);
+export async function Team({ locale = "ko" }: { locale?: Locale }) {
+  const C = await loadAboutCopy(locale);
   return (
     <Section id="team">
       <SectionHead index={C.team.index} eyebrow={C.team.eyebrow} title={C.team.title} lead={C.team.lead} />

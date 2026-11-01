@@ -1,35 +1,25 @@
 import type { Metadata } from "next";
 import { ProjectCard } from "@/components/cards";
 import { getProjectsPageCopy } from "@/components/experiments/copy.en";
+import { loadProjectsPageCopy } from "@/components/experiments/load";
+import { fill } from "@/lib/fill-template";
 import { CtaBand } from "@/components/experiments/parts";
 import { PROJECTS_PATH } from "@/components/experiments/paths";
 import { JsonLd } from "@/components/seo/json-ld";
 import { pageMetadata } from "@/components/seo/metadata";
+import { getSeoPage } from "@/components/seo/seo-copy";
 import { getContent } from "@/lib/get-content";
+import { getSiteContent } from "@/lib/site-content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { ORG_ID, breadcrumb, graph, projectList, webPage } from "@/lib/structured-data";
 
-const seo = (locale: Locale) => {
-  const t = getProjectsPageCopy(locale);
-  const { projects } = getContent(locale);
-  const first3 = projects.slice(0, 3).map((p) => p.client).join(", ");
-  return locale === "en"
-    ? {
-        title: `${t.meta.title} — Organization website case studies`,
-        description: `${projects.length} organization websites that Lab98 Dev planned, designed and built, including ${first3}, shown with their screens and key features.`,
-      }
-    : {
-        title: `${t.meta.title} — 기관 홈페이지 제작 사례`,
-        description: `${first3} 등 Lab98 Dev가 기획부터 디자인, 개발까지 맡은 기관 홈페이지 제작 사례 ${projects.length}건을 화면과 주요 기능으로 소개해요.`,
-      };
-};
+export const projectsMetadata = async (locale: Locale): Promise<Metadata> =>
+  pageMetadata({ ...(await getSeoPage("projects", locale)), path: PROJECTS_PATH, locale });
 
-export const projectsMetadata = (locale: Locale): Metadata => pageMetadata({ ...seo(locale), path: PROJECTS_PATH, locale });
-
-export function ProjectsPage({ locale }: { locale: Locale }) {
-  const t = getProjectsPageCopy(locale);
-  const { projects } = getContent(locale);
-  const { title, description } = seo(locale);
+export async function ProjectsPage({ locale }: { locale: Locale }) {
+  const t = await loadProjectsPageCopy(locale);
+  const { projects } = await getSiteContent(locale); // admin-editable (projects.data)
+  const { title, description } = await getSeoPage("projects", locale);
   const path = localePath(locale, PROJECTS_PATH);
   const crumbs = [{ name: t.meta.title, path }];
   const jsonLd = graph(
@@ -52,9 +42,9 @@ export function ProjectsPage({ locale }: { locale: Locale }) {
         <p className="label animate-rise text-gray">{t.index.eyebrow}</p>
         <h1 className="mt-5 animate-rise text-h1 text-balance">{t.index.title}</h1>
         <p className="mt-5 max-w-[720px] animate-rise text-lead text-pretty text-gray">
-          {t.index.lead(projects.length)} {t.index.leadMore}
+          {fill(t.index.lead, { count: projects.length })} {t.index.leadMore}
         </p>
-        <p className="mt-8 font-mono text-meta font-bold">{t.index.count(projects.length)}</p>
+        <p className="mt-8 font-mono text-meta font-bold">{fill(t.index.count, { count: projects.length })}</p>
       </section>
       <section className="wrap pb-20 md:pb-32" aria-label={t.index.listLabel}>
         <ul className="grid gap-6 border-t-2 border-ink pt-10 md:grid-cols-2 md:pt-12 xl:grid-cols-3">

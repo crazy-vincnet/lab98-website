@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { CtaBand, DivisionDot, MetaLine, Pager } from "@/components/experiments/parts";
 import { divisionHref, INSIGHTS_PATH, insightHref, PRAISE_TOOL_PATH } from "@/components/experiments/paths";
 import { getNotesCopy } from "@/components/notes/copy.en";
+import { loadNotesCopy } from "@/components/notes/load";
+import { fill } from "@/lib/fill-template";
 import { NoteBody } from "@/components/notes/note-body";
 import { RichBody } from "@/components/notes/rich-body";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -46,7 +48,7 @@ export async function insightMetadata(locale: Locale, params: Promise<{ slug: st
 
 export async function InsightPage({ locale, params }: { locale: Locale; params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const notesCopy = getNotesCopy(locale);
+  const notesCopy = await loadNotesCopy(locale);
   const lp = (path: string) => localePath(locale, path);
   const note = await getInsight(locale, slug);
   if (!note) notFound();
@@ -77,8 +79,8 @@ export async function InsightPage({ locale, params }: { locale: Locale; params: 
 }
 
 /** The article itself (header, body, pager, CTA). Shared by the public page and the admin preview, so they cannot drift. */
-export function InsightArticle({ note, locale, newer, older }: { note: InsightItem; locale: Locale; newer?: InsightItem; older?: InsightItem }) {
-  const notesCopy = getNotesCopy(locale);
+export async function InsightArticle({ note, locale, newer, older }: { note: InsightItem; locale: Locale; newer?: InsightItem; older?: InsightItem }) {
+  const notesCopy = await loadNotesCopy(locale);
   const t = notesCopy.detail;
   const lp = (path: string) => localePath(locale, path);
   const explore = [
@@ -108,7 +110,7 @@ export function InsightArticle({ note, locale, newer, older }: { note: InsightIt
                   {formatDate(note.date, locale)}
                 </time>,
                 <span key="r" className="ko-tight">
-                  {notesCopy.list.readTime(note.readingMinutes)}
+                  {fill(notesCopy.list.readTime, { min: note.readingMinutes })}
                 </span>,
               ]}
             />

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { renderOgImage } from "@/lib/og/render";
-import { getProject, projects } from "@/lib/content";
+import { projects } from "@/lib/content";
+import { getSiteContent } from "@/lib/site-content";
 import { PROJECT_SCREENSHOTS } from "@/lib/og/screenshots";
 
 export const alt = "Lab98 Dev 프로젝트 — 고객사 이름, 만든 웹사이트, 실제 화면 스크린샷";
@@ -12,7 +13,7 @@ export function generateStaticParams() {
 }
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
-  const p = getProject((await params).slug);
+  const p = (await getSiteContent("ko")).getProject((await params).slug); // admin-editable (projects.data)
   if (!p) notFound();
   return renderOgImage({
     division: p.division,

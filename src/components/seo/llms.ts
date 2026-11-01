@@ -7,23 +7,30 @@ import { aboutCopy } from "@/components/about/copy";
 import { CONTACT_HREF, COOKIES_PATH, INSIGHTS_PATH, PRAISE_TOOL_PATH, PRIVACY_PATH, PROJECTS_PATH, TERMS_PATH, divisionHref, insightHref, projectHref } from "@/components/experiments/paths";
 import { projectsCopy } from "@/components/experiments/copy";
 import { notesCopy } from "@/components/notes/copy";
-import { divisions, faqs, formatDate, notes, projects, site, type Faq, type FaqKey } from "@/lib/content";
-import { praiseTool as P } from "@/lib/praise-tool";
+import { formatDate, type Faq, type FaqKey } from "@/lib/content";
+import { getPraiseToolCopy, getSiteContent } from "@/lib/site-content";
 import { abs } from "@/lib/structured-data";
 
 const link = (label: string, path: string, desc?: string) => `- [${label}](${abs(path)})${desc ? `: ${desc}` : ""}`;
-const sortedNotes = [...notes].sort((a, b) => b.date.localeCompare(a.date));
-const biz = site.business;
-const bizLine = `${biz.name} · 대표 ${biz.representative} · 사업자등록번호 ${biz.registrationNumber}`;
 
-const summary = `${site.description} 슬로건은 “${site.slogan}”(${site.sloganEn})예요. ${site.name}은 ${biz.name}의 브랜드이고, 파운더는 ${site.founder.display}이에요.`;
+/** Admin-editable data (site.info, divisions.data, projects.data, faq.*, praise-tool.page) merged over the code defaults. */
+async function load() {
+  const { site, divisions, projects, notes, faqs } = await getSiteContent("ko");
+  const P = await getPraiseToolCopy("ko");
+  const sortedNotes = [...notes].sort((a, b) => b.date.localeCompare(a.date));
+  const biz = site.business;
+  const bizLine = `${biz.name} · 대표 ${biz.representative} · 사업자등록번호 ${biz.registrationNumber}`;
+  const summary = `${site.description} 슬로건은 “${site.slogan}”(${site.sloganEn})예요. ${site.name}은 ${biz.name}의 브랜드이고, 파운더는 ${site.founder.display}이에요.`;
+  return { site, divisions, projects, faqs, P, sortedNotes, bizLine, summary };
+}
 
 const faqTitles: Record<FaqKey, string> = { home: "Lab98", dev: "Lab98 Dev", ai: "Lab98 AI", faith: "Lab98 Faith", praiseTool: "Praise Tool" };
 const faqPaths: Record<FaqKey, string> = { home: "/", dev: divisionHref("dev"), ai: divisionHref("ai"), faith: divisionHref("faith"), praiseTool: PRAISE_TOOL_PATH };
 
 const join = (lines: (string | false | undefined)[]) => lines.filter((l) => l !== false && l !== undefined).join("\n") + "\n";
 
-export function llmsTxt() {
+export async function llmsTxt() {
+  const { site, divisions, projects, P, sortedNotes, summary } = await load();
   return join([
     `# ${site.name}`,
     "",
@@ -72,7 +79,8 @@ export function llmsTxt() {
 
 const faqBlock = (items: readonly Faq[]) => items.flatMap((f) => [`**Q. ${f.q}**`, `A. ${f.a}`, ""]);
 
-export function llmsFullTxt() {
+export async function llmsFullTxt() {
+  const { site, divisions, projects, faqs, P, sortedNotes, bizLine, summary } = await load();
   return join([
     `# ${site.name}`,
     "",

@@ -3,14 +3,15 @@ import { insightHref } from "@/components/experiments/paths";
 import { DivisionDot, MetaLine } from "@/components/experiments/parts";
 import { divisionTheme, formatDate, type Note } from "@/lib/content";
 import { localePath, type Locale } from "@/lib/i18n";
-import { getNotesCopy } from "./copy.en";
+import { fill } from "@/lib/fill-template";
+import { loadNotesCopy } from "./load";
 
 /**
  * Hero item of the insights list. White card with a 2px border and a black top bar.
  * Hover follows the canonical cards: no layout shift, title underline, arrow nudge, bottom CTA bar inverts.
  */
-export function FeaturedInsight({ note, locale = "ko" }: { note: Note; locale?: Locale }) {
-  const t = getNotesCopy(locale);
+export async function FeaturedInsight({ note, locale = "ko" }: { note: Note; locale?: Locale }) {
+  const t = await loadNotesCopy(locale);
   return (
     <Link href={localePath(locale, insightHref(note.slug))} className="group flex flex-col border-2 border-ink bg-paper">
       <p className="flex items-center justify-between gap-4 bg-ink px-6 py-3 text-paper md:px-10">
@@ -33,7 +34,7 @@ export function FeaturedInsight({ note, locale = "ko" }: { note: Note; locale?: 
               {t.list.by} {note.author}
             </span>,
             <span key="r" className="ko-tight">
-              {t.list.readTime(note.readingMinutes)}
+              {fill(t.list.readTime, { min: note.readingMinutes })}
             </span>,
           ]}
         />

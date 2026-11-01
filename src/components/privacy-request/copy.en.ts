@@ -4,7 +4,6 @@
  * 
  */
 import type { Dict, Locale } from "@/lib/i18n";
-import { PRIVACY_REQUEST_DAYS } from "@/lib/privacy-request";
 import { privacyRequestCopy } from "./copy";
 
 export const privacyRequestCopyEn: Dict<typeof privacyRequestCopy> = {
@@ -25,11 +24,12 @@ export const privacyRequestCopyEn: Dict<typeof privacyRequestCopy> = {
   how: [
     "Send your request with the form below.",
     "We'll email a confirmation message to the address you give. We act on your request once you reply to it.",
-    `After we receive your reply, we process the request within ${PRIVACY_REQUEST_DAYS} days and tell you the result.`,
+    "After we receive your reply, we process the request within {days} days and tell you the result.",
   ],
   safety: "We don't change or delete anything until your identity is confirmed. If someone files a request with your address, nothing happens unless you reply.",
   altBefore: "Instead of the form, you can also email",
   altAfter: "directly.",
+  inline: { before: "If you only want to stop receiving our emails, use", unsubscribe: "Unsubscribe", middle: ". Retention periods and deletion rules are in our", policy: "Privacy Policy", after: "." },
   form: {
     ariaLabel: "Personal data request form",
     emailLabel: "Email",
@@ -72,7 +72,7 @@ export const privacyRequestCopyEn: Dict<typeof privacyRequestCopy> = {
     },
     success: {
       eyebrow: "Request received",
-      title: `We got your request. We sent a confirmation email to the address you entered. Reply to it and we'll process the request within ${PRIVACY_REQUEST_DAYS} days.`,
+      title: "We got your request. We sent a confirmation email to the address you entered. Reply to it and we'll process the request within {days} days.",
       fallbackBefore: "If the confirmation email doesn't arrive, check your spam folder or write to",
       fallbackAfter: ".",
       reset: "Send another request",
@@ -83,3 +83,6 @@ export const privacyRequestCopyEn: Dict<typeof privacyRequestCopy> = {
 export function getPrivacyRequestCopy(locale: Locale = "ko"): Dict<typeof privacyRequestCopy> {
   return locale === "en" ? privacyRequestCopyEn : privacyRequestCopy;
 }
+
+/** Merged (admin-editable) form copy handed to the client form as a prop. */
+export type PrivacyRequestFormCopy = Dict<typeof privacyRequestCopy>["form"];

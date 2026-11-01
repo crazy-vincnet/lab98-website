@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
-import { getContent } from "@/lib/get-content";
+import { getSiteContent } from "@/lib/site-content";
 import type { Locale } from "@/lib/i18n";
 import { getChromeCopy } from "@/components/chrome/copy.en";
+import { getCopy } from "@/lib/copy-store";
+import { fill } from "@/lib/fill-template";
 
 /**
  * Shared layout for 개인정보처리방침 / 이용약관 / 쿠키 정책.
@@ -13,11 +15,12 @@ export type LegalHistoryEntry = { date: string; note: string };
 const bodyStyles =
   "flex flex-col gap-3 text-body text-pretty [&_a]:font-bold [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-red-text [&_h3]:mt-3 [&_h3]:text-title-sm [&_ol]:flex [&_ol]:list-decimal [&_ol]:flex-col [&_ol]:gap-2 [&_ol]:pl-6 [&_ul>li]:relative [&_ul>li]:pl-5 [&_ul>li]:before:absolute [&_ul>li]:before:left-0 [&_ul>li]:before:content-['–'] [&_ul]:flex [&_ul]:flex-col [&_ul]:gap-2";
 
-export function LegalDoc({
+export async function LegalDoc({
   label,
   title,
   intro,
   effectiveDate,
+  version,
   sections,
   history,
   locale = "ko",
@@ -26,14 +29,18 @@ export function LegalDoc({
   title: string;
   intro: ReactNode;
   effectiveDate: string;
+  /** Optional version label shown after the effective date (hidden while undefined). */
+  version?: string;
   sections: LegalSection[];
   history: LegalHistoryEntry[];
   locale?: Locale;
 }) {
-  const { site } = getContent(locale);
-  const t = getChromeCopy(locale).legalDoc;
+  const { site } = await getSiteContent(locale); // admin-editable site data
+  // Admin-editable (registry key "chrome.legalDoc").
+  const t = await getCopy("chrome.legalDoc", locale, getChromeCopy(locale).legalDoc);
   const biz = site.business;
-  const bizLine = t.bizLine(biz);
+  const vars = { name: biz.name, representative: biz.representative, registrationNumber: biz.registrationNumber, address: biz.address ?? "" };
+  const bizLine = { prefix: fill(t.bizPrefix, vars), address: biz.address ? fill(t.bizAddress, vars) : "", contact: t.bizContact };
   return (
     <section className="wrap py-16 md:py-24">
       <p lang="en" className="label text-gray">
@@ -41,7 +48,7 @@ export function LegalDoc({
       </p>
       <h1 className="mt-6 text-h1 text-balance">{title}</h1>
       <div className="mt-5 max-w-[680px] text-lead text-gray text-pretty">{intro}</div>
-      <p className="mt-4 font-mono text-meta text-gray">{t.effective} {effectiveDate}</p>
+      <p className="mt-4 font-mono text-meta text-gray">{t.effective} {effectiveDate}{version ? ` · ${version}` : null}</p>
       {/* 사업장 주소는 site.business.address가 채워지면 자동으로 표시돼요. */}
       <p className="mt-2 text-body-sm text-gray text-pretty">
         {bizLine.prefix}

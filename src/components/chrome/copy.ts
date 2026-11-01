@@ -32,11 +32,10 @@ export const chromeCopy = {
   },
   legalDoc: {
     effective: "시행일",
-    bizLine: (biz: SiteInfo["business"]) => ({
-      prefix: `상호 ${biz.name} · 대표 ${biz.representative} · 사업자등록번호 ${biz.registrationNumber}`,
-      address: biz.address ? ` · 주소 ${biz.address}` : "",
-      contact: " · 문의 ",
-    }),
+    // Templates: {name} {representative} {registrationNumber} {address} are filled from site.business (see fill() in legal-doc.tsx).
+    bizPrefix: "상호 {name} · 대표 {representative} · 사업자등록번호 {registrationNumber}",
+    bizAddress: " · 주소 {address}",
+    bizContact: " · 문의 ",
     toc: "목차",
     history: "변경 이력",
   },

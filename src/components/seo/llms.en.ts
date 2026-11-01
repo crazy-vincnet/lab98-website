@@ -6,24 +6,23 @@ import { getAboutCopy } from "@/components/about/copy.en";
 import { CONTACT_HREF, COOKIES_PATH, INSIGHTS_PATH, PRAISE_TOOL_PATH, PRIVACY_PATH, PROJECTS_PATH, TERMS_PATH, divisionHref, insightHref, projectHref } from "@/components/experiments/paths";
 import { getProjectsPageCopy } from "@/components/experiments/copy.en";
 import { getNotesCopy } from "@/components/notes/copy.en";
-import { getContent } from "@/lib/get-content";
 import { localePath } from "@/lib/i18n";
-import { getPraiseTool } from "@/lib/praise-tool.en";
+import { getPraiseToolCopy, getSiteContent } from "@/lib/site-content";
 import { abs } from "@/lib/structured-data";
 
 const L = "en" as const;
-const { site, divisions, projects, notes } = getContent(L);
 const aboutCopy = getAboutCopy(L);
 const projectsCopy = getProjectsPageCopy(L);
 const notesCopy = getNotesCopy(L);
-const P = getPraiseTool(L);
 
 const link = (label: string, path: string, desc?: string) => `- [${label}](${abs(localePath(L, path))})${desc ? `: ${desc}` : ""}`;
-const sortedNotes = [...notes].sort((a, b) => b.date.localeCompare(a.date));
 
-const summary = `${site.description} Our slogan is “${site.slogan}” ${site.name} is a brand of ${site.business.name}, and the founder is ${site.founder.display}.`;
-
-export function llmsTxtEn() {
+export async function llmsTxtEn() {
+  // Admin-editable data (site.info, divisions.data, projects.data, praise-tool.page) merged over the code defaults.
+  const { site, divisions, projects, notes } = await getSiteContent(L);
+  const P = await getPraiseToolCopy(L);
+  const sortedNotes = [...notes].sort((a, b) => b.date.localeCompare(a.date));
+  const summary = `${site.description} Our slogan is “${site.slogan}” ${site.name} is a brand of ${site.business.name}, and the founder is ${site.founder.display}.`;
   return [
     `# ${site.name}`,
     "",

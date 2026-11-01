@@ -3,6 +3,7 @@ import { site as koSite } from "@/lib/content";
 import { getContent } from "@/lib/get-content";
 import { siteVerificationMetadata } from "@/lib/site-settings";
 import type { Locale } from "@/lib/i18n";
+import { getSeoRoot, seoRootDefaults } from "@/components/seo/seo-copy";
 
 /**
  * Root metadata defaults. Pages override title/description/canonical/openGraph per route.
@@ -12,31 +13,10 @@ import type { Locale } from "@/lib/i18n";
  */
 const koMetadata: Metadata = {
   metadataBase: new URL(koSite.url),
-  title: { default: `${koSite.name} — 웹·프로그램 제작 · AI 교육 · 교회 프로그램`, template: `%s | ${koSite.name}` },
+  title: { default: seoRootDefaults("ko").titleDefault, template: `%s | ${koSite.name}` },
   description: koSite.description,
   applicationName: koSite.name,
-  keywords: [
-    "Lab98",
-    "랩98",
-    "홈페이지 제작",
-    "웹사이트 제작",
-    "쇼핑몰 제작",
-    "반응형 웹사이트",
-    "프로그램 개발",
-    "Mac 프로그램",
-    "Windows 프로그램",
-    "AI 교육",
-    "기업 AI 교육",
-    "AI 커뮤니티",
-    "교회 프로그램",
-    "선교단체 웹사이트",
-    "찬양 가사 송출",
-    "Praise Tool",
-    "website development",
-    "web design Korea",
-    "AI training",
-    "church software",
-  ],
+  keywords: [...seoRootDefaults("ko").keywords],
   authors: [{ name: koSite.name, url: koSite.url }],
   creator: koSite.name,
   publisher: koSite.business.name,
@@ -60,28 +40,10 @@ const { site } = getContent("en");
  */
 const enMetadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: { default: `${site.name} — Websites & Software · AI Training · Church Software`, template: `%s | ${site.name}` },
+  title: { default: seoRootDefaults("en").titleDefault, template: `%s | ${site.name}` },
   description: site.description,
   applicationName: site.name,
-  keywords: [
-    "Lab98",
-    "JJdream",
-    "website development Korea",
-    "custom website development",
-    "web design Korea",
-    "online store development",
-    "responsive website",
-    "Mac software development",
-    "Windows software development",
-    "AI training",
-    "corporate AI training",
-    "AI community",
-    "church software",
-    "church website",
-    "mission organization website",
-    "worship lyrics software",
-    "Praise Tool",
-  ],
+  keywords: [...seoRootDefaults("en").keywords],
   authors: [{ name: site.name, url: site.url }],
   creator: site.name,
   publisher: site.business.name,
@@ -98,13 +60,21 @@ const enMetadata: Metadata = {
 
 
 /** Root <head> defaults per locale, without search verification (global-not-found is noindex and uses this). */
-export const rootMetadata = (locale: Locale): Metadata => (locale === "en" ? enMetadata : koMetadata);
+export const rootMetadata = async (locale: Locale): Promise<Metadata> => {
+  const base = locale === "en" ? enMetadata : koMetadata;
+  // Admin-editable (registry key "seo.root"): default <title> and keywords. Unchanged objects when nothing is overridden.
+  const seo = await getSeoRoot(locale);
+  const d = seoRootDefaults(locale);
+  if (seo.titleDefault === d.titleDefault && seo.keywords.every((k, i) => k === d.keywords[i])) return base;
+  const template = typeof base.title === "object" && base.title && "template" in base.title ? base.title.template : undefined;
+  return { ...base, title: { default: seo.titleDefault, template: template ?? "%s" }, keywords: [...seo.keywords] };
+};
 
 /**
  * Root metadata for the public root layouts (`export const generateMetadata`). Adds the Google/Naver verification
  * meta tags from site_settings (edited in /admin/search; "use cache" + tag `site-settings`), env as fallback.
  */
 export const rootMetadataWithVerification = async (locale: Locale): Promise<Metadata> => ({
-  ...rootMetadata(locale),
+  ...(await rootMetadata(locale)),
   verification: await siteVerificationMetadata(),
 });

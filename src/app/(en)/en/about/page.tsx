@@ -1,6 +1,6 @@
 import { AboutPage, aboutMetadata } from "@/components/pages/about";
 
-export const metadata = aboutMetadata("en");
+export const generateMetadata = () => aboutMetadata("en");
 
 export default function Page() {
   return <AboutPage locale="en" />;

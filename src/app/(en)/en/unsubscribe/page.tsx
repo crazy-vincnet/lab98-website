@@ -1,6 +1,6 @@
 import { UnsubscribePage, unsubscribeMetadata } from "@/components/pages/unsubscribe";
 
-export const metadata = unsubscribeMetadata("en");
+export const generateMetadata = () => unsubscribeMetadata("en");
 
 export default function Page() {
   return <UnsubscribePage locale="en" />;

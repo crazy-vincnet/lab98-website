@@ -18,6 +18,7 @@ export const unsubscribeCopyEn: Dict<typeof unsubscribeCopy> = {
     "We won't send launch alerts, news or other non-essential email to an address that has unsubscribed.",
     "We still reply to inquiries and personal data requests you send us yourself, whether or not you've unsubscribed.",
   ],
+  inline: { before: "To check or delete the information we hold about you, use", request: "Privacy requests", middle: ". For details, see our", policy: "Privacy Policy", after: "." },
   form: {
     ariaLabel: "Email unsubscribe form",
     emailLabel: "Email",
@@ -48,3 +49,6 @@ export const unsubscribeCopyEn: Dict<typeof unsubscribeCopy> = {
 export function getUnsubscribeCopy(locale: Locale = "ko"): Dict<typeof unsubscribeCopy> {
   return locale === "en" ? unsubscribeCopyEn : unsubscribeCopy;
 }
+
+/** Merged (admin-editable) form copy handed to the client form as a prop. */
+export type UnsubscribeFormCopy = Dict<typeof unsubscribeCopy>["form"];

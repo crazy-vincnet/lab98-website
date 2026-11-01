@@ -1,4 +1,4 @@
-import { site } from "@/lib/content";
+import { getSiteContent } from "@/lib/site-content";
 import { getInsights } from "@/lib/insights";
 import { INSIGHTS_PATH, insightHref } from "@/components/experiments/paths";
 import { RSS_PATH, RSS_TITLE, absoluteUrl } from "@/lib/seo";
@@ -15,6 +15,7 @@ const cdata = (s: string) => `<![CDATA[${s.replace(/]]>/g, "]]]]><![CDATA[>")}]]
 const rfc822 = (isoDate: string, instant?: string) => new Date(instant ?? `${isoDate}T09:00:00+09:00`).toUTCString();
 
 export async function GET() {
+  const { site } = await getSiteContent("ko"); // admin-editable (site.info)
   const sorted = await getInsights("ko");
   const items = sorted
     .map((n) => {

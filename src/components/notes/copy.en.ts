@@ -20,7 +20,7 @@ export const notesCopyEn: Dict<typeof notesCopy> = {
     listLabel: "Insights list",
     moreLabel: "Earlier posts",
   },
-  list: { featured: "LATEST", read: "Read the post", readTime: (min: number) => `${min} min read`, by: "By" },
+  list: { featured: "LATEST", read: "Read the post", readTime: "{min} min read", by: "By" },
   detail: {
     back: "← Insights",
     backBottom: "← All insights",
