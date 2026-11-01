@@ -11,7 +11,7 @@ import {
   insightHref,
   projectHref,
 } from "@/components/experiments/paths";
-import { absoluteUrl, languageAlternates } from "@/lib/seo";
+import { absoluteUrl, languageAlternates, locales, localizedUrl } from "@/lib/seo";
 
 /**
  * /sitemap.xml — every public, indexable route.
@@ -20,32 +20,34 @@ import { absoluteUrl, languageAlternates } from "@/lib/seo";
  */
 type Entry = MetadataRoute.Sitemap[number];
 
-function entry(path: string, changeFrequency: Entry["changeFrequency"], priority: number, lastModified?: string, images?: string[]): Entry {
-  const languages = languageAlternates(path); // i18n hook: filled once `locales` in lib/seo.ts has /en
-  return {
-    url: absoluteUrl(path),
+/** One entry per locale for a locale-less `path`; every entry lists all alternates (hreflang + x-default). */
+function entries(path: string, changeFrequency: Entry["changeFrequency"], priority: number, lastModified?: string, images?: string[]): Entry[] {
+  const languages = languageAlternates(path);
+  return locales.map((l) => ({
+    url: localizedUrl(path, l),
     ...(lastModified ? { lastModified } : {}),
     changeFrequency,
     priority,
     ...(languages ? { alternates: { languages } } : {}),
     ...(images?.length ? { images } : {}),
-  };
+  }));
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const latestNote = notes.map((n) => n.date).sort().at(-1);
 
+  // Each page yields its Korean URL followed by its English twin.
   return [
-    entry("/", "weekly", 1.0, latestNote),
-    entry("/about", "monthly", 0.8),
-    ...divisions.map((d) => entry(divisionHref(d.slug), "monthly", 0.9)),
-    entry(PRAISE_TOOL_PATH, "weekly", 0.9),
-    entry(PROJECTS_PATH, "monthly", 0.8),
-    ...projects.map((p) => entry(projectHref(p.slug), "monthly", 0.8, undefined, [absoluteUrl(p.images.desktop), absoluteUrl(p.images.mobile)])),
-    entry(INSIGHTS_PATH, "weekly", 0.7, latestNote),
-    ...notes.map((n) => entry(insightHref(n.slug), "yearly", 0.7, n.date)),
-    entry(PRIVACY_PATH, "yearly", 0.3),
-    entry(TERMS_PATH, "yearly", 0.3),
-    entry(COOKIES_PATH, "yearly", 0.3),
+    ...entries("/", "weekly", 1.0, latestNote),
+    ...entries("/about", "monthly", 0.8),
+    ...divisions.flatMap((d) => entries(divisionHref(d.slug), "monthly", 0.9)),
+    ...entries(PRAISE_TOOL_PATH, "weekly", 0.9),
+    ...entries(PROJECTS_PATH, "monthly", 0.8),
+    ...projects.flatMap((p) => entries(projectHref(p.slug), "monthly", 0.8, undefined, [absoluteUrl(p.images.desktop), absoluteUrl(p.images.mobile)])),
+    ...entries(INSIGHTS_PATH, "weekly", 0.7, latestNote),
+    ...notes.flatMap((n) => entries(insightHref(n.slug), "yearly", 0.7, n.date)),
+    ...entries(PRIVACY_PATH, "yearly", 0.3),
+    ...entries(TERMS_PATH, "yearly", 0.3),
+    ...entries(COOKIES_PATH, "yearly", 0.3),
   ];
 }

@@ -7,9 +7,8 @@ import { PrivacyNotice } from "@/components/consent/privacy-notice";
 import { LAUNCH_FIELDS, LAUNCH_LIMITS, validateLaunchSignup, type LaunchFieldErrors } from "@/lib/launch-signup";
 import { signupLaunch } from "@/app/actions/launch";
 import { PRIVACY_PATH } from "@/components/experiments/paths";
-import { praiseTool } from "@/lib/praise-tool";
-
-const t = praiseTool.form;
+import { getPraiseTool } from "@/lib/praise-tool.en";
+import { localePath, type Locale } from "@/lib/i18n";
 
 const inputBase =
   "block w-full border-2 bg-paper px-[18px] text-body-sm text-ink placeholder:text-placeholder transition-colors duration-150 hover:bg-concrete/40 focus:bg-paper";
@@ -19,7 +18,8 @@ const inputBase =
  * (stored in InsForge `launch_signups`, team gets an email; nothing is sent to the visitor).
  * `to` is only shown as a fallback address when signing up fails and on the success screen.
  */
-export function LaunchSignupForm({ to }: { to: string }) {
+export function LaunchSignupForm({ to, locale = "ko" }: { to: string; locale?: Locale }) {
+  const t = getPraiseTool(locale).form;
   const uid = useId();
   const [email, setEmail] = useState("");
   const [org, setOrg] = useState("");
@@ -221,7 +221,7 @@ export function LaunchSignupForm({ to }: { to: string }) {
           <p className="mt-1 pl-8 text-body-sm text-gray text-pretty">
             {t.policyBefore}{" "}
             {/* New tab, so a half-filled form isn't lost. */}
-            <Link href={PRIVACY_PATH} target="_blank" className="font-bold text-ink underline underline-offset-4 hover:text-red-text">
+            <Link href={localePath(locale, PRIVACY_PATH)} target="_blank" className="font-bold text-ink underline underline-offset-4 hover:text-red-text">
               {t.policyLink}
               <span className="sr-only"> ({t.policyNewTab})</span>
             </Link>

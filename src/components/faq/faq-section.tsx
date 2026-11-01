@@ -1,5 +1,8 @@
 import { SectionHead, cx } from "@/components/ui";
 import type { Faq } from "@/lib/content";
+import type { Locale } from "@/lib/i18n";
+
+const FAQ_TITLE: Record<Locale, string> = { ko: "자주 묻는 질문", en: "Frequently asked questions" };
 
 /**
  * FAQ section: native <details>/<summary> disclosure (keyboard + screen reader support for free, no JS).
@@ -10,9 +13,10 @@ export function FaqSection({
   index,
   id = "faq",
   eyebrow = "FAQ",
-  title = "자주 묻는 질문",
+  title,
   lead,
   className,
+  locale = "ko",
 }: {
   items: readonly Faq[];
   index?: string;
@@ -21,7 +25,9 @@ export function FaqSection({
   title?: string;
   lead?: string;
   className?: string;
+  locale?: Locale;
 }) {
+  title ??= FAQ_TITLE[locale];
   if (items.length === 0) return null;
   return (
     <section id={id} aria-labelledby={`${id}-title`} className={cx("border-t-2 border-ink", className)}>

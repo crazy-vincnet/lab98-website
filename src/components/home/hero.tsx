@@ -1,19 +1,24 @@
 import { ButtonLink } from "@/components/ui";
-import { divisions, site } from "@/lib/content";
-import { heroCopy, routes } from "./copy";
+import { getContent } from "@/lib/get-content";
+import { localePath, type Locale } from "@/lib/i18n";
+import { routes } from "./copy";
+import { getHomeCopy } from "./copy.en";
 import { HeroBlock } from "./hero-block";
 import { HeroMotion } from "./hero-motion";
 
 /** Stagger helper for the entrance animation. */
 const rise = (i: number) => ({ animationDelay: `${80 + i * 90}ms` });
 
-export function Hero() {
+export function Hero({ locale = "ko" }: { locale?: Locale }) {
+  const { site, divisions } = getContent(locale);
+  const { heroCopy } = getHomeCopy(locale);
+  const lp = (path: string) => localePath(locale, path);
   const [line1, line2] = site.sloganLines;
   // The closing period becomes the brand red dot (the period stays for screen readers).
   const line2Text = line2.replace(/\.$/, "");
 
   return (
-    <HeroMotion className="group/motion overflow-hidden">
+    <HeroMotion locale={locale} className="group/motion overflow-hidden">
       <div className="wrap grid items-end gap-10 pb-14 pt-10 md:gap-14 md:pb-20 md:pt-16 lg:grid-cols-[1.5fr_1fr] lg:gap-12 lg:pb-24 lg:pt-20 xl:gap-16 xl:pb-28 xl:pt-24">
         <div className="min-w-0">
           <p className="label mb-6 animate-rise text-gray motion-reduce:animate-none md:mb-8" style={rise(0)}>
@@ -35,16 +40,16 @@ export function Hero() {
           </p>
           <div className="mt-8 flex animate-rise flex-col gap-3 motion-reduce:animate-none sm:flex-row sm:gap-4 md:mt-12" style={rise(3)}>
             {/* The one point-color button on this screen. */}
-            <ButtonLink href={routes.contact} variant="accent">
+            <ButtonLink href={lp(routes.contact)} variant="accent">
               {heroCopy.ctaPrimary} <span aria-hidden>→</span>
             </ButtonLink>
-            <ButtonLink href={routes.projects} variant="secondary">
+            <ButtonLink href={lp(routes.projects)} variant="secondary">
               {heroCopy.ctaSecondary}
             </ButtonLink>
           </div>
         </div>
         <div className="animate-rise motion-reduce:animate-none" style={rise(2)}>
-          <HeroBlock divisions={divisions.map(({ slug, short, name }) => ({ slug, short, name }))} />
+          <HeroBlock locale={locale} divisions={divisions.map(({ slug, short, name }) => ({ slug, short, name }))} />
         </div>
       </div>
     </HeroMotion>

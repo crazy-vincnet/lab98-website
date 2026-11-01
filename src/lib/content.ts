@@ -3,9 +3,31 @@
  * Keep UI code free of hard-coded copy that belongs here, so swapping content never touches components.
  */
 
+import type { Locale } from "@/lib/i18n";
+
 export type DivisionSlug = "dev" | "ai" | "faith";
 export type Division = "master" | DivisionSlug;
 
+/** Widened shape of `site` so the English dictionary (content.en.ts) can satisfy it. */
+export type SiteInfo = {
+  name: string;
+  slogan: string;
+  sloganLines: readonly string[];
+  sloganEn: string;
+  sloganOriginal: string;
+  description: string;
+  url: string;
+  email: string;
+  replyTime: string;
+  social: readonly { label: string; href: string }[];
+  founder: { name: string; nameEn: string; display: string; role: string; born: number };
+  nameMeaning: string;
+  business: { name: string; representative: string; registrationNumber: string; address: string };
+};
+
+export type NavItem = { label: string; href: string };
+
+/** Korean content (default locale). English lives in content.en.ts; pick with getContent(locale). */
 export const site = {
   name: "Lab98",
   /** Home hero slogan (polished). */
@@ -372,10 +394,12 @@ export function getNote(slug: string) {
   return notes.find((n) => n.slug === slug);
 }
 
-export function formatDate(iso: string) {
+export function formatDate(iso: string, locale: Locale = "ko") {
   const [y, m, d] = iso.split("-");
+  if (locale === "en") return `${EN_MONTHS[Number(m) - 1] ?? m} ${Number(d)}, ${y}`; // "Nov 1, 2026" (no Date: prerender-safe)
   return `${y}. ${m}. ${d}`;
 }
+const EN_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** Praise Tool launch date (KST). Single source for countdowns and copy. */
 export const PRAISE_TOOL_LAUNCH = "2026-11-11";

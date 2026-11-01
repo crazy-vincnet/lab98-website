@@ -167,3 +167,6 @@ export const contactCopy = {
     },
   },
 } as const;
+
+/** Everything the home components read, as one bundle (see copy.en.ts for the English twin + getHomeCopy). */
+export const homeCopy = { heroCopy, trustCopy, praiseCopy, servicesCopy, projectsCopy, processCopy, founderCopy, insightsCopy, contactCopy, interestLabel };

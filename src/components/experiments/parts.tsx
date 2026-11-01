@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ButtonLink, cx } from "@/components/ui";
 import { divisionTheme, type Division } from "@/lib/content";
+import { localePath, type Locale } from "@/lib/i18n";
 import { CONTACT_HREF } from "./paths";
 
 /** Small round division marker (point color used only as a dot). */
@@ -33,8 +34,9 @@ export function CtaBand({
   title,
   lead,
   action,
-  href = CONTACT_HREF,
+  href,
   children,
+  locale = "ko",
 }: {
   eyebrow: string;
   title: string;
@@ -42,7 +44,9 @@ export function CtaBand({
   action: string;
   href?: string;
   children?: ReactNode;
+  locale?: Locale;
 }) {
+  const target = href ?? localePath(locale, CONTACT_HREF);
   return (
     <section className="border-t-2 border-ink bg-concrete">
       <div className="wrap py-14 md:py-20">
@@ -52,7 +56,7 @@ export function CtaBand({
             <h2 className="mt-4 text-h2 text-balance">{title}</h2>
             {lead && <p className="mt-4 max-w-[560px] text-body text-pretty text-gray">{lead}</p>}
           </div>
-          <ButtonLink href={href} className="shrink-0 self-start lg:self-auto">
+          <ButtonLink href={target} className="shrink-0 self-start lg:self-auto">
             {action} <span aria-hidden>→</span>
           </ButtonLink>
         </div>

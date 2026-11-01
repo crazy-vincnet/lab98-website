@@ -5,9 +5,9 @@ import { useEffect, useId, useRef, useState, useTransition, type FormEvent } fro
 import { Button, cx } from "@/components/ui";
 import { UNSUBSCRIBE_FIELDS, UNSUBSCRIBE_LIMITS, validateUnsubscribe, type UnsubscribeFieldErrors } from "@/lib/unsubscribe";
 import { unsubscribeEmail } from "@/app/actions/unsubscribe";
-import { unsubscribeCopy } from "./copy";
+import type { Locale } from "@/lib/i18n";
+import { getUnsubscribeCopy } from "./copy.en";
 
-const t = unsubscribeCopy.form;
 
 const inputBase =
   "block w-full border-2 bg-paper px-[18px] text-body-sm text-ink placeholder:text-placeholder transition-colors duration-150 hover:bg-concrete/40 focus:bg-paper";
@@ -17,7 +17,8 @@ const inputBase =
  * deletes launch_signups). `?email=` prefills the address (links in our mails), read with useSearchParams,
  * so render this inside <Suspense> (see UnsubscribeFormFallback) to keep the page prerendered.
  */
-export function UnsubscribeForm({ to }: { to: string }) {
+export function UnsubscribeForm({ to, locale = "ko" }: { to: string; locale?: Locale }) {
+  const t = getUnsubscribeCopy(locale).form;
   const params = useSearchParams();
   const uid = useId();
   const [email, setEmail] = useState(() => (params.get("email") ?? "").trim().slice(0, UNSUBSCRIBE_LIMITS.email));

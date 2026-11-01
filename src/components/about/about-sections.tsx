@@ -1,12 +1,17 @@
 import { ButtonLink, SectionHead, cx } from "@/components/ui";
 import { DivisionCard, Section, pad2 } from "@/components/divisions/division-sections";
-import { divisions, divisionTheme, site, type Division } from "@/lib/content";
+import { divisionTheme, type Division } from "@/lib/content";
+import { getContent } from "@/lib/get-content";
+import { localePath, type Locale } from "@/lib/i18n";
 import { routes } from "@/components/divisions/copy";
-import { aboutCopy as C } from "./copy";
+import { getAboutCopy } from "./copy.en";
 
 /* ---------- Hero ---------- */
 
-export function AboutHero() {
+export function AboutHero({ locale = "ko" }: { locale?: Locale }) {
+  const C = getAboutCopy(locale);
+  const { site } = getContent(locale);
+  const lp = (path: string) => localePath(locale, path);
   return (
     <section>
       <div className="wrap pb-14 pt-12 md:pb-20 md:pt-20 xl:pb-24 xl:pt-24">
@@ -16,8 +21,8 @@ export function AboutHero() {
             <h1 className="text-h1 text-balance">{C.hero.title}</h1>
             <p className="mt-6 max-w-[640px] text-lead text-pretty md:mt-8">{site.description}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4 md:mt-12">
-              <ButtonLink href={routes.contact}>{C.hero.primaryCta}</ButtonLink>
-              <ButtonLink href={routes.projects} variant="secondary">
+              <ButtonLink href={lp(routes.contact)}>{C.hero.primaryCta}</ButtonLink>
+              <ButtonLink href={lp(routes.projects)} variant="secondary">
                 {C.hero.secondaryCta} <span aria-hidden>→</span>
               </ButtonLink>
             </div>
@@ -30,7 +35,9 @@ export function AboutHero() {
 
 /* ---------- Founder's words (dark) ---------- */
 
-export function FounderWords() {
+export function FounderWords({ locale = "ko" }: { locale?: Locale }) {
+  const C = getAboutCopy(locale);
+  const { site } = getContent(locale);
   return (
     <section className="border-t-2 border-ink bg-ink text-paper" aria-label={C.founderWords.eyebrow}>
       <div className="wrap py-16 md:py-24 xl:py-28">
@@ -60,7 +67,9 @@ export function FounderWords() {
 
 /* ---------- Name: what 98 means ---------- */
 
-export function NameMeaning() {
+export function NameMeaning({ locale = "ko" }: { locale?: Locale }) {
+  const C = getAboutCopy(locale);
+  const { site } = getContent(locale);
   return (
     <Section id="name">
       <div className="grid gap-10 lg:grid-cols-[280px_1fr] lg:items-end lg:gap-12">
@@ -85,7 +94,9 @@ export function NameMeaning() {
 
 const swatchOrder: Division[] = ["master", "dev", "ai", "faith"];
 
-export function DivisionsOverview() {
+export function DivisionsOverview({ locale = "ko" }: { locale?: Locale }) {
+  const C = getAboutCopy(locale);
+  const { divisions } = getContent(locale);
   const roles: Record<Division, string> = {
     master: C.divisions.masterRole,
     ...Object.fromEntries(divisions.map((d) => [d.slug, d.role])),
@@ -95,7 +106,7 @@ export function DivisionsOverview() {
       <SectionHead index={C.divisions.index} eyebrow={C.divisions.eyebrow} title={C.divisions.title} lead={C.divisions.lead} />
       <div className="grid gap-6 lg:grid-cols-3">
         {divisions.map((d) => (
-          <DivisionCard key={d.slug} division={d} />
+          <DivisionCard key={d.slug} division={d} locale={locale} />
         ))}
       </div>
       <div className="mt-14 grid gap-3 border-t-2 border-ink pt-8 md:mt-20 lg:grid-cols-[280px_1fr] lg:gap-12">
@@ -122,7 +133,8 @@ export function DivisionsOverview() {
 
 /* ---------- Principles ---------- */
 
-export function Principles() {
+export function Principles({ locale = "ko" }: { locale?: Locale }) {
+  const C = getAboutCopy(locale);
   return (
     <Section dark id="principles">
       <SectionHead dark index={C.principles.index} eyebrow={C.principles.eyebrow} title={C.principles.title} />
@@ -145,7 +157,9 @@ export function Principles() {
 
 /* ---------- Team ---------- */
 
-function FounderCard() {
+function FounderCard({ locale = "ko" }: { locale?: Locale }) {
+  const C = getAboutCopy(locale);
+  const { site } = getContent(locale);
   return (
     <article className="flex flex-col border-2 border-ink bg-paper">
       {/* TODO(content): founder photo — replace this monogram block with a square photo of the founder. */}
@@ -163,7 +177,9 @@ function FounderCard() {
 }
 
 /** Open role: dashed 2px frame + mono OPEN ROLE label. */
-function OpenRoleCard({ role, body, index }: { role: string; body: string; index: number }) {
+function OpenRoleCard({ role, body, index, locale = "ko" }: { role: string; body: string; index: number; locale?: Locale }) {
+  const C = getAboutCopy(locale);
+  const { site } = getContent(locale);
   return (
     <a
       href={`mailto:${site.email}?subject=${encodeURIComponent(C.team.applySubject(role))}`}
@@ -191,14 +207,15 @@ function OpenRoleCard({ role, body, index }: { role: string; body: string; index
   );
 }
 
-export function Team() {
+export function Team({ locale = "ko" }: { locale?: Locale }) {
+  const C = getAboutCopy(locale);
   return (
     <Section id="team">
       <SectionHead index={C.team.index} eyebrow={C.team.eyebrow} title={C.team.title} lead={C.team.lead} />
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <FounderCard />
+        <FounderCard locale={locale} />
         {C.team.roles.map((r, i) => (
-          <OpenRoleCard key={r.role} role={r.role} body={r.body} index={i} />
+          <OpenRoleCard key={r.role} role={r.role} body={r.body} index={i} locale={locale} />
         ))}
       </div>
     </Section>

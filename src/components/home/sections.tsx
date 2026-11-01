@@ -2,22 +2,12 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { InsightRow, ProjectCard } from "@/components/cards";
 import { ButtonLink, SectionHead, Symbol, cx } from "@/components/ui";
-import { divisions, notes, projects, site, type Division, type DivisionSlug } from "@/lib/content";
+import type { Division, DivisionSlug } from "@/lib/content";
+import { getContent } from "@/lib/get-content";
+import { localePath, type Locale } from "@/lib/i18n";
 import { ContactForm } from "./contact-form";
-import {
-  anchors,
-  clientShort,
-  contactCopy,
-  founderCopy,
-  insightsCopy,
-  interestLabel,
-  praiseCopy,
-  processCopy,
-  projectsCopy,
-  routes,
-  servicesCopy,
-  trustCopy,
-} from "./copy";
+import { anchors, clientShort, routes } from "./copy";
+import { getHomeCopy } from "./copy.en";
 import { PraiseCountdown } from "./praise-countdown";
 
 /* Consistent section rhythm: 64 / 96 / 112px vertical padding. */
@@ -51,7 +41,9 @@ const subText = "text-gray group-hover:text-ink-text group-focus-visible:text-in
 
 /* ----------------------------------------------------------- Trust strip */
 
-export function TrustStrip() {
+export function TrustStrip({ locale = "ko" }: { locale?: Locale }) {
+  const { projects } = getContent(locale);
+  const { trustCopy } = getHomeCopy(locale);
   const items = [
     trustCopy.code,
     trustCopy.price,
@@ -84,7 +76,9 @@ export function TrustStrip() {
 
 /* --------------------------------------------------- Praise Tool banner */
 
-export function PraiseToolBanner() {
+export function PraiseToolBanner({ locale = "ko" }: { locale?: Locale }) {
+  const lp = (path: string) => localePath(locale, path);
+  const { praiseCopy } = getHomeCopy(locale);
   return (
     <section aria-labelledby="praise-tool-banner" className="bg-ink text-paper">
       <div className="wrap flex flex-col gap-8 py-10 md:py-14 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
@@ -99,16 +93,16 @@ export function PraiseToolBanner() {
                 · {praiseCopy.launch}
               </span>
             </h2>
-            <PraiseCountdown />
+            <PraiseCountdown locale={locale} />
           </div>
           <p className="mt-4 max-w-[640px] text-body text-ink-text text-pretty">{praiseCopy.line}</p>
         </div>
         <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-          <ButtonLink href={routes.praiseToolNotify} variant="inverse" className="group">
+          <ButtonLink href={lp(routes.praiseToolNotify)} variant="inverse" className="group">
             {praiseCopy.notify} <Arrow />
           </ButtonLink>
           <Link
-            href={routes.praiseTool}
+            href={lp(routes.praiseTool)}
             className="inline-flex min-h-11 items-center justify-center self-start border-b-2 border-paper text-body-sm font-bold transition-colors hover:border-faith hover:text-faith-text-dark max-sm:self-stretch max-sm:border-2 max-sm:py-3"
           >
             {praiseCopy.more}
@@ -121,7 +115,10 @@ export function PraiseToolBanner() {
 
 /* ------------------------------------------------------------- 01 Services */
 
-export function Services() {
+export function Services({ locale = "ko" }: { locale?: Locale }) {
+  const lp = (path: string) => localePath(locale, path);
+  const { divisions } = getContent(locale);
+  const { servicesCopy } = getHomeCopy(locale);
   return (
     <Section id={anchors.services}>
       <SectionHead index={servicesCopy.index} eyebrow={servicesCopy.eyebrow} title={servicesCopy.title} lead={servicesCopy.lead} />
@@ -129,7 +126,7 @@ export function Services() {
       <ul className="grid gap-4 md:gap-5 lg:grid-cols-3 xl:gap-6">
         {divisions.map((d) => (
           <li key={d.slug} className="flex">
-            <Link href={routes.division(d.slug)} className="group flex w-full outline-offset-4">
+            <Link href={lp(routes.division(d.slug))} className="group flex w-full outline-offset-4">
               <article className={cx("flex w-full flex-col gap-5 border-2 border-ink bg-paper p-7 transition-colors duration-200 md:p-8 lg:min-h-[480px] xl:p-10", invert)}>
                 {/* Symbols are decorative here: the h3 already names the service. */}
                 <span className={cx("block", swapOff)} aria-hidden>
@@ -169,7 +166,10 @@ export function Services() {
 
 /* ------------------------------------------------------------- 02 Projects */
 
-export function Projects() {
+export function Projects({ locale = "ko" }: { locale?: Locale }) {
+  const lp = (path: string) => localePath(locale, path);
+  const { projects } = getContent(locale);
+  const { projectsCopy } = getHomeCopy(locale);
   return (
     <Section id={anchors.projects} className="bg-concrete">
       <SectionHead index={projectsCopy.index} eyebrow={projectsCopy.eyebrow} title={projectsCopy.title} lead={projectsCopy.lead} />
@@ -177,7 +177,7 @@ export function Projects() {
       <ul className="grid gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-6 xl:gap-6">
         {projects.map((p, i) => (
           <li key={p.slug} className={cx("flex min-w-0 [&>*]:w-full", i === 0 && "md:col-span-2", i < 2 ? "lg:col-span-3" : "lg:col-span-2")}>
-            <ProjectCard project={p} headingLevel="h3" />
+            <ProjectCard locale={locale} project={p} headingLevel="h3" />
           </li>
         ))}
       </ul>
@@ -206,7 +206,7 @@ export function Projects() {
       </div>
 
       <div className="mt-10 flex justify-center">
-        <ButtonLink href={routes.projects} variant="secondary" className="group w-full sm:w-auto">
+        <ButtonLink href={lp(routes.projects)} variant="secondary" className="group w-full sm:w-auto">
           {projectsCopy.more} <Arrow />
         </ButtonLink>
       </div>
@@ -219,7 +219,9 @@ export function Projects() {
 /** The step that sets Lab98 apart (배포 및 코드 공유). */
 const HIGHLIGHT_STEP = 4;
 
-export function Process() {
+export function Process({ locale = "ko" }: { locale?: Locale }) {
+  const { divisions } = getContent(locale);
+  const { processCopy } = getHomeCopy(locale);
   const steps = divisions.find((d) => d.slug === "dev")?.process ?? [];
   return (
     <section id={anchors.process} className="border-t-2 border-ink bg-ink text-paper">
@@ -254,7 +256,10 @@ export function Process() {
 
 /* ------------------------------------------------------------- 04 Founder */
 
-export function Founder() {
+export function Founder({ locale = "ko" }: { locale?: Locale }) {
+  const lp = (path: string) => localePath(locale, path);
+  const { site } = getContent(locale);
+  const { founderCopy } = getHomeCopy(locale);
   return (
     <Section id={anchors.about}>
       <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12">
@@ -271,7 +276,7 @@ export function Founder() {
           </figcaption>
           <p className="mt-8 max-w-[640px] border-t-2 border-ink pt-6 text-body text-gray text-pretty">{site.nameMeaning}</p>
           <Link
-            href={routes.about}
+            href={lp(routes.about)}
             className="group mt-6 inline-flex min-h-11 items-center gap-2 border-b-2 border-ink text-body-sm font-bold transition-colors hover:border-red hover:text-red-text"
           >
             {founderCopy.more} <Arrow />
@@ -284,7 +289,10 @@ export function Founder() {
 
 /* ------------------------------------------------------------- 05 Insights */
 
-export function Insights() {
+export function Insights({ locale = "ko" }: { locale?: Locale }) {
+  const lp = (path: string) => localePath(locale, path);
+  const { notes } = getContent(locale);
+  const { insightsCopy } = getHomeCopy(locale);
   const latest = [...notes].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
   if (latest.length === 0) return null;
   return (
@@ -293,13 +301,13 @@ export function Insights() {
       <ul className="border-t-2 border-ink">
         {latest.map((n) => (
           <li key={n.slug}>
-            <InsightRow note={n} headingLevel="h3" />
+            <InsightRow locale={locale} note={n} headingLevel="h3" />
           </li>
         ))}
       </ul>
       <div className="mt-10 flex justify-end">
         <Link
-          href={routes.insights}
+          href={lp(routes.insights)}
           className="group inline-flex min-h-11 items-center gap-2 border-b-2 border-ink text-body-sm font-bold transition-colors hover:border-red hover:text-red-text"
         >
           {insightsCopy.more} <Arrow />
@@ -311,7 +319,9 @@ export function Insights() {
 
 /* ------------------------------------------------------------ 06 Contact */
 
-export function Contact() {
+export function Contact({ locale = "ko" }: { locale?: Locale }) {
+  const { divisions, site } = getContent(locale);
+  const { contactCopy, interestLabel } = getHomeCopy(locale);
   const interests: { value: Division; label: string }[] = [
     { value: "master", label: interestLabel.master },
     ...divisions.map((d) => ({ value: d.slug, label: interestLabel[d.slug] })),
@@ -340,7 +350,7 @@ export function Contact() {
             <dd className="py-2">{site.replyTime}</dd>
           </dl>
         </div>
-        <ContactForm to={site.email} interests={interests} />
+        <ContactForm locale={locale} to={site.email} interests={interests} />
       </div>
     </Section>
   );

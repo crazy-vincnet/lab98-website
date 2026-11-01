@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  // Two root layouts ((ko) and (en)/en) → unmatched URLs need a standalone 404 document: app/global-not-found.tsx.
+  experimental: {
+    globalNotFound: true,
+  },
   turbopack: {
     rules: {
       "*.css": {

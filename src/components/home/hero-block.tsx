@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { cx } from "@/components/ui";
 import type { Division, DivisionSlug } from "@/lib/content";
-import { heroCopy, routes } from "./copy";
+import { localePath, type Locale } from "@/lib/i18n";
+import { routes } from "./copy";
+import { getHomeCopy } from "./copy.en";
 import { MotionToggle, useHeroMotion } from "./hero-motion";
 import { useReducedMotion } from "./use-reduced-motion";
 
@@ -31,7 +33,8 @@ const CYCLE_MS = 2500;
  * is hovered / focused and when the pause toggle (top-left, hidden under
  * reduced motion) is on.
  */
-export function HeroBlock({ divisions }: { divisions: { slug: DivisionSlug; short: string; name: string }[] }) {
+export function HeroBlock({ divisions, locale = "ko" }: { divisions: { slug: DivisionSlug; short: string; name: string }[]; locale?: Locale }) {
+  const { heroCopy } = getHomeCopy(locale);
   const reduced = useReducedMotion();
   const [active, setActive] = useState<Division>("master");
   const [pinned, setPinned] = useState(false);
@@ -69,7 +72,7 @@ export function HeroBlock({ divisions }: { divisions: { slug: DivisionSlug; shor
             <li key={d.slug} className="flex items-center">
               {i > 0 && <span className="font-mono text-meta" aria-hidden>·</span>}
               <Link
-                href={routes.division(d.slug)}
+                href={localePath(locale, routes.division(d.slug))}
                 onMouseEnter={() => pin(d.slug)}
                 onMouseLeave={release}
                 onFocus={() => pin(d.slug)}

@@ -8,9 +8,8 @@ import type { Division } from "@/lib/content";
 import { FIELDS, LIMITS, validateInquiry, type FieldErrors } from "@/lib/inquiry";
 import { submitInquiry } from "@/app/actions/contact";
 import { PRIVACY_PATH } from "@/components/experiments/paths";
-import { contactCopy } from "./copy";
-
-const t = contactCopy.form;
+import { localePath, type Locale } from "@/lib/i18n";
+import { getHomeCopy } from "./copy.en";
 
 type Interest = { value: Division; label: string };
 
@@ -23,7 +22,8 @@ const inputBase =
  * Contact form. Submits to the `submitInquiry` Server Action (stored in InsForge, team gets an email).
  * `to` is only shown as a fallback address when sending fails and on the success screen.
  */
-export function ContactForm({ to, interests }: { to: string; interests: Interest[] }) {
+export function ContactForm({ to, interests, locale = "ko" }: { to: string; interests: Interest[]; locale?: Locale }) {
+  const t = getHomeCopy(locale).contactCopy.form;
   const uid = useId();
   const [interest, setInterest] = useState<Division>(interests[0].value);
   const [name, setName] = useState("");
@@ -291,7 +291,7 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
           <p className="mt-1 pl-8 text-body-sm text-gray text-pretty">
             {t.policyBefore}{" "}
             {/* New tab, so a half-filled form isn't lost. */}
-            <Link href={PRIVACY_PATH} target="_blank" className="font-bold text-ink underline underline-offset-4 hover:text-red-text">
+            <Link href={localePath(locale, PRIVACY_PATH)} target="_blank" className="font-bold text-ink underline underline-offset-4 hover:text-red-text">
               {t.policyLink}
               <span className="sr-only"> ({t.policyNewTab})</span>
             </Link>

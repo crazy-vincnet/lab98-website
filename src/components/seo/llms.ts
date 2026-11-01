@@ -1,6 +1,8 @@
 /**
  * /llms.txt and /llms-full.txt bodies (https://llmstxt.org), generated from content.ts / praise-tool.ts so the
  * AI-facing summary never drifts from the site. Pure functions of static data → both routes prerender at build.
+ *
+ * TODO(en): Korean only. An English llms.txt (or an /en/llms.txt route) comes with the English content pass.
  */
 import { aboutCopy } from "@/components/about/copy";
 import { CONTACT_HREF, COOKIES_PATH, INSIGHTS_PATH, PRAISE_TOOL_PATH, PRIVACY_PATH, PROJECTS_PATH, TERMS_PATH, divisionHref, insightHref, projectHref } from "@/components/experiments/paths";

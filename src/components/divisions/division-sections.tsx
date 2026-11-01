@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ButtonLink, Lockup, SectionHead, Symbol, Tag, cx } from "@/components/ui";
 import { ProjectCard } from "@/components/cards";
-import { divisionCopy as C, routes } from "./copy";
+import { localePath, type Locale } from "@/lib/i18n";
+import { routes } from "./copy";
+import { getDivisionCopy } from "./copy.en";
 import { divisionTheme, type DivisionInfo, type DivisionSlug, type Project } from "@/lib/content";
 
 /**
@@ -42,7 +44,10 @@ export const pad2 = (n: number) => String(n).padStart(2, "0");
 
 /* ---------- Hero ---------- */
 
-export function DivisionHero({ division }: { division: DivisionInfo }) {
+export function DivisionHero({ division, locale = "ko" }: { division: DivisionInfo; locale?: Locale }) {
+  const C = getDivisionCopy(locale);
+  const lp = (path: string) => localePath(locale, path);
+
   const theme = divisionTheme[division.slug];
   const secondary = C.hero.secondary[division.slug];
   return (
@@ -58,10 +63,10 @@ export function DivisionHero({ division }: { division: DivisionInfo }) {
           <h1 className="mt-5 text-h1 text-balance">{division.headline}</h1>
           <p className="mt-6 max-w-[600px] text-lead text-pretty md:mt-8">{division.summary}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4 md:mt-12">
-            <DivisionAccentLink division={division.slug} href={routes.contact}>
+            <DivisionAccentLink division={division.slug} href={lp(routes.contact)}>
               {division.cta.label}
             </DivisionAccentLink>
-            <ButtonLink href={secondary.href} variant="secondary">
+            <ButtonLink href={lp(secondary.href)} variant="secondary">
               {secondary.label} <span aria-hidden>→</span>
             </ButtonLink>
           </div>
@@ -102,7 +107,9 @@ export function DivisionHero({ division }: { division: DivisionInfo }) {
 
 /* ---------- Status notice (e.g. AI community "오픈 예정") ---------- */
 
-export function StatusNotice({ division }: { division: DivisionInfo }) {
+export function StatusNotice({ division, locale = "ko" }: { division: DivisionInfo; locale?: Locale }) {
+  const C = getDivisionCopy(locale);
+
   if (!division.status) return null;
   const theme = divisionTheme[division.slug];
   return (
@@ -120,7 +127,9 @@ export function StatusNotice({ division }: { division: DivisionInfo }) {
 
 /* ---------- Description ("why") ---------- */
 
-export function DivisionAbout({ division, index }: { division: DivisionInfo; index?: string }) {
+export function DivisionAbout({ division, index, locale = "ko" }: { division: DivisionInfo; index?: string; locale?: Locale }) {
+  const C = getDivisionCopy(locale);
+
   const contrast = division.slug === "ai" ? C.about.aiContrast : null;
   const theme = divisionTheme[division.slug];
   return (
@@ -153,7 +162,10 @@ export function DivisionAbout({ division, index }: { division: DivisionInfo; ind
 
 /* ---------- Faith: Praise Tool feature ---------- */
 
-export function PraiseToolFeature({ index }: { index?: string }) {
+export function PraiseToolFeature({ index, locale = "ko" }: { index?: string; locale?: Locale }) {
+  const C = getDivisionCopy(locale);
+  const lp = (path: string) => localePath(locale, path);
+
   const P = C.praiseTool;
   const theme = divisionTheme.faith;
   return (
@@ -168,12 +180,12 @@ export function PraiseToolFeature({ index }: { index?: string }) {
           <h2 className="mt-5 text-h1 text-balance">{P.title}</h2>
           <p className="mt-6 max-w-[600px] text-lead text-ink-text text-pretty">{P.lead}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4 md:mt-12">
-            <ButtonLink href={routes.praiseTool} variant="inverse">
+            <ButtonLink href={lp(routes.praiseTool)} variant="inverse">
               {P.primaryCta} <span aria-hidden>→</span>
             </ButtonLink>
             {/* Outline button on ink (no matching ButtonLink variant). */}
             <Link
-              href={routes.praiseToolNotify}
+              href={lp(routes.praiseToolNotify)}
               className="inline-flex items-center justify-center gap-2.5 whitespace-nowrap border-2 border-paper bg-ink px-7 py-[18px] text-base font-bold leading-none text-paper transition-[background-color,color,transform] duration-150 ease-[var(--ease-lab)] hover:bg-paper hover:text-ink active:translate-y-px"
             >
               {P.secondaryCta}
@@ -195,7 +207,9 @@ export function PraiseToolFeature({ index }: { index?: string }) {
 
 /* ---------- What we do ---------- */
 
-export function Services({ division, index }: { division: DivisionInfo; index?: string }) {
+export function Services({ division, index, locale = "ko" }: { division: DivisionInfo; index?: string; locale?: Locale }) {
+  const C = getDivisionCopy(locale);
+
   const theme = divisionTheme[division.slug];
   const statusTitle = C.statusService[division.slug];
   const cols = division.services.length === 4 ? "lg:grid-cols-2 xl:grid-cols-4" : "lg:grid-cols-3";
@@ -230,7 +244,9 @@ export function Services({ division, index }: { division: DivisionInfo; index?: 
 
 /* ---------- Process (numbered steps) ---------- */
 
-export function Process({ division, index }: { division: DivisionInfo; index?: string }) {
+export function Process({ division, index, locale = "ko" }: { division: DivisionInfo; index?: string; locale?: Locale }) {
+  const C = getDivisionCopy(locale);
+
   const theme = divisionTheme[division.slug];
   const head = C.process.byDivision[division.slug];
   const highlight = C.process.highlight[division.slug];
@@ -270,18 +286,21 @@ export function Process({ division, index }: { division: DivisionInfo; index?: s
 
 /* ---------- Dev: projects ---------- */
 
-export function DivisionProjects({ items, index }: { items: Project[]; index?: string }) {
+export function DivisionProjects({ items, index, locale = "ko" }: { items: Project[]; index?: string; locale?: Locale }) {
+  const C = getDivisionCopy(locale);
+  const lp = (path: string) => localePath(locale, path);
+
   if (items.length === 0) return null;
   return (
     <Section id="projects">
       <SectionHead index={index} eyebrow={C.projects.eyebrow} title={C.projects.title} lead={C.projects.lead} />
       <div className="grid gap-6 md:grid-cols-2">
         {items.map((p) => (
-          <ProjectCard key={p.slug} project={p} />
+          <ProjectCard key={p.slug} project={p} locale={locale} />
         ))}
       </div>
       <div className="mt-10 flex justify-center">
-        <ButtonLink href={routes.projects} variant="secondary">
+        <ButtonLink href={lp(routes.projects)} variant="secondary">
           {C.projects.allCta} <span aria-hidden>→</span>
         </ButtonLink>
       </div>
@@ -299,11 +318,14 @@ const cardFootText: Record<DivisionSlug, string> = {
 };
 
 /** Same hover language as ProjectCard: border stays, footer bar inverts, arrow nudges, title underlines. */
-export function DivisionCard({ division, headingLevel = "h3" }: { division: DivisionInfo; headingLevel?: "h2" | "h3" }) {
+export function DivisionCard({ division, headingLevel = "h3", locale = "ko" }: { division: DivisionInfo; headingLevel?: "h2" | "h3"; locale?: Locale }) {
+  const C = getDivisionCopy(locale);
+  const lp = (path: string) => localePath(locale, path);
+
   const theme = divisionTheme[division.slug];
   const Heading = headingLevel;
   return (
-    <Link href={routes.division(division.slug)} className="group flex h-full flex-col border-2 border-ink bg-paper">
+    <Link href={lp(routes.division(division.slug))} className="group flex h-full flex-col border-2 border-ink bg-paper">
       <div className="flex flex-1 flex-col gap-5 p-7 md:p-10">
         {/* decorative: the heading below already names the division */}
         <span aria-hidden>
@@ -333,13 +355,15 @@ export function DivisionCard({ division, headingLevel = "h3" }: { division: Divi
   );
 }
 
-export function OtherDivisions({ items, index }: { items: DivisionInfo[]; index?: string }) {
+export function OtherDivisions({ items, index, locale = "ko" }: { items: DivisionInfo[]; index?: string; locale?: Locale }) {
+  const C = getDivisionCopy(locale);
+
   return (
     <Section id="other-divisions">
       <SectionHead index={index} eyebrow={C.others.eyebrow} title={C.others.title} lead={C.others.lead} />
       <div className="grid gap-6 md:grid-cols-2">
         {items.map((d) => (
-          <DivisionCard key={d.slug} division={d} />
+          <DivisionCard key={d.slug} division={d} locale={locale} />
         ))}
       </div>
     </Section>
@@ -349,17 +373,24 @@ export function OtherDivisions({ items, index }: { items: DivisionInfo[]; index?
 /* ---------- Contact band ---------- */
 
 export function ContactBand({
-  title = C.contactBand.title,
-  lead = C.contactBand.lead,
-  cta = C.contactBand.cta,
+  title,
+  lead,
+  cta,
   secondary,
+  locale = "ko",
 }: {
   title?: string;
   lead?: string;
   cta?: string;
   /** optional secondary link-style CTA (label without the trailing arrow) */
   secondary?: { label: string; href: string };
+  locale?: Locale;
 }) {
+  const C = getDivisionCopy(locale);
+  const lp = (path: string) => localePath(locale, path);
+  title ??= C.contactBand.title;
+  lead ??= C.contactBand.lead;
+  cta ??= C.contactBand.cta;
   return (
     <section className="border-t-2 border-ink bg-concrete">
       <div className="wrap flex flex-col gap-8 py-14 md:py-20 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
@@ -369,9 +400,9 @@ export function ContactBand({
           <p className="mt-4 max-w-[560px] text-body text-gray text-pretty">{lead}</p>
         </div>
         <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:gap-4">
-          <ButtonLink href={routes.contact}>{cta}</ButtonLink>
+          <ButtonLink href={lp(routes.contact)}>{cta}</ButtonLink>
           {secondary && (
-            <ButtonLink href={secondary.href} variant="secondary">
+            <ButtonLink href={lp(secondary.href)} variant="secondary">
               {secondary.label} <span aria-hidden>→</span>
             </ButtonLink>
           )}

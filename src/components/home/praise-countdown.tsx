@@ -3,7 +3,8 @@
 import { useSyncExternalStore } from "react";
 import { cx } from "@/components/ui";
 import { PRAISE_TOOL_LAUNCH } from "@/lib/content";
-import { praiseCopy } from "./copy";
+import type { Locale } from "@/lib/i18n";
+import { getHomeCopy } from "./copy.en";
 
 const DAY_MS = 86_400_000;
 const kstDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" });
@@ -15,7 +16,7 @@ function daysToLaunch() {
   return Math.round((Date.UTC(ly, lm - 1, ld) - Date.UTC(y, m - 1, d)) / DAY_MS);
 }
 
-function badgeText() {
+function badgeText(praiseCopy: ReturnType<typeof getHomeCopy>["praiseCopy"]) {
   const n = daysToLaunch();
   if (n > 0) return `D-${n}`;
   if (n === 0) return praiseCopy.today;
@@ -33,8 +34,9 @@ function subscribe(onChange: () => void) {
  * (no date math during prerender — cacheComponents forbids `new Date()` there);
  * the real value fills in after hydration.
  */
-export function PraiseCountdown({ className }: { className?: string }) {
-  const text = useSyncExternalStore(subscribe, badgeText, () => null);
+export function PraiseCountdown({ className, locale = "ko" }: { className?: string; locale?: Locale }) {
+  const { praiseCopy } = getHomeCopy(locale);
+  const text = useSyncExternalStore(subscribe, () => badgeText(praiseCopy), () => null);
   return (
     <span className={cx("inline-flex min-h-9 items-center border-2 border-faith px-3 font-mono text-body-sm font-bold text-faith-text-dark", className)}>
       {text ?? praiseCopy.fallback}

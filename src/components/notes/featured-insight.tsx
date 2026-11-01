@@ -2,19 +2,21 @@ import Link from "next/link";
 import { insightHref } from "@/components/experiments/paths";
 import { DivisionDot, MetaLine } from "@/components/experiments/parts";
 import { divisionTheme, formatDate, type Note } from "@/lib/content";
-import { notesCopy as t } from "./copy";
+import { localePath, type Locale } from "@/lib/i18n";
+import { getNotesCopy } from "./copy.en";
 
 /**
  * Hero item of the insights list. White card with a 2px border and a black top bar.
  * Hover follows the canonical cards: no layout shift, title underline, arrow nudge, bottom CTA bar inverts.
  */
-export function FeaturedInsight({ note }: { note: Note }) {
+export function FeaturedInsight({ note, locale = "ko" }: { note: Note; locale?: Locale }) {
+  const t = getNotesCopy(locale);
   return (
-    <Link href={insightHref(note.slug)} className="group flex flex-col border-2 border-ink bg-paper">
+    <Link href={localePath(locale, insightHref(note.slug))} className="group flex flex-col border-2 border-ink bg-paper">
       <p className="flex items-center justify-between gap-4 bg-ink px-6 py-3 text-paper md:px-10">
         <span className="label">{t.list.featured}</span>
         <time dateTime={note.date} className="font-mono text-meta">
-          {formatDate(note.date)}
+          {formatDate(note.date, locale)}
         </time>
       </p>
       <div className="flex flex-col gap-5 p-6 md:p-10 xl:p-14">

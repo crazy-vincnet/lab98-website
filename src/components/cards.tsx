@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { divisionTheme, formatDate, type Note, type Project } from "@/lib/content";
+import { localePath, type Locale } from "@/lib/i18n";
 import { cx } from "@/components/ui";
 import { insightHref, projectHref } from "@/components/experiments/paths";
 
@@ -10,10 +11,17 @@ import { insightHref, projectHref } from "@/components/experiments/paths";
  * title gets an underline. Works on white AND concrete backgrounds. No shadows, no radius.
  */
 
-const cardCopy = {
-  projectCta: "프로젝트 보기",
-  minutes: (n: number) => `${n}분 읽기`,
-  shotAlt: (client: string) => `${client} 웹사이트 데스크톱 첫 화면`,
+const cardCopyByLocale = {
+  ko: {
+    projectCta: "프로젝트 보기",
+    minutes: (n: number) => `${n}분 읽기`,
+    shotAlt: (client: string) => `${client} 웹사이트 데스크톱 첫 화면`,
+  },
+  en: {
+    projectCta: "View project",
+    minutes: (n: number) => `${n} min read`,
+    shotAlt: (client: string) => `${client} website, desktop first screen`,
+  },
 };
 
 /**
@@ -31,16 +39,19 @@ export function ProjectCard({
   project: p,
   headingLevel = "h3",
   sizes = PROJECT_CARD_SIZES,
+  locale = "ko",
 }: {
   project: Project;
   headingLevel?: "h2" | "h3";
   /** `next/image` sizes for the screenshot; match the grid the card sits in. */
   sizes?: string;
+  locale?: Locale;
 }) {
+  const cardCopy = cardCopyByLocale[locale];
   const H = headingLevel;
   const theme = divisionTheme[p.division];
   return (
-    <Link href={projectHref(p.slug)} className="group flex h-full flex-col border-2 border-ink bg-paper">
+    <Link href={localePath(locale, projectHref(p.slug))} className="group flex h-full flex-col border-2 border-ink bg-paper">
       <div className="relative aspect-16/10 overflow-hidden border-b-2 border-ink bg-concrete">
         <Image
           src={p.images.desktop}
@@ -74,11 +85,12 @@ export function ProjectCard({
 }
 
 /** Insight list row. Stack rows inside a container with `border-t-2 border-ink`. */
-export function InsightRow({ note: n, headingLevel = "h3" }: { note: Note; headingLevel?: "h2" | "h3" }) {
+export function InsightRow({ note: n, headingLevel = "h3", locale = "ko" }: { note: Note; headingLevel?: "h2" | "h3"; locale?: Locale }) {
+  const cardCopy = cardCopyByLocale[locale];
   const H = headingLevel;
   return (
-    <Link href={insightHref(n.slug)} className="group grid gap-2 border-b-2 border-ink py-6 transition-colors hover:bg-concrete md:grid-cols-[160px_1fr_auto] md:items-baseline md:gap-8 md:px-4 md:py-8">
-      <span className="font-mono text-meta text-gray">{formatDate(n.date)}</span>
+    <Link href={localePath(locale, insightHref(n.slug))} className="group grid gap-2 border-b-2 border-ink py-6 transition-colors hover:bg-concrete md:grid-cols-[160px_1fr_auto] md:items-baseline md:gap-8 md:px-4 md:py-8">
+      <span className="font-mono text-meta text-gray">{formatDate(n.date, locale)}</span>
       <span className="flex flex-col gap-2">
         <H className="flex items-baseline gap-3 text-title text-balance underline-offset-4 group-hover:underline">
           <i className={cx("size-2 shrink-0 translate-y-[-0.2em] rounded-full", divisionTheme[n.division].bg)} aria-hidden />

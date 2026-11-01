@@ -2,9 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 import { PRAISE_TOOL_LAUNCH } from "@/lib/content";
-import { praiseTool } from "@/lib/praise-tool";
-
-const t = praiseTool.dday;
+import { getPraiseTool } from "@/lib/praise-tool.en";
+import type { Locale } from "@/lib/i18n";
 const DAY_MS = 86_400_000;
 
 /** Today's date in Seoul as YYYY-MM-DD (en-CA formats ISO-style). */
@@ -16,7 +15,7 @@ const utcDay = (iso: string) => {
 };
 
 /** "D-10" before launch, "오늘 출시" on the day, "출시됨" after. Strings keep the snapshot stable. */
-function getSnapshot() {
+function getSnapshot(t: ReturnType<typeof getPraiseTool>["dday"]) {
   const days = Math.round((utcDay(PRAISE_TOOL_LAUNCH) - utcDay(seoulToday())) / DAY_MS);
   return days > 0 ? `D-${days}` : days === 0 ? t.today : t.released;
 }
@@ -31,8 +30,9 @@ function subscribe(onChange: () => void) {
  * Launch countdown badge. Computed in the browser only (the page is prerendered, so the server
  * must not read the clock); the server and first paint show a stable fallback.
  */
-export function LaunchDday({ className }: { className?: string }) {
-  const value = useSyncExternalStore(subscribe, getSnapshot, () => null);
+export function LaunchDday({ className, locale = "ko" }: { className?: string; locale?: Locale }) {
+  const t = getPraiseTool(locale).dday;
+  const value = useSyncExternalStore(subscribe, () => getSnapshot(t), () => null);
   return (
     <span className={className}>
       {value?.startsWith("D-") && <span className="sr-only">{t.label} </span>}

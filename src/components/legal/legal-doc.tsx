@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
-import { site } from "@/lib/content";
+import { getContent } from "@/lib/get-content";
+import type { Locale } from "@/lib/i18n";
+import { getChromeCopy } from "@/components/chrome/copy.en";
 
 /**
  * Shared layout for 개인정보처리방침 / 이용약관 / 쿠키 정책.
@@ -18,6 +20,7 @@ export function LegalDoc({
   effectiveDate,
   sections,
   history,
+  locale = "ko",
 }: {
   label: string;
   title: string;
@@ -25,8 +28,12 @@ export function LegalDoc({
   effectiveDate: string;
   sections: LegalSection[];
   history: LegalHistoryEntry[];
+  locale?: Locale;
 }) {
+  const { site } = getContent(locale);
+  const t = getChromeCopy(locale).legalDoc;
   const biz = site.business;
+  const bizLine = t.bizLine(biz);
   return (
     <section className="wrap py-16 md:py-24">
       <p lang="en" className="label text-gray">
@@ -34,16 +41,16 @@ export function LegalDoc({
       </p>
       <h1 className="mt-6 text-h1 text-balance">{title}</h1>
       <div className="mt-5 max-w-[680px] text-lead text-gray text-pretty">{intro}</div>
-      <p className="mt-4 font-mono text-meta text-gray">시행일 {effectiveDate}</p>
+      <p className="mt-4 font-mono text-meta text-gray">{t.effective} {effectiveDate}</p>
       {/* 사업장 주소는 site.business.address가 채워지면 자동으로 표시돼요. */}
       <p className="mt-2 text-body-sm text-gray text-pretty">
-        상호 {biz.name} · 대표 {biz.representative} · 사업자등록번호 {biz.registrationNumber}
-        {biz.address ? <> · 주소 {biz.address}</> : null} · 문의 <a href={`mailto:${site.email}`} className="underline underline-offset-4 hover:text-red-text">{site.email}</a>
+        {bizLine.prefix}
+        {bizLine.address}{bizLine.contact}<a href={`mailto:${site.email}`} className="underline underline-offset-4 hover:text-red-text">{site.email}</a>
       </p>
 
       <nav aria-labelledby="legal-toc" className="mt-12 max-w-[760px] border-2 border-ink p-5 md:p-7">
         <h2 id="legal-toc" className="label ko-tight">
-          목차
+          {t.toc}
         </h2>
         <ol className="mt-4 grid gap-x-8 text-body-sm sm:grid-cols-2">
           {sections.map((s, i) => (
@@ -68,7 +75,7 @@ export function LegalDoc({
         ))}
         <section aria-labelledby="legal-history" className="py-8">
           <h2 id="legal-history" className="text-title">
-            변경 이력
+            {t.history}
           </h2>
           <ul className="mt-4 flex flex-col gap-2 font-mono text-meta">
             {history.map((h) => (

@@ -4,23 +4,9 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Button, cx } from "@/components/ui";
 import { COOKIES_PATH } from "@/components/experiments/paths";
+import { getChromeCopy } from "@/components/chrome/copy.en";
+import { localePath, type Locale } from "@/lib/i18n";
 import { OPEN_COOKIE_SETTINGS_EVENT, useConsent, writeConsent } from "./consent";
-
-const t = {
-  region: "쿠키 안내",
-  title: "쿠키 안내",
-  body: "Lab98은 지금 광고·추적 쿠키를 쓰지 않아요. 앞으로 방문 통계 도구를 쓰게 되면, 동의하신 경우에만 사용할게요.",
-  essentialOnly: "필수만 사용",
-  allowAnalytics: "통계 쿠키 허용",
-  settings: "설정",
-  policy: "쿠키 정책",
-  panelTitle: "쿠키 설정",
-  essential: { name: "필수", state: "항상 사용", desc: "쿠키 동의 선택을 기억하는 저장소예요." },
-  analytics: { name: "통계", desc: "방문 통계 — 지금은 사용하는 도구가 없어요." },
-  save: "선택 저장",
-  close: "닫기",
-  saved: { essential: "필수만 사용하도록 저장했어요.", analytics: "통계 쿠키를 허용하도록 저장했어요." },
-} as const;
 
 /** One on/off switch. `locked` = always on, announced as unavailable but still focusable. */
 function Switch({ id, checked, locked = false, onChange, labelledBy, describedBy }: { id: string; checked: boolean; locked?: boolean; onChange?: (v: boolean) => void; labelledBy: string; describedBy: string }) {
@@ -48,7 +34,8 @@ function Switch({ id, checked, locked = false, onChange, labelledBy, describedBy
  * Shown after mount when no choice is stored; reopened with the `lab98:open-cookie-settings` window event.
  * Honest by design: the site sets no cookies — the only stored item is this choice.
  */
-export function CookieBanner() {
+export function CookieBanner({ locale = "ko" }: { locale?: Locale }) {
+  const t = getChromeCopy(locale).cookieBanner;
   const uid = useId();
   const consent = useConsent();
   // Opened from the footer / cookie page: panel expanded, focus moved in, Esc closes, focus returns.
@@ -157,7 +144,7 @@ export function CookieBanner() {
                   <Button type="button" variant="secondary" size="sm" aria-expanded={panelOpen} aria-controls={panelId} onClick={toggleSettings}>
                     {t.settings}
                   </Button>
-                  <Link href={COOKIES_PATH} className="inline-flex min-h-11 items-center text-body-sm font-bold underline underline-offset-4 hover:text-red-text">
+                  <Link href={localePath(locale, COOKIES_PATH)} className="inline-flex min-h-11 items-center text-body-sm font-bold underline underline-offset-4 hover:text-red-text">
                     {t.policy}
                   </Link>
                 </div>

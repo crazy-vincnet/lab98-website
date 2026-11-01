@@ -1,8 +1,7 @@
 import Image from "next/image";
 import type { Project } from "@/lib/content";
-import { projectsCopy } from "./copy";
-
-const alt = projectsCopy.detail.alt;
+import type { Locale } from "@/lib/i18n";
+import { getProjectsPageCopy } from "./copy.en";
 
 /**
  * Desktop screenshot in an ink browser frame next to the mobile screenshot in a phone frame.
@@ -13,7 +12,8 @@ const alt = projectsCopy.detail.alt;
  * → ≤944px at ≥1440, ≈56–63vw between md and lg. `preload` (Next 16 replacement for `priority`):
  * it's the page's largest image and the LCP candidate on desktop.
  */
-export function ProjectShots({ project: p }: { project: Project }) {
+export function ProjectShots({ project: p, locale = "ko" }: { project: Project; locale?: Locale }) {
+  const alt = getProjectsPageCopy(locale).detail.alt;
   const host = new URL(p.url).host;
   return (
     <div className="grid items-end gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,220px)] md:gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,280px)] lg:gap-14">

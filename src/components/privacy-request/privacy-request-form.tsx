@@ -10,9 +10,9 @@ import {
   type RequestType,
 } from "@/lib/privacy-request";
 import { submitPrivacyRequest } from "@/app/actions/privacy-request";
-import { privacyRequestCopy } from "./copy";
+import type { Locale } from "@/lib/i18n";
+import { getPrivacyRequestCopy } from "./copy.en";
 
-const t = privacyRequestCopy.form;
 
 const inputBase =
   "block w-full border-2 bg-paper px-[18px] text-body-sm text-ink placeholder:text-placeholder transition-colors duration-150 hover:bg-concrete/40 focus:bg-paper";
@@ -22,7 +22,8 @@ const inputBase =
  * the team and the requester each get an email). Nothing is changed until the requester replies.
  * `to` is the fallback address shown when sending fails and on the success screen.
  */
-export function PrivacyRequestForm({ to }: { to: string }) {
+export function PrivacyRequestForm({ to, locale = "ko" }: { to: string; locale?: Locale }) {
+  const t = getPrivacyRequestCopy(locale).form;
   const uid = useId();
   const [email, setEmail] = useState("");
   const [type, setType] = useState<RequestType | "">("");
@@ -203,7 +204,7 @@ export function PrivacyRequestForm({ to }: { to: string }) {
                   value={o.value}
                   checked={on}
                   required
-                  onChange={() => setType(o.value)}
+                  onChange={() => setType(o.value as RequestType)}
                   className="sr-only"
                 />
                 <i
