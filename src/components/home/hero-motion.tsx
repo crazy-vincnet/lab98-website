@@ -5,10 +5,9 @@ import { cx } from "@/components/ui";
 import { heroCopy } from "./copy";
 
 /**
- * Shared pause state for the hero's looping motion (ticker, typing terminal,
- * block dot cycle) — WCAG 2.2.2 Pause, Stop, Hide.
- * Renders the hero <section> as `group/motion` with `data-paused` so CSS-only
- * loops (the ticker) can pause via `group-data-[paused]/motion:`.
+ * Shared pause state for the hero's looping motion (the block's dot cycle)
+ * — WCAG 2.2.2 Pause, Stop, Hide. Renders the hero <section> with
+ * `data-paused` so CSS-only loops can pause via `group-data-[paused]/motion:`.
  */
 const MotionContext = createContext<{ paused: boolean; toggle: () => void }>({ paused: false, toggle: () => {} });
 

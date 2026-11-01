@@ -5,18 +5,17 @@ import { divisionTheme, formatDate, type Note } from "@/lib/content";
 import { notesCopy as t } from "./copy";
 
 /**
- * Hero item of the insights list. White card with a 2px border and a black top bar
- * (keeps the page near the 30% black target). Hover follows the canonical cards:
- * no layout shift, title underline, arrow nudge, bottom CTA bar inverts.
+ * Hero item of the insights list. White card with a 2px border and a black top bar.
+ * Hover follows the canonical cards: no layout shift, title underline, arrow nudge, bottom CTA bar inverts.
  */
-export function FeaturedInsight({ note, experimentLabel }: { note: Note; experimentLabel?: string }) {
+export function FeaturedInsight({ note }: { note: Note }) {
   return (
-    <Link href={insightHref(note.slug)} className="group mt-10 flex flex-col border-2 border-ink bg-paper md:mt-12">
+    <Link href={insightHref(note.slug)} className="group flex flex-col border-2 border-ink bg-paper">
       <p className="flex items-center justify-between gap-4 bg-ink px-6 py-3 text-paper md:px-10">
         <span className="label">{t.list.featured}</span>
-        <span className="font-mono text-meta" aria-hidden>
-          {String(note.readingMinutes).padStart(2, "0")} {t.list.min}
-        </span>
+        <time dateTime={note.date} className="font-mono text-meta">
+          {formatDate(note.date)}
+        </time>
       </p>
       <div className="flex flex-col gap-5 p-6 md:p-10 xl:p-14">
         <h2 className="text-h2 text-balance underline-offset-8 group-hover:underline">{note.title}</h2>
@@ -28,17 +27,16 @@ export function FeaturedInsight({ note, experimentLabel }: { note: Note; experim
               <DivisionDot division={note.division} className="size-2" />
               {divisionTheme[note.division].name}
             </span>,
-            experimentLabel,
+            <span key="a" className="font-sans ko-tight">
+              {t.list.by} {note.author}
+            </span>,
             <span key="r" className="ko-tight">
               {t.list.readTime(note.readingMinutes)}
             </span>,
-            <time key="t" dateTime={note.date}>
-              {formatDate(note.date)}
-            </time>,
           ]}
         />
       </div>
-      <div className="flex items-center justify-between border-t-2 border-ink px-6 py-4 text-body-sm font-bold transition-colors group-hover:bg-ink group-hover:text-paper md:px-10">
+      <div className="flex min-h-11 items-center justify-between border-t-2 border-ink px-6 py-4 text-body-sm font-bold transition-colors group-hover:bg-ink group-hover:text-paper md:px-10">
         {t.list.read}
         <span aria-hidden className="transition-transform group-hover:translate-x-1">
           →

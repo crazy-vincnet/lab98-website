@@ -11,9 +11,9 @@
 | png/lockup/ | 가로형 PNG 높이 400px, 투명 배경 |
 | favicon/ | 대표 로고 파비콘 16, 32, 48, 180(애플 터치), 512px |
 
-파일 이름 규칙: `lab98-{master|web|ai|faith}-{symbol|lockup}[-inverse]`
+파일 이름 규칙: `lab98-{master|dev|ai|faith}-{symbol|lockup}[-inverse]`
 - master = 회사 대표 (시그널 레드 점)
-- web / ai / faith = 사업부 (블루 / 그린 / 골드 점)
+- dev / ai / faith = 사업부 (블루 / 그린 / 골드 점)
 - -inverse = 검정이나 어두운 배경에 쓰는 버전 (흰 블록, 흰 글자)
 
 ## print/

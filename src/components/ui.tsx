@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
-import { divisionTheme, lockupSrc, symbolSrc, type Division, type ExperimentStatus } from "@/lib/content";
+import { divisionTheme, lockupSrc, symbolSrc, type Division } from "@/lib/content";
 
 function cx(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
@@ -75,16 +75,6 @@ export function Tag({ children, solid = false, dot, dark = false, caps = true, c
   );
 }
 
-/** Display labels for project status (copy guide 2-1). `status` values stay unchanged. */
-export const statusLabel: Record<ExperimentStatus, string> = { live: "운영 중", running: "진행 중", archived: "완료" };
-/** Mono (Latin) status labels for terminal / ticker / summary motifs. */
-export const statusMonoLabel: Record<ExperimentStatus, string> = { live: "LIVE", running: "IN PROGRESS", archived: "DONE" };
-export function StatusTag({ status, dark = false }: { status: ExperimentStatus; dark?: boolean }) {
-  if (status === "live") return <Tag caps={false} dot="master" dark={dark}>{statusLabel.live}</Tag>;
-  if (status === "running") return <Tag caps={false} solid dark={dark}>{statusLabel.running}</Tag>;
-  return <Tag caps={false} dark={dark}>{statusLabel.archived}</Tag>;
-}
-
 /* ---------- Section ---------- */
 
 /** Standard section header: mono eyebrow on the left, heading + lead on the right (stacks on mobile). */
@@ -99,15 +89,6 @@ export function SectionHead({ index, eyebrow, title, lead, dark = false, classNa
         <h2 className="text-h2 text-balance">{title}</h2>
         {lead && <p className={cx("mt-4 max-w-[640px] text-body text-pretty", dark ? "text-ink-text" : "text-gray")}>{lead}</p>}
       </div>
-    </div>
-  );
-}
-
-/** Progress bar used on project cards. `label` names it for screen readers; `valueText` e.g. "DAY 4 / 7". */
-export function Progress({ value, muted = false, label = "진행률", valueText }: { value: number; muted?: boolean; label?: string; valueText?: string }) {
-  return (
-    <div className="relative h-2 bg-concrete" role="progressbar" aria-label={label} aria-valuetext={valueText ?? `${value}%`} aria-valuenow={value} aria-valuemin={0} aria-valuemax={100}>
-      <i className={cx("absolute inset-y-0 left-0", muted ? "bg-gray" : "bg-ink")} style={{ width: `${value}%` }} />
     </div>
   );
 }

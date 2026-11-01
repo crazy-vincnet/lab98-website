@@ -13,7 +13,7 @@ const t = contactCopy.form;
 
 type Interest = { value: Division; label: string };
 
-const dotBg: Record<Division, string> = { master: "bg-red", web: "bg-web", ai: "bg-ai", faith: "bg-faith" };
+const dotBg: Record<Division, string> = { master: "bg-red", dev: "bg-dev", ai: "bg-ai", faith: "bg-faith" };
 
 const inputBase =
   "block w-full border-2 bg-paper px-[18px] text-body-sm text-ink placeholder:text-placeholder transition-colors duration-150 hover:bg-concrete/40 focus:bg-paper";

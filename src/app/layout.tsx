@@ -12,7 +12,7 @@ import { site } from "@/lib/content";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: { default: `${site.name} — 웹사이트 · AI 자동화 · 공동체 프로젝트`, template: `%s | ${site.name}` },
+  title: { default: `${site.name} — 웹·프로그램 제작 · AI 교육 · 교회 프로그램`, template: `%s | ${site.name}` },
   description: site.description,
   openGraph: { siteName: site.name, locale: "ko_KR", type: "website" },
 };

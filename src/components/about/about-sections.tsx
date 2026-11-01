@@ -1,24 +1,20 @@
-import { ButtonLink, SectionHead } from "@/components/ui";
-import { DivisionCard, Section } from "@/components/divisions/division-sections";
-import { divisions, divisionTheme, experiments, site, type Division } from "@/lib/content";
+import { ButtonLink, SectionHead, cx } from "@/components/ui";
+import { DivisionCard, Section, pad2 } from "@/components/divisions/division-sections";
+import { divisions, divisionTheme, site, type Division } from "@/lib/content";
 import { routes } from "@/components/divisions/copy";
 import { aboutCopy as C } from "./copy";
-import { principles, steps, team, type OpenRole, type TeamMember } from "./team";
-
-const pad2 = (n: number) => String(n).padStart(2, "0");
 
 /* ---------- Hero ---------- */
 
 export function AboutHero() {
   return (
     <section>
-      <div className="wrap pb-12 pt-12 md:pb-20 md:pt-20 xl:pt-24">
-        <div className="grid gap-8 lg:grid-cols-[240px_1fr] lg:gap-12 xl:grid-cols-[280px_1fr]">
-          <p className="label pt-2 text-gray">{C.hero.eyebrow(site.name)}</p>
+      <div className="wrap pb-14 pt-12 md:pb-20 md:pt-20 xl:pb-24 xl:pt-24">
+        <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12">
+          <p className="label pt-2 text-gray">{C.hero.eyebrow}</p>
           <div className="animate-rise">
             <h1 className="text-h1 text-balance">{C.hero.title}</h1>
-            <p className="mt-6 max-w-[640px] text-lead text-pretty md:mt-8">{C.hero.mission}</p>
-            <p className="mt-4 max-w-[640px] text-body text-gray text-pretty">{C.hero.body}</p>
+            <p className="mt-6 max-w-[640px] text-lead text-pretty md:mt-8">{site.description}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4 md:mt-12">
               <ButtonLink href={routes.contact}>{C.hero.primaryCta}</ButtonLink>
               <ButtonLink href={routes.projects} variant="secondary">
@@ -28,178 +24,149 @@ export function AboutHero() {
           </div>
         </div>
       </div>
-      {/* Motto band — kept compact so /about stays near the 30% black target. */}
-      <div className="bg-ink text-paper">
-        <div className="wrap flex flex-col gap-8 py-10 md:py-14">
-          <div className="flex justify-between gap-4 font-mono text-meta text-ink-text">
-            <span>{C.hero.bandCommand}</span>
-            <span className="hidden sm:inline">{C.hero.bandMeta}</span>
+    </section>
+  );
+}
+
+/* ---------- Founder's words (dark) ---------- */
+
+export function FounderWords() {
+  return (
+    <section className="border-t-2 border-ink bg-ink text-paper" aria-label={C.founderWords.eyebrow}>
+      <div className="wrap py-16 md:py-24 xl:py-28">
+        <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12">
+          <p className="label pt-2 text-ink-text">{C.founderWords.eyebrow}</p>
+          <figure>
+            <blockquote className="text-h1 text-balance">
+              <p>&ldquo;{site.sloganOriginal}&rdquo;</p>
+            </blockquote>
+            <figcaption className="mt-6 text-body text-ink-text md:mt-8">{C.founderWords.attribution}</figcaption>
+          </figure>
+        </div>
+        <div className="mt-14 grid gap-3 border-t-2 border-ink-line pt-8 md:mt-20 lg:grid-cols-[280px_1fr] lg:gap-12">
+          <p className="label pt-1 text-ink-text">{C.founderWords.brandLineLabel}</p>
+          <div>
+            <p className="text-h2 text-balance">
+              {site.slogan}
+              <i className="ml-[0.1em] inline-block size-[0.22em] rounded-full bg-red" aria-hidden />
+            </p>
+            <p className="mt-3 font-mono text-meta text-ink-text">{site.sloganEn}</p>
           </div>
-          <p className="font-logo text-display font-extrabold">
-            {C.hero.sloganLine1}
-            <br />
-            {C.hero.sloganLine2}
-            <i className="ml-[0.06em] inline-block size-[0.2em] rounded-full bg-red" aria-hidden />
-          </p>
         </div>
       </div>
     </section>
   );
 }
 
-/* ---------- Numbers (derived from content.ts only) ---------- */
+/* ---------- Name: what 98 means ---------- */
 
-export function Numbers() {
-  const items = [
-    { value: divisions.length, ...C.numbers.divisions },
-    { value: experiments.filter((e) => e.status === "live").length, ...C.numbers.live },
-    { value: experiments.filter((e) => e.status === "running").length, ...C.numbers.running },
-    { value: experiments.filter((e) => e.status === "archived").length, ...C.numbers.done },
-  ];
+export function NameMeaning() {
   return (
-    <section className="border-t-2 border-ink" aria-label={C.numbers.ariaLabel}>
-      <dl className="wrap grid grid-cols-2 lg:grid-cols-4">
-        {items.map((it, i) => (
-          <div
-            key={it.label}
-            className={[
-              "py-8 md:py-12",
-              i % 2 === 1 ? "border-l-2 border-ink pl-5 md:pl-8" : "",
-              i >= 2 ? "border-t-2 border-ink lg:border-t-0" : "",
-              i === 2 ? "lg:border-l-2 lg:pl-8" : "",
-            ].join(" ")}
-          >
-            <dt className="label tracking-normal text-gray">{it.label}</dt>
-            <dd className="mt-3 font-logo text-numeral-lg font-extrabold tracking-tight">{pad2(it.value)}</dd>
-            <dd className="mt-3 font-mono text-meta tracking-normal text-gray">{it.note}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+    <Section id="name">
+      <div className="grid gap-10 lg:grid-cols-[280px_1fr] lg:items-end lg:gap-12">
+        <p className="font-logo text-display font-extrabold" aria-hidden>
+          98
+          <i className="ml-[0.06em] inline-block size-[0.2em] rounded-full bg-red" />
+        </p>
+        <div>
+          <p className="label text-gray">
+            {C.name.index} — {C.name.eyebrow}
+          </p>
+          <h2 className="mt-4 text-h2 text-balance">{C.name.title}</h2>
+          <p className="mt-4 max-w-[640px] text-lead text-pretty">{site.nameMeaning}</p>
+          <p className="mt-3 max-w-[640px] text-body text-gray text-pretty">{C.name.promise}</p>
+        </div>
+      </div>
+    </Section>
   );
 }
 
-/* ---------- Principles (long-form numbered rows) ---------- */
+/* ---------- Divisions + brand dots ---------- */
+
+const swatchOrder: Division[] = ["master", "dev", "ai", "faith"];
+
+export function DivisionsOverview() {
+  const roles: Record<Division, string> = {
+    master: C.divisions.masterRole,
+    ...Object.fromEntries(divisions.map((d) => [d.slug, d.role])),
+  } as Record<Division, string>;
+  return (
+    <Section id="divisions">
+      <SectionHead index={C.divisions.index} eyebrow={C.divisions.eyebrow} title={C.divisions.title} lead={C.divisions.lead} />
+      <div className="grid gap-6 lg:grid-cols-3">
+        {divisions.map((d) => (
+          <DivisionCard key={d.slug} division={d} />
+        ))}
+      </div>
+      <div className="mt-14 grid gap-3 border-t-2 border-ink pt-8 md:mt-20 lg:grid-cols-[280px_1fr] lg:gap-12">
+        <div>
+          <h3 className="text-title text-balance">{C.divisions.swatchesLabel}</h3>
+          <p className="mt-3 text-body-sm text-gray text-pretty">{C.divisions.swatchesBody}</p>
+        </div>
+        <ul className="grid border-l-2 border-t-2 border-ink sm:grid-cols-2 xl:grid-cols-4">
+          {swatchOrder.map((d) => (
+            <li key={d} className="flex items-center gap-5 border-b-2 border-r-2 border-ink p-6">
+              <i className={cx("size-10 shrink-0 rounded-full", divisionTheme[d].bg)} aria-hidden />
+              <div className="flex flex-col gap-1">
+                <p className="font-logo text-2xl font-extrabold leading-none tracking-[-0.02em]">{divisionTheme[d].name}</p>
+                <p className="mt-1 font-mono text-meta text-gray">{C.divisions.swatchColor[d]}</p>
+                <p className="text-body-sm text-gray">{roles[d]}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- Principles ---------- */
 
 export function Principles() {
   return (
-    <Section id="principles">
-      <SectionHead index={C.principles.index} eyebrow={C.principles.eyebrow} title={C.principles.title} lead={C.principles.lead} />
-      <ol className="border-t-2 border-ink">
-        {principles.map((p, i) => (
-          <li key={p.code} className="grid gap-4 border-b-2 border-ink py-8 md:py-12 lg:grid-cols-[240px_1fr] lg:gap-12 xl:grid-cols-[280px_1fr]">
-            <div className="flex items-baseline gap-4 lg:flex-col lg:gap-3">
-              <span className="font-logo text-numeral font-extrabold tracking-tight">{pad2(i + 1)}</span>
-              <span className="label text-gray">{p.code}</span>
-            </div>
+    <Section dark id="principles">
+      <SectionHead dark index={C.principles.index} eyebrow={C.principles.eyebrow} title={C.principles.title} />
+      <ol className="border-t-2 border-paper">
+        {C.principles.items.map((p, i) => (
+          <li key={p.code} className="grid gap-4 border-b border-ink-line py-8 md:py-12 lg:grid-cols-[280px_1fr] lg:gap-12">
+            <p className="font-mono text-meta font-bold text-red-text-dark">
+              {pad2(i + 1)} / {p.code}
+            </p>
             <div className="grid gap-3 xl:grid-cols-[minmax(0,320px)_1fr] xl:gap-12">
               <h3 className="text-h3 text-balance">{p.title}</h3>
-              <p className="max-w-[640px] text-body text-gray text-pretty">{p.body}</p>
+              <p className="max-w-[640px] text-body text-ink-text text-pretty">{p.body}</p>
             </div>
           </li>
         ))}
       </ol>
-    </Section>
-  );
-}
-
-/* ---------- How we work (dark, vertical rows) ---------- */
-
-export function HowWeWork() {
-  return (
-    <Section dark id="how-we-work">
-      <SectionHead dark index={C.howWeWork.index} eyebrow={C.howWeWork.eyebrow} title={C.howWeWork.title} lead={C.howWeWork.lead} />
-      <ol className="border-t-2 border-paper">
-        {steps.map((s, i) => (
-          <li key={s.code} className="grid gap-3 border-b border-ink-line py-7 md:py-10 lg:grid-cols-[240px_1fr_1fr] lg:items-baseline lg:gap-12 xl:grid-cols-[280px_1fr_1fr]">
-            <p className="font-mono text-meta font-bold text-red-text-dark">
-              {pad2(i + 1)} / {s.code}
-            </p>
-            <h3 className="text-title text-balance">{s.title}</h3>
-            <p className="text-body text-ink-text text-pretty">{s.body}</p>
-          </li>
-        ))}
-      </ol>
-      <div className="mt-12 overflow-x-auto border-2 border-ink-line px-4 py-4 font-mono text-code text-ink-text md:mt-16 md:px-7 md:py-6">
-        <p>
-          $ <b className="font-normal text-paper">{C.howWeWork.terminalCommand}</b> {C.howWeWork.terminalArgs}
-        </p>
-        <p>{C.howWeWork.terminalSteps}</p>
-        <p>
-          {/* Master page: success mark in ink/red, never a division color */}
-          <span className="font-bold text-paper">✓</span> {C.howWeWork.terminalDoneCode}{" "}
-          <span className="font-sans">{C.howWeWork.terminalDone}</span>
-        </p>
-      </div>
-    </Section>
-  );
-}
-
-/* ---------- Brand story ---------- */
-
-const swatchOrder: Division[] = ["master", "web", "ai", "faith"];
-
-export function BrandStory() {
-  return (
-    <Section id="brand-story">
-      {/* TODO(content): brand story — what "98" means. Add it here once the team has written it;
-          until then the section only states facts from the brand file (dot colors, brand line). */}
-      <SectionHead index={C.brandStory.index} eyebrow={C.brandStory.eyebrow} title={C.brandStory.title} lead={C.brandStory.lead} />
-      <ul className="grid border-l-2 border-t-2 border-ink sm:grid-cols-2 lg:grid-cols-4">
-        {swatchOrder.map((d) => {
-          const sw = C.brandStory.swatches[d];
-          return (
-            <li key={d} className="flex items-center gap-5 border-b-2 border-r-2 border-ink p-6 md:p-8 lg:flex-col lg:items-start">
-              <i className={`size-10 shrink-0 rounded-full md:size-12 ${divisionTheme[d].bg}`} aria-hidden />
-              <div className="flex flex-col gap-1 lg:mt-4">
-                <p className="font-logo text-3xl font-extrabold leading-none tracking-[-0.02em]">{divisionTheme[d].name}</p>
-                <p className="mt-2 font-mono text-meta text-gray">{sw.color}</p>
-                <p className="text-body-sm text-gray">{sw.role}</p>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-      <div className="mt-10 grid gap-3 border-t-2 border-ink pt-8 md:mt-14 lg:grid-cols-[240px_1fr] lg:gap-12 xl:grid-cols-[280px_1fr]">
-        <p className="label pt-1 text-gray">{C.brandStory.lineLabel}</p>
-        <div>
-          <p className="text-h3 text-balance">
-            {site.tagline}
-            <i className="ml-[0.1em] inline-block size-[0.22em] rounded-full bg-red" aria-hidden />
-          </p>
-          <p className="mt-3 max-w-[640px] text-body text-gray text-pretty">{C.brandStory.lineBody}</p>
-        </div>
-      </div>
     </Section>
   );
 }
 
 /* ---------- Team ---------- */
 
-function MemberCard({ m, index }: { m: TeamMember; index: number }) {
+function FounderCard() {
   return (
     <article className="flex flex-col border-2 border-ink bg-paper">
-      <div className="relative flex aspect-[4/3] items-center justify-center bg-ink text-paper sm:aspect-square" aria-hidden>
-        <span className="absolute left-5 top-4 font-mono text-meta text-ink-text">{pad2(index + 1)}</span>
-        <span className="font-logo text-numeral-lg font-extrabold tracking-tight">{m.initials}</span>
+      {/* TODO(content): founder photo — replace this monogram block with a square photo of the founder. */}
+      <div className="relative flex aspect-square items-center justify-center border-b-2 border-ink bg-concrete" aria-hidden>
+        <span className="font-logo text-numeral-lg font-extrabold tracking-tight">{C.team.monogram}</span>
         <i className="absolute bottom-6 right-6 size-6 rounded-full bg-red" />
       </div>
-      <div className="flex flex-1 flex-col gap-1 border-t-2 border-ink p-6">
-        <p className="label tracking-normal text-gray">
-          {m.role} · {m.title}
-        </p>
-        <h3 className="mt-2 text-title">{m.nameKo}</h3>
-        <p className="font-mono text-meta text-gray">{m.nameEn}</p>
+      <div className="flex flex-1 flex-col gap-1 p-6">
+        <p className="label tracking-normal text-gray">{site.founder.role}</p>
+        <h3 className="mt-2 text-title">{site.founder.name}</h3>
+        <p className="font-mono text-meta text-gray">{site.founder.nameEn}</p>
       </div>
     </article>
   );
 }
 
-/** Open role: dashed 2px frame + mono OPEN ROLE label. No empty placeholder block. */
-function OpenRoleCard({ r, index }: { r: OpenRole; index: number }) {
+/** Open role: dashed 2px frame + mono OPEN ROLE label. */
+function OpenRoleCard({ role, body, index }: { role: string; body: string; index: number }) {
   return (
     <a
-      href={`mailto:${site.email}?subject=${encodeURIComponent(C.team.applySubject(r.role))}`}
+      href={`mailto:${site.email}?subject=${encodeURIComponent(C.team.applySubject(role))}`}
       className="group flex flex-col border-2 border-dashed border-ink bg-paper"
     >
       <div className="flex flex-1 flex-col gap-6 p-6">
@@ -213,8 +180,8 @@ function OpenRoleCard({ r, index }: { r: OpenRole; index: number }) {
           </span>
         </div>
         <div className="mt-auto flex flex-col gap-2">
-          <h3 className="text-title text-balance underline-offset-4 group-hover:underline">{r.role}</h3>
-          <p className="text-body-sm text-gray text-pretty">{r.body}</p>
+          <h3 className="text-title text-balance underline-offset-4 group-hover:underline">{role}</h3>
+          <p className="text-body-sm text-gray text-pretty">{body}</p>
         </div>
       </div>
       <div className="flex min-h-11 items-center justify-between border-t-2 border-dashed border-ink px-6 py-4 text-body-sm font-bold transition-colors group-hover:bg-ink group-hover:text-paper">
@@ -229,25 +196,9 @@ export function Team() {
     <Section id="team">
       <SectionHead index={C.team.index} eyebrow={C.team.eyebrow} title={C.team.title} lead={C.team.lead} />
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {team.map((t, i) => (t.kind === "member" ? <MemberCard key={t.nameEn} m={t} index={i} /> : <OpenRoleCard key={t.role} r={t} index={i} />))}
-      </div>
-      <div className="mt-10 grid gap-3 border-t-2 border-ink pt-8 md:mt-14 lg:grid-cols-[240px_1fr] lg:gap-12 xl:grid-cols-[280px_1fr]">
-        <h3 className="text-title text-balance">{C.team.openLabel}</h3>
-        <p className="max-w-[640px] text-body text-gray text-pretty">{C.team.openBody}</p>
-      </div>
-    </Section>
-  );
-}
-
-/* ---------- Divisions overview ---------- */
-
-export function DivisionsOverview() {
-  return (
-    <Section id="divisions">
-      <SectionHead index={C.divisions.index} eyebrow={C.divisions.eyebrow} title={C.divisions.title} lead={C.divisions.lead} />
-      <div className="grid gap-6 lg:grid-cols-3">
-        {divisions.map((d) => (
-          <DivisionCard key={d.slug} division={d} />
+        <FounderCard />
+        {C.team.roles.map((r, i) => (
+          <OpenRoleCard key={r.role} role={r.role} body={r.body} index={i} />
         ))}
       </div>
     </Section>

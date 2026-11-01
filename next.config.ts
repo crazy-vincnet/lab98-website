@@ -5,9 +5,11 @@ import type { NextConfig } from "next";
  * (e.g. EXP-042 → AI-042). Listed before the generic rules so old links reach
  * the new page in one hop.
  */
-const renamedProjectSlugs: Record<string, string> = {
-  "exp-042": "ai-042",
-};
+const renamedProjectSlugs: Record<string, string> = {};
+
+/** Example projects/insights removed on 2026-11-01 (replaced with real content) → their index pages. */
+const removedProjectCodes = ["exp-042", "ai-042", "web-007", "faith-030", "ai-012", "web-005", "faith-021"];
+const removedNoteSlugs = ["meeting-notes-in-9-minutes", "ten-minutes-a-day", "why-we-archived-ai-012", "how-we-run-experiments"];
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -32,6 +34,17 @@ const nextConfig: NextConfig = {
         destination: "https://lab98.io/:path*",
         permanent: true,
       },
+      // Division rename: Web → Dev
+      { source: "/services/web", destination: "/services/dev", permanent: true },
+      { source: "/divisions/web", destination: "/services/dev", permanent: true },
+      ...removedProjectCodes.flatMap((c) => [
+        { source: `/projects/${c}`, destination: "/projects", permanent: true },
+        { source: `/experiments/${c}`, destination: "/projects", permanent: true },
+      ]),
+      ...removedNoteSlugs.flatMap((s) => [
+        { source: `/insights/${s}`, destination: "/insights", permanent: true },
+        { source: `/notes/${s}`, destination: "/insights", permanent: true },
+      ]),
       ...Object.entries(renamedProjectSlugs).flatMap(([from, to]) => [
         { source: `/experiments/${from}`, destination: `/projects/${to}`, permanent: true },
         { source: `/projects/${from}`, destination: `/projects/${to}`, permanent: true },

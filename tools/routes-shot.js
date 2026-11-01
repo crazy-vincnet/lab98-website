@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const base = process.argv[2] || 'http://localhost:3100';
 const out = process.argv[3] || './shots';
-const routes = process.argv.slice(4).length ? process.argv.slice(4) : ['/', '/about', '/services/web', '/services/ai', '/services/faith', '/projects', '/projects/ai-042', '/insights', '/insights/meeting-notes-in-9-minutes', '/does-not-exist'];
+const routes = process.argv.slice(4).length ? process.argv.slice(4) : ['/', '/about', '/services/dev', '/services/ai', '/services/faith', '/projects', '/projects/nkhb', '/praise-tool', '/insights', '/insights/starting-lab98', '/privacy', '/does-not-exist'];
 fs.mkdirSync(out, { recursive: true });
 (async () => {
   const b = await chromium.launch();

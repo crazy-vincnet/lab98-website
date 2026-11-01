@@ -1,6 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
-import { divisionTheme, formatDate, type Experiment, type Note } from "@/lib/content";
-import { Progress, StatusTag, cx } from "@/components/ui";
+import { divisionTheme, formatDate, type Note, type Project } from "@/lib/content";
+import { cx } from "@/components/ui";
 import { insightHref, projectHref } from "@/components/experiments/paths";
 
 /**
@@ -11,38 +12,46 @@ import { insightHref, projectHref } from "@/components/experiments/paths";
 
 const cardCopy = {
   projectCta: "프로젝트 보기",
-  projectCtaDone: "결과 보기",
-  readMore: "읽기",
   minutes: (n: number) => `${n}분 읽기`,
+  shotAlt: (client: string) => `${client} 웹사이트 데스크톱 첫 화면`,
 };
 
-/** Project (case study) card. Use in grids: `grid gap-6 md:grid-cols-2`. */
-export function ProjectCard({ project: p, headingLevel = "h3" }: { project: Experiment; headingLevel?: "h2" | "h3" }) {
-  const done = p.status === "archived";
+/**
+ * Image-led project card. Use in grids: `grid gap-6 md:grid-cols-2 xl:grid-cols-3`.
+ * The screenshot is 1440×900 (16:10), cropped from the top.
+ */
+export function ProjectCard({ project: p, headingLevel = "h3" }: { project: Project; headingLevel?: "h2" | "h3" }) {
   const H = headingLevel;
+  const theme = divisionTheme[p.division];
   return (
-    <Link href={projectHref(p.code)} className="group flex h-full flex-col border-2 border-ink bg-paper">
-      <div className="flex flex-1 flex-col gap-3 p-6 md:p-8">
-        <div className="flex items-center justify-between gap-4">
-          <span className="flex items-center gap-2 font-mono text-meta font-bold text-gray">
-            <i className={cx("size-2 rounded-full", divisionTheme[p.division].bg)} aria-hidden />
-            {p.label}
-          </span>
-          <StatusTag status={p.status} />
-        </div>
-        <H className="text-title text-balance underline-offset-4 group-hover:underline">{p.title}</H>
-        <p className="text-body-sm text-gray text-pretty">{p.summary}</p>
-        <div className="mt-auto pt-3">
-          <Progress value={p.progress} muted={done} label={`${p.label} 진행률`} valueText={p.progressLabel} />
-          <div className="mt-3 flex justify-between gap-4 font-mono text-micro text-gray">
-            <span className="ko-tight">{p.stage}</span>
-            <span>{p.progressLabel}</span>
-          </div>
-        </div>
+    <Link href={projectHref(p.slug)} className="group flex h-full flex-col border-2 border-ink bg-paper">
+      <div className="relative aspect-16/10 overflow-hidden border-b-2 border-ink bg-concrete">
+        <Image
+          src={p.images.desktop}
+          alt={cardCopy.shotAlt(p.client)}
+          fill
+          sizes="(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw"
+          className="object-cover object-top"
+        />
       </div>
-      <div className="flex items-center justify-between border-t-2 border-ink px-6 py-4 text-body-sm font-bold transition-colors group-hover:bg-ink group-hover:text-paper md:px-8">
-        {done ? cardCopy.projectCtaDone : cardCopy.projectCta}
-        <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
+      <div className="flex flex-1 flex-col gap-3 p-6 md:p-8">
+        <span className="flex items-center gap-2 font-mono text-meta font-bold text-gray">
+          <i className={cx("size-2 rounded-full", theme.bg)} aria-hidden />
+          {theme.name} · <span className="ko-tight">{p.type}</span>
+        </span>
+        <p className="text-body-sm font-bold">
+          {p.client}
+          {p.clientEn && <span className="ml-2 font-mono text-meta font-normal text-gray">{p.clientEn}</span>}
+        </p>
+        <H className="text-title text-balance underline-offset-4 group-hover:underline">{p.title}</H>
+        <p className="text-body-sm text-pretty text-gray">{p.summary}</p>
+        <p className="mt-auto pt-2 text-meta text-gray ko-tight">{p.scope}</p>
+      </div>
+      <div className="flex min-h-11 items-center justify-between border-t-2 border-ink px-6 py-4 text-body-sm font-bold transition-colors group-hover:bg-ink group-hover:text-paper md:px-8">
+        {cardCopy.projectCta}
+        <span aria-hidden className="transition-transform group-hover:translate-x-1">
+          →
+        </span>
       </div>
     </Link>
   );
@@ -62,8 +71,10 @@ export function InsightRow({ note: n, headingLevel = "h3" }: { note: Note; headi
         <span className="text-body-sm text-gray text-pretty">{n.excerpt}</span>
       </span>
       <span className="flex items-center gap-3 font-mono text-meta text-gray">
-        {cardCopy.minutes(n.readingMinutes)}
-        <span aria-hidden className="text-ink transition-transform group-hover:translate-x-1">→</span>
+        <span className="ko-tight">{cardCopy.minutes(n.readingMinutes)}</span>
+        <span aria-hidden className="text-ink transition-transform group-hover:translate-x-1">
+          →
+        </span>
       </span>
     </Link>
   );

@@ -15,9 +15,9 @@ const MIN_FILL_MS = 3000;
 
 const interestLabel: Record<string, string> = {
   master: "아직 정하지 않았어요",
-  web: "Web · 웹사이트",
-  ai: "AI · 업무 자동화",
-  faith: "Faith · 공동체 콘텐츠",
+  dev: "Dev · 웹·프로그램 제작",
+  ai: "AI · 교육 문의",
+  faith: "Faith · 교회·선교단체 프로그램",
 };
 
 const str = (fd: FormData, k: string) => {

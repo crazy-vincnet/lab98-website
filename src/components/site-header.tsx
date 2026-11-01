@@ -45,11 +45,12 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b-2 border-ink bg-paper">
-      <div className="wrap flex h-16 items-center gap-10 md:h-[88px]">
+      <div className="wrap flex h-16 items-center gap-6 md:h-[88px] xl:gap-10">
         <Link href="/" aria-label="Lab98 홈" className="shrink-0">
           <Lockup height={40} className="h-8 w-auto md:h-10" />
         </Link>
-        <nav className="ml-auto hidden items-center gap-8 text-[15px] font-bold lg:flex" aria-label="주요 메뉴">
+        {/* 6 items: tighter gaps at lg (1024px) so the row never wraps. */}
+        <nav className="ml-auto hidden items-center gap-6 whitespace-nowrap text-[15px] font-bold lg:flex xl:gap-8" aria-label="주요 메뉴">
           {nav.map((n) => (
             <Link key={n.href} href={n.href} aria-current={isActive(n.href) ? "page" : undefined} className={cx("relative py-1 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-left after:bg-ink after:transition-transform after:duration-200", isActive(n.href) ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100")}>
               {n.label}

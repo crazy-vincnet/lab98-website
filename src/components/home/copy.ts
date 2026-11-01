@@ -1,96 +1,110 @@
 /**
- * Home page UI strings + route paths, in one place. Wording follows docs/copy-guide.md.
- * Data-driven copy (divisions, experiments, notes, site) stays in src/lib/content.ts.
- *
- * Two-part headings are [first, second] and render inline as one line of text;
- * `text-balance` handles wrapping (no forced breaks → no orphan words).
+ * Home page UI strings + route paths, in one place. Wording follows docs/copy-guide.md (해요체, benefit first).
+ * Data-driven copy (divisions, projects, notes, site) stays in src/lib/content.ts.
  */
-import type { DivisionSlug } from "@/lib/content";
-import { CONTACT_HREF, HOME_ANCHORS, INSIGHTS_PATH, PROJECTS_PATH, divisionHref, insightHref, projectHref } from "@/components/experiments/paths";
+import type { DivisionSlug, Project } from "@/lib/content";
+import { CONTACT_HREF, HOME_ANCHORS, INSIGHTS_PATH, PRAISE_TOOL_PATH, PROJECTS_PATH, divisionHref } from "@/components/experiments/paths";
 
 export const routes = {
+  /** /about has no constant in paths.ts (owned by the about route). */
+  about: "/about",
   division: divisionHref,
-  experiments: PROJECTS_PATH,
-  experiment: projectHref,
-  notes: INSIGHTS_PATH,
-  note: insightHref,
+  projects: PROJECTS_PATH,
+  insights: INSIGHTS_PATH,
+  praiseTool: PRAISE_TOOL_PATH,
+  praiseToolNotify: `${PRAISE_TOOL_PATH}#notify`,
   contact: CONTACT_HREF,
+  process: `/#${HOME_ANCHORS.process}`,
 } as const;
 
 /** In-page anchors (section ids) on the home page. */
 export const anchors = HOME_ANCHORS;
 
-/** "{short} · {what}" labels for the three services (contact options, footer). */
-export const serviceLabel: Record<DivisionSlug, string> = {
-  web: "Web · 웹사이트",
-  ai: "AI · 업무 자동화",
-  faith: "Faith · 공동체 콘텐츠",
+/** Contact-form interest chip labels. */
+export const interestLabel: Record<"master" | DivisionSlug, string> = {
+  master: "아직 정하지 않았어요",
+  dev: "Dev · 웹·프로그램 제작",
+  ai: "AI 교육",
+  faith: "Faith · 교회·선교단체 프로그램",
 };
 
-// TODO(content): wording approved in docs/copy-guide.md v1 (2026-10-31).
+/** Short organization name: Latin acronym when there is one (NKHB), otherwise the Korean name (생명동행기금). */
+export function clientShort(p: Pick<Project, "client" | "clientEn">) {
+  return p.clientEn && /^[A-Z0-9]+$/.test(p.clientEn) ? p.clientEn : p.client;
+}
+
 export const heroCopy = {
-  /** follows site.tagline (bold) */
-  lead: "Lab98은 웹사이트, AI 업무 자동화, 신앙 공동체 콘텐츠 프로젝트를 1주 단위로 만들어 빠르게 오픈하는 회사예요.",
-  ctaPrimary: "프로젝트 문의하기",
-  ctaSecondary: "프로젝트 사례 보기",
-  srRunning: "진행 중인 프로젝트",
+  label: "Lab98 · Dev · AI · Faith",
+  lead: "웹·프로그램 제작부터 AI 교육, 교회를 위한 소프트웨어까지. 사람이 더 중요한 일에 집중하도록, 쓰기 편한 도구를 만들어요.",
+  ctaPrimary: "프로젝트 문의",
+  ctaSecondary: "만든 것 보기",
   blockDivisionsLabel: "서비스",
-  blockCaption: "Now shipping",
+  blockCaption: "Tools for people",
   /** Hero motion toggle (WCAG 2.2.2). Visible text is mono Latin; the sr-only part explains it. */
   motionPause: "Pause",
   motionPlay: "Play",
   motionSr: "히어로 애니메이션 멈추기·재생",
 } as const;
 
-export const aboutCopy = {
-  index: "01",
-  eyebrow: "About",
-  title: ["기획서보다 먼저,", "작동하는 결과물을 보여 드려요."],
-  lead: "Lab98은 웹, AI, 신앙 공동체 분야의 프로젝트를 만드는 회사예요. 1주 안에 결과를 볼 수 있는 크기로 나눠 만들고, 시작할 때 합의한 지표로 성과를 보고해요.",
-  principles: [
-    { title: "작게 시작해요", body: "프로젝트를 1주 안에 결과를 볼 수 있는 단위로 나눠, 초기 비용과 위험을 줄여요." },
-    { title: "빠르게 오픈해요", body: "긴 문서 대신 실제로 작동하는 결과물을 먼저 보여 드리고, 피드백으로 다듬어요." },
-    { title: "성과로 보고해요", body: "시작할 때 핵심 지표를 함께 정하고, 결과를 숫자로 투명하게 공유해요." },
-  ],
+export const trustCopy = {
+  label: "Lab98과 일하면 좋은 점",
+  code: { title: "코드까지 드려요", body: "결과물과 함께 소스 코드를 넘겨 드려요" },
+  price: { title: "200만 원부터 맞춤 제작", body: "템플릿 없이 처음부터" },
+  clients: (n: number) => `${n}개 기관과 함께했어요`,
 } as const;
 
-export const divisionsCopy = {
-  index: "02",
+export const praiseCopy = {
+  name: "Praise Tool",
+  launch: "11월 11일 출시",
+  line: "예배를 위한 가사·미디어 송출 프로그램 · Mac·Windows · 10만 원 영구 라이선스",
+  notify: "출시 알림 받기",
+  more: "자세히 보기",
+  /** D-day badge states. Server / no-JS render shows `fallback`. */
+  fallback: "출시 예정",
+  today: "오늘 출시",
+  after: "지금 만나 보세요",
+} as const;
+
+export const servicesCopy = {
+  index: "01",
   eyebrow: "Services",
-  title: "세 개의 사업부, 하나의 일하는 방식",
-  lead: "웹사이트, AI 자동화, 신앙 공동체 콘텐츠. 분야는 달라도 같은 방식으로 빠르게 만들고 성과로 보고해요.",
+  title: "필요한 도구를 만들고, 잘 쓰도록 도와요",
+  lead: "웹과 프로그램을 맞춤으로 만들고, AI를 제대로 쓰는 법을 알려 드리고, 교회와 선교단체에 필요한 프로그램을 운영까지 함께해요.",
+  /** Card hook line per division; falls back to the division headline. */
+  hook: { dev: "200만 원부터 · 코드 제공" } as Partial<Record<DivisionSlug, string>>,
   cardFoot: (short: string) => `${short} 서비스 보기`,
 } as const;
 
-export const experimentsCopy = {
-  index: "03",
+export const projectsCopy = {
+  index: "02",
   eyebrow: "Projects",
-  title: "프로젝트 사례",
-  lead: "모든 프로젝트는 코드, 목표, 핵심 지표로 관리해요. 무엇을 목표로 했고 어떤 결과를 냈는지 공개해요.",
-  more: "모든 프로젝트 보기",
+  title: "만든 것들",
+  lead: "방송 듣기, 기도 서명, 후원 신청, 보험 지원 조회까지. 기관마다 꼭 필요한 기능을 기획부터 디자인, 개발까지 맡아 만들었어요.",
+  more: "프로젝트 모두 보기",
+  clientsLabel: "함께한 기관",
+  newTab: "(새 창)",
 } as const;
 
 export const processCopy = {
-  index: "04",
+  index: "03",
   eyebrow: "How we work",
-  title: "1주 스프린트, 네 단계로 일해요",
-  lead: "어느 사업부와 일하든 모든 프로젝트는 같은 네 단계로 진행돼요. 매주 진행 상황을 함께 확인해요.",
-  steps: [
-    { key: "GOAL", title: "목표 합의하기", body: "이루고 싶은 것을 한 문장으로 정리하고, 성공을 판단할 핵심 지표를 함께 정해요." },
-    { key: "BUILD", title: "1주 안에 만들기", body: "목표를 확인할 수 있는 가장 작은 결과물을 1주 안에 만들어 오픈해요." },
-    { key: "MEASURE", title: "지표로 확인하기", body: "실제 사용자 데이터를 합의한 지표와 비교해 성과를 확인해요." },
-    { key: "REPORT", title: "리포트하고 다음으로", body: "결과와 다음 단계 제안을 리포트로 드리고, 다음 스프린트를 함께 정해요." },
-  ],
-  terminalCommand: (code: string) => `lab98 ship --project=${code}`,
-  terminalDone: "✓ shipped. next sprint queued.",
+  title: "미팅부터 코드 공유까지, 여섯 단계로 만들어요",
+  lead: "시안으로 먼저 확인하고 만들어서 방향이 어긋나지 않아요. 오픈할 때 소스 코드를 함께 넘겨 드려서, 나중에 어디서 관리하더라도 막히지 않아요.",
+  highlight: "Lab98의 약속",
 } as const;
 
-export const notesCopy = {
+export const founderCopy = {
+  index: "04",
+  eyebrow: "About",
+  more: "회사 소개 보기",
+} as const;
+
+export const insightsCopy = {
   index: "05",
   eyebrow: "Insights",
-  title: "프로젝트에서 얻은 인사이트",
-  lead: "프로젝트 사례, 일하는 방식, 분야별 실무 노하우를 정리해 공유해요.",
-  more: "모든 인사이트 보기",
+  title: "일하며 배운 것들",
+  lead: "만든 과정과 생각을 쉬운 글로 정리해 나눠요.",
+  more: "인사이트 모두 보기",
 } as const;
 
 export const contactCopy = {
@@ -98,19 +112,18 @@ export const contactCopy = {
   eyebrow: "Contact",
   title: ["함께 만들", "프로젝트가 있나요?"],
   /** followed by site.replyTime */
-  lead: "새 프로젝트 문의, 견적 요청, 협업 제안 모두 환영해요.",
+  lead: "웹·프로그램 제작, AI 교육, 교회 프로그램 문의 모두 편하게 남겨 주세요.",
   infoEmail: "Email",
-  infoWeb: "Web",
+  infoReply: "Reply",
   form: {
     ariaLabel: "프로젝트 문의",
     interestLegend: "문의 분야",
-    interestAll: "아직 정하지 않았어요",
     nameLabel: "이름 또는 회사명 (선택)",
-    namePlaceholder: "홍길동 / A사 마케팅팀",
+    namePlaceholder: "홍길동 / OO교회",
     emailLabel: "답장받을 이메일",
     emailPlaceholder: "you@company.com",
     messageLabel: "문의 내용",
-    messagePlaceholder: "해결하고 싶은 문제와 원하는 일정, 예산 범위를 알려 주세요. 정리되지 않아도 괜찮아요.",
+    messagePlaceholder: "만들고 싶은 것과 원하는 일정, 예산 범위를 알려 주세요. 정리되지 않아도 괜찮아요.",
     submit: "문의 보내기",
     submitting: "보내는 중…",
     consentBefore: "문의 답변을 위한",

@@ -3,7 +3,7 @@
  * Keep this file free of server-only imports.
  */
 
-export const INTERESTS = ["master", "web", "ai", "faith"] as const;
+export const INTERESTS = ["master", "dev", "ai", "faith"] as const;
 export type Interest = (typeof INTERESTS)[number];
 
 export const LIMITS = { name: 100, email: 254, message: 2000 } as const;

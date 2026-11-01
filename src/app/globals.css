@@ -3,7 +3,7 @@
 /*
  * Lab98 design tokens — source: lab98-brand/tokens.css (v1.3) + SNS kit contrast work.
  * Rules: radius 0 · 2px black borders · color ratio white 60 / black 30 / concrete 8 / point 2.
- * Use the Tailwind utilities generated from @theme below (bg-ink, text-gray, border-ink, text-web …).
+ * Use the Tailwind utilities generated from @theme below (bg-ink, text-gray, border-ink, text-dev …).
  */
 @theme {
   /* base */
@@ -22,17 +22,17 @@
 
   /* point colors — fills, dots, large type */
   --color-red: #e8322b;          /* Signal Red · Lab98 master */
-  --color-web: #2f55ff;          /* Web Blue */
+  --color-dev: #2f55ff;          /* Dev Blue (brand "Web Blue") */
   --color-ai: #14c38e;           /* Node Green */
   --color-faith: #f2b21b;        /* Light Gold */
 
   /* point colors — small text (≥4.5:1). *-text on white, *-text-dark on ink */
   --color-red-text: #de3029;
-  --color-web-text: #2f55ff;
+  --color-dev-text: #2f55ff;
   --color-ai-text: #0c8560;
   --color-faith-text: #9a6d00;
   --color-red-text-dark: #ff6b61;
-  --color-web-text-dark: #7d93ff;
+  --color-dev-text-dark: #7d93ff;
   --color-ai-text-dark: #14c38e;
   --color-faith-text-dark: #f2b21b;
 

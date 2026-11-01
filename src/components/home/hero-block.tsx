@@ -5,19 +5,19 @@ import { useEffect, useState } from "react";
 import { cx } from "@/components/ui";
 import type { Division, DivisionSlug } from "@/lib/content";
 import { heroCopy, routes } from "./copy";
-import { useHeroMotion } from "./hero-motion";
+import { MotionToggle, useHeroMotion } from "./hero-motion";
 import { useReducedMotion } from "./use-reduced-motion";
 
 /** Full class names so Tailwind can detect them. */
-const dotBg: Record<Division, string> = { master: "bg-red", web: "bg-web", ai: "bg-ai", faith: "bg-faith" };
+const dotBg: Record<Division, string> = { master: "bg-red", dev: "bg-dev", ai: "bg-ai", faith: "bg-faith" };
 const textDark: Record<Division, string> = {
   master: "text-red-text-dark",
-  web: "text-web-text-dark",
+  dev: "text-dev-text-dark",
   ai: "text-ai-text-dark",
   faith: "text-faith-text-dark",
 };
 const hoverTextDark: Record<DivisionSlug, string> = {
-  web: "hover:text-web-text-dark focus-visible:text-web-text-dark",
+  dev: "hover:text-dev-text-dark focus-visible:text-dev-text-dark",
   ai: "hover:text-ai-text-dark focus-visible:text-ai-text-dark",
   faith: "hover:text-faith-text-dark focus-visible:text-faith-text-dark",
 };
@@ -25,10 +25,11 @@ const hoverTextDark: Record<DivisionSlug, string> = {
 const CYCLE_MS = 2500;
 
 /**
- * The black "Lab 98" block. The dot cycles master → web → ai → faith; hovering
+ * The black "Lab 98" block. The dot cycles master → dev → ai → faith; hovering
  * or focusing a division name pins that division. Red master is the static
  * state (prerender, no JS, reduced motion). The cycle stops while the block
- * is hovered / focused and when the hero pause toggle is on.
+ * is hovered / focused and when the pause toggle (top-left, hidden under
+ * reduced motion) is on.
  */
 export function HeroBlock({ divisions }: { divisions: { slug: DivisionSlug; short: string; name: string }[] }) {
   const reduced = useReducedMotion();
@@ -41,7 +42,7 @@ export function HeroBlock({ divisions }: { divisions: { slug: DivisionSlug; shor
     if (reduced || pinned || hovered || paused) return;
     const t = window.setInterval(() => {
       setActive((a) => {
-        const seq: Division[] = ["master", "web", "ai", "faith"];
+        const seq: Division[] = ["master", "dev", "ai", "faith"];
         return seq[(seq.indexOf(a) + 1) % seq.length];
       });
     }, CYCLE_MS);
@@ -61,8 +62,8 @@ export function HeroBlock({ divisions }: { divisions: { slug: DivisionSlug; shor
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div className="-mt-2.5 -mr-2 flex items-center justify-between gap-4 text-ink-text">
-        <span className="font-mono text-meta uppercase">Lab98</span>
+      <div className="-mx-2 -mt-2.5 flex items-center justify-between gap-4 text-ink-text motion-reduce:justify-end">
+        <MotionToggle className="px-2 text-ink-text hover:text-paper focus-visible:outline-paper" />
         <ul className="flex items-center" aria-label={heroCopy.blockDivisionsLabel}>
           {divisions.map((d, i) => (
             <li key={d.slug} className="flex items-center">

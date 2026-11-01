@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { site } from "@/lib/content";
+import { PRAISE_TOOL_PATH } from "@/components/experiments/paths";
 
 /**
- * 개인정보처리방침 (draft). Covers the website contact form only.
- * TODO(content): fill 사업자 정보 / 개인정보 보호책임자 and have the final text reviewed before launch.
- * If the form collects new fields or a new processor is added, update §1 and §4 and the effective date.
+ * 개인정보처리방침. Covers the website contact form and the Praise Tool launch-notification signup.
+ * If a form collects new fields or a new processor is added, update §1–§4 and the effective date.
  */
 export const metadata: Metadata = {
   title: "개인정보처리방침",
@@ -13,32 +13,57 @@ export const metadata: Metadata = {
 };
 
 const EFFECTIVE_DATE = "2026년 11월 1일";
-const OWNER = site.name; // TODO(content): 상호(법인명)로 교체
+const biz = site.business;
+/** Keep in sync with site.business.name. */
+const OWNER_INTRO = "제이제이드림(JJdream, 브랜드명 Lab98)";
 
 const sections: { title: string; body: React.ReactNode }[] = [
   {
     title: "1. 수집하는 개인정보 항목",
     body: (
       <>
-        <p>웹사이트 문의 양식을 통해 아래 정보를 받아요.</p>
+        <p>
+          <strong>문의 양식</strong>
+        </p>
         <ul>
           <li>필수: 답장받을 이메일, 문의 내용, 문의 분야</li>
           <li>선택: 이름 또는 회사명</li>
           <li>자동 수집: 접속 IP를 복원할 수 없게 변환한 값(해시), 브라우저 정보(User-Agent), 접수 시각. 스팸과 반복 전송을 막는 용도로만 써요.</li>
+        </ul>
+        <p>
+          <strong>
+            <a href={PRAISE_TOOL_PATH}>Praise Tool</a> 출시 알림 신청
+          </strong>
+        </p>
+        <ul>
+          <li>필수: 출시 안내를 받을 이메일</li>
+          <li>선택: 교회·단체명</li>
+          <li>자동 수집: 접속 IP를 복원할 수 없게 변환한 값(해시), 신청·동의 시각. 스팸과 반복 신청을 막는 용도로만 써요.</li>
         </ul>
       </>
     ),
   },
   {
     title: "2. 수집·이용 목적",
-    body: <p>문의 확인과 답변, 견적·상담 진행, 스팸 및 부정 이용 방지에만 이용해요. 마케팅이나 광고 목적으로는 쓰지 않아요.</p>,
+    body: (
+      <ul>
+        <li>문의 양식: 문의 확인과 답변, 견적·상담 진행, 스팸 및 부정 이용 방지</li>
+        <li>Praise Tool 출시 알림 신청: 출시 안내 메일 발송(1회), 스팸 및 부정 이용 방지</li>
+        <li>위 목적 외에 마케팅이나 광고 목적으로는 쓰지 않아요.</li>
+      </ul>
+    ),
   },
   {
     title: "3. 보유 및 이용 기간",
     body: (
-      <p>
-        문의가 종료된 날로부터 <strong>1년</strong> 동안 보관한 뒤 지체 없이 파기해요. 계약으로 이어진 경우에는 관련 법령(전자상거래법 등)이 정한 기간 동안 보관할 수 있어요.
-      </p>
+      <ul>
+        <li>
+          문의 양식: 문의가 종료된 날로부터 <strong>1년</strong> 동안 보관한 뒤 지체 없이 파기해요. 계약으로 이어진 경우에는 관련 법령(전자상거래법 등)이 정한 기간 동안 보관할 수 있어요.
+        </li>
+        <li>
+          Praise Tool 출시 알림 신청: 출시 안내 메일을 보낸 뒤 지체 없이 파기해요. 늦어도 <strong>출시일로부터 30일 이내</strong>에 파기해요.
+        </li>
+      </ul>
     ),
   },
   {
@@ -47,10 +72,12 @@ const sections: { title: string; body: React.ReactNode }[] = [
       <>
         <p>원활한 서비스 운영을 위해 아래 업체에 처리를 맡기고 있어요. 정보는 암호화된 통신(HTTPS)으로 전송돼요.</p>
         <ul>
-          <li>InsForge: 문의 내용 저장(데이터베이스). 저장 위치는 아시아·태평양(ap-southeast) 리전 클라우드 서버예요.</li>
-          <li>InsForge 이메일 발송(Amazon Web Services SES): 문의 접수 알림 메일 발송</li>
+          <li>InsForge: 문의 내용과 출시 알림 신청 정보 저장(데이터베이스). 저장 위치는 아시아·태평양(ap-southeast) 리전 클라우드 서버예요.</li>
+          <li>InsForge 이메일 발송(Amazon Web Services SES): 문의 접수·출시 알림 신청 접수를 운영팀에 알리는 메일 발송, Praise Tool 출시 안내 메일 발송</li>
         </ul>
-        <p>이전 시점은 문의를 보내는 즉시이고, 보유 기간은 위 3항과 같아요. 국외 이전을 원하지 않으시면 문의 양식 대신 이메일로 직접 연락해 주세요.</p>
+        <p>
+          이전 시점은 문의나 신청을 보내는 즉시이고, 보유 기간은 위 3항과 같아요. 국외 이전을 원하지 않으시면 양식 대신 <a href={`mailto:${site.email}`}>{site.email}</a>로 직접 연락해 주세요.
+        </p>
       </>
     ),
   },
@@ -74,8 +101,7 @@ const sections: { title: string; body: React.ReactNode }[] = [
     title: "8. 개인정보 보호책임자",
     body: (
       <ul>
-        {/* TODO(content): 실제 책임자 이름/직책으로 교체 */}
-        <li>책임자: {OWNER} 대표</li>
+        <li>책임자: {biz.representative} 대표</li>
         <li>
           연락처: <a href={`mailto:${site.email}`}>{site.email}</a>
         </li>
@@ -98,9 +124,14 @@ export default function PrivacyPage() {
       <p className="label text-gray">Privacy</p>
       <h1 className="mt-6 text-h1 text-balance">개인정보처리방침</h1>
       <p className="mt-5 max-w-[680px] text-lead text-gray text-pretty">
-        {OWNER}는 이용자의 개인정보를 중요하게 생각하고, 「개인정보 보호법」을 지켜요. 이 방침은 웹사이트 문의 양식에 적용돼요.
+        {OWNER_INTRO}은 이용자의 개인정보를 중요하게 생각하고, 「개인정보 보호법」을 지켜요. 이 방침은 웹사이트 문의 양식과 Praise Tool 출시 알림 신청에 적용돼요.
       </p>
       <p className="mt-4 font-mono text-meta text-gray">시행일 {EFFECTIVE_DATE}</p>
+      {/* TODO(content): 사업장 주소 — site.business.address가 채워지면 아래에 자동으로 표시돼요. */}
+      <p className="mt-2 text-body-sm text-gray text-pretty">
+        상호 {biz.name} · 대표 {biz.representative} · 사업자등록번호 {biz.registrationNumber}
+        {biz.address ? <> · 주소 {biz.address}</> : null}
+      </p>
 
       <div className="mt-12 max-w-[760px] border-t-2 border-ink">
         {sections.map((s) => (

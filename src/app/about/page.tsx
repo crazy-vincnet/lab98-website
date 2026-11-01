@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AboutHero, BrandStory, DivisionsOverview, HowWeWork, Numbers, Principles, Team } from "@/components/about/about-sections";
+import { AboutHero, DivisionsOverview, FounderWords, NameMeaning, Principles, Team } from "@/components/about/about-sections";
 import { ContactBand } from "@/components/divisions/division-sections";
 import { aboutCopy } from "@/components/about/copy";
 import { routes } from "@/components/divisions/copy";
@@ -14,12 +14,11 @@ export default function AboutPage() {
   return (
     <>
       <AboutHero />
-      <Numbers />
-      <Principles />
-      <HowWeWork />
-      <BrandStory />
-      <Team />
+      <FounderWords />
+      <NameMeaning />
       <DivisionsOverview />
+      <Principles />
+      <Team />
       <ContactBand
         title={aboutCopy.contactBand.title}
         lead={aboutCopy.contactBand.lead}

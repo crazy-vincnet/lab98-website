@@ -14,13 +14,33 @@ export function NoteBody({ blocks }: { blocks: NoteBlock[] }) {
                 {b.text}
               </h2>
             );
+          case "h3":
+            return (
+              <h3 key={i} className="mt-4 text-title text-balance">
+                {b.text}
+              </h3>
+            );
           case "quote":
             return (
-              <blockquote key={i} className="my-4 border-l-2 border-ink py-2 pl-6 text-h3 text-balance md:my-6 md:pl-10">
-                <p>{b.text}</p>
+              <blockquote key={i} className="my-4 border-y-2 border-ink py-8 md:my-8 md:py-10">
+                <span aria-hidden className="block font-mono text-numeral leading-none text-red-text">
+                  “
+                </span>
+                <p className="mt-2 text-h2 text-balance">{b.text}</p>
               </blockquote>
             );
           case "list":
+            return (
+              <ul key={i} className="flex flex-col border-t-2 border-ink">
+                {b.items.map((item) => (
+                  <li key={item} className="grid grid-cols-[24px_1fr] items-baseline gap-3 border-b border-line py-3.5">
+                    <i aria-hidden className="size-2 translate-y-[-0.15em] bg-ink" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            );
+          case "olist":
             return (
               <ol key={i} className="flex flex-col border-t-2 border-ink">
                 {b.items.map((item, j) => (
@@ -32,18 +52,6 @@ export function NoteBody({ blocks }: { blocks: NoteBlock[] }) {
                   </li>
                 ))}
               </ol>
-            );
-          case "code":
-            return (
-              <pre key={i} className="overflow-x-auto border-2 border-ink-line bg-ink px-4 py-4 font-mono text-code text-ink-text md:px-7 md:py-6">
-                <code>
-                  {b.text.split("\n").map((line, j) => (
-                    <span key={j} className={line.startsWith("✓") ? "block font-bold text-paper" : line.startsWith("$") ? "block text-paper" : "block"}>
-                      {line || " "}
-                    </span>
-                  ))}
-                </code>
-              </pre>
             );
         }
       })}
