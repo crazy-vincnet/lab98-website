@@ -6,7 +6,10 @@ import { divisionHref, INSIGHTS_PATH, insightHref, PRAISE_TOOL_PATH } from "@/co
 import { notesCopy } from "@/components/notes/copy";
 import { NoteBody } from "@/components/notes/note-body";
 import { sortedNotes } from "@/components/notes/sorted";
+import { JsonLd } from "@/components/seo/json-ld";
+import { pageMetadata } from "@/components/seo/metadata";
 import { divisionTheme, formatDate, getNote, type DivisionSlug } from "@/lib/content";
+import { blogPosting, breadcrumb, graph, webPage } from "@/lib/structured-data";
 
 const t = notesCopy.detail;
 
@@ -19,13 +22,20 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/insights/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const note = getNote(slug);
-  if (!note) return { title: notesCopy.meta.notFoundTitle };
+  if (!note) return { title: notesCopy.meta.notFoundTitle, robots: { index: false } };
   return {
-    title: { absolute: notesCopy.meta.detailTitle(note.title) },
-    description: note.excerpt,
-    authors: [{ name: note.author }],
-    alternates: { canonical: insightHref(note.slug) },
-    openGraph: { type: "article", title: note.title, description: note.excerpt, publishedTime: note.date, authors: [note.author], url: insightHref(note.slug) },
+    ...pageMetadata({
+      title: notesCopy.meta.detailTitle(note.title),
+      absoluteTitle: true,
+      ogTitle: note.title,
+      description: note.excerpt,
+      path: insightHref(note.slug),
+      type: "article",
+      publishedTime: note.date,
+      modifiedTime: note.date,
+      authors: [note.author],
+    }),
+    authors: [{ name: note.author, url: "/about" }],
   };
 }
 
@@ -38,6 +48,18 @@ export default async function NotePage({ params }: PageProps<"/insights/[slug]">
   const newer = sortedNotes[index - 1];
   const older = sortedNotes[index + 1];
 
+  const path = insightHref(note.slug);
+  const crumbs = [
+    { name: notesCopy.meta.title, path: INSIGHTS_PATH },
+    { name: note.title, path },
+  ];
+  const post = blogPosting(note);
+  const jsonLd = graph(
+    webPage({ path, name: note.title, description: note.excerpt, crumbs, extra: { mainEntity: { "@id": post["@id"] }, datePublished: note.date } }),
+    post,
+    breadcrumb(path, crumbs),
+  );
+
   const explore = [
     ...t.explore.services.map((s) => ({ href: divisionHref(s.slug), title: s.title, body: s.body, division: s.slug })),
     { href: PRAISE_TOOL_PATH, title: t.explore.praiseTool.title, body: t.explore.praiseTool.body, division: "faith" as DivisionSlug },
@@ -45,6 +67,7 @@ export default async function NotePage({ params }: PageProps<"/insights/[slug]">
 
   return (
     <>
+      <JsonLd data={jsonLd} />
       <div className="wrap pt-8 md:pt-12">
         <Link href={INSIGHTS_PATH} className="label ko-tight inline-flex min-h-11 items-center gap-2 text-gray underline-offset-4 hover:text-ink hover:underline hover:decoration-2">
           {t.back}

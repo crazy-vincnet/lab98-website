@@ -379,3 +379,72 @@ export function formatDate(iso: string) {
 
 /** Praise Tool launch date (KST). Single source for countdowns and copy. */
 export const PRAISE_TOOL_LAUNCH = "2026-11-11";
+
+/* ---------------------------------------------------------------- FAQ */
+
+export type Faq = { q: string; a: string };
+export type FaqKey = "home" | "dev" | "ai" | "faith" | "praiseTool";
+
+const devInfo = divisions.find((d) => d.slug === "dev")!;
+/** "뉴코리아 희망방송(NKHB), 뉴코리아 파운데이션 인터내셔널(NKFI), …" */
+const projectNames = projects.map((p) => (p.clientEn && /^[A-Z]+$/.test(p.clientEn) ? `${p.client}(${p.clientEn})` : p.client)).join(", ");
+
+/**
+ * Visible FAQ sections (home, service pages, Praise Tool). Rendered as-is and mirrored 1:1 in FAQPage JSON-LD
+ * and /llms-full.txt, so every answer must stay verifiable from the facts above (no prices other than the ones
+ * published, no dates that aren't confirmed).
+ */
+export const faqs: Record<FaqKey, Faq[]> = {
+  home: [
+    {
+      q: "Lab98은 어떤 회사인가요?",
+      a: "웹사이트·쇼핑몰·Mac/Windows 프로그램을 만드는 Dev, AI 교육을 하는 AI, 교회와 선교단체 프로그램을 만드는 Faith, 세 사업부로 일하는 회사예요. 사업자는 제이제이드림(JJdream)이고 Lab98은 그 브랜드예요.",
+    },
+    { q: "Lab98의 98은 무슨 뜻인가요?", a: site.nameMeaning },
+    {
+      q: "누가 만드나요?",
+      a: `개발자이자 파운더인 ${site.founder.display}이 시작했어요. 고객과 직접 이야기하고 기획부터 개발까지 끝까지 맡아요.`,
+    },
+    { q: "지금까지 어떤 곳의 웹사이트를 만들었나요?", a: `${projectNames}의 웹사이트를 기획부터 디자인, 개발까지 맡았어요.` },
+    { q: "문의하면 언제 답장을 받나요?", a: `문의 양식이나 ${site.email}로 연락 주시면 ${site.replyTime}.` },
+  ],
+  dev: [
+    { q: "홈페이지 제작 비용은 얼마인가요?", a: "200만 원부터 시작해요. 만들 범위를 들은 뒤 정확한 견적을 알려 드려요." },
+    { q: "쇼핑몰도 만들 수 있나요?", a: "네, 상품 소개부터 주문까지 운영하는 방식에 맞춘 쇼핑몰을 만들어요. 템플릿 없이 처음부터 맞춤으로 제작해요." },
+    { q: "Mac·Windows 프로그램도 만드나요?", a: "네, 반복되는 업무를 덜어 주는 데스크톱 프로그램을 Mac과 Windows용으로 만들어요." },
+    {
+      q: "어떤 순서로 진행되나요?",
+      a: `${devInfo.process.map((s) => s.title).join(" → ")}, ${devInfo.process.length}단계로 진행해요. 시안으로 화면과 구조를 먼저 확인한 뒤 만들어요.`,
+    },
+    { q: "제작이 끝나면 소스 코드를 받을 수 있나요?", a: "네, 배포할 때 소스 코드를 함께 넘겨 드려요. 나중에 다른 곳에서 관리하더라도 막히지 않아요." },
+    { q: "어떤 곳의 사이트를 만들었나요?", a: `${projectNames}의 웹사이트를 만들었어요. 프로젝트 페이지에서 화면과 주요 기능을 볼 수 있어요.` },
+  ],
+  ai: [
+    { q: "AI 교육은 어떤 방식으로 하나요?", a: "온라인과 오프라인 강의로 진행하고, 실습 중심이에요. 처음 시작하는 분부터 업무에 바로 쓰고 싶은 분까지 수준에 맞춰요." },
+    { q: "학교나 기업 단체 교육도 하나요?", a: "네, 학교 교육과 기업 교육을 진행해요. 기업 교육은 팀의 실제 업무를 예제로 삼아 다음 날부터 쓸 수 있게 알려 드려요." },
+    { q: "교육 내용은 어떻게 정하나요?", a: "대상과 인원, 원하는 주제를 알려 주시면 수준과 목적에 맞춰 커리큘럼을 제안해요." },
+    { q: "AI 교육 비용은 얼마인가요?", a: "공개된 가격표는 없어요. 대상과 인원, 주제를 들은 뒤 따로 안내해 드려요." },
+    { q: "AI 커뮤니티는 언제 열리나요?", a: "지금 만들고 있고, 오픈 예정이에요. 열리면 가장 먼저 알려 드릴게요." },
+  ],
+  faith: [
+    {
+      q: "Lab98 Faith는 무엇을 만드나요?",
+      a: "교회와 선교단체, 그리스도인에게 필요한 프로그램을 만들고 배포하고 운영해요. 첫 제품은 예배용 가사·미디어 송출 프로그램 Praise Tool이에요.",
+    },
+    { q: "교회 맞춤 프로그램도 의뢰할 수 있나요?", a: "네, 사역 현장에서 반복되는 일과 불편한 점을 듣고 꼭 필요한 기능을 담아 맞춤 프로그램을 만들어요." },
+    { q: "만든 뒤에도 관리해 주나요?", a: "설치부터 업데이트, 문제 해결까지 배포한 뒤의 운영도 함께해요." },
+    { q: "어떤 컴퓨터에서 쓸 수 있나요?", a: "Mac과 Windows에서 쉽게 설치하고 쓸 수 있게 배포해요." },
+    { q: "Praise Tool은 언제 출시되나요?", a: "2026년 11월 11일에 출시해요. 가격은 10만 원이고, 한 번 구매하면 계속 쓰는 영구 라이선스예요." },
+  ],
+  praiseTool: [
+    {
+      q: "Praise Tool은 어떤 프로그램인가요?",
+      a: "찬양 가사, 설교 슬라이드, 성경 구절, 영상을 한 프로그램에서 준비하고 송출하는 예배용 프로그램이에요. 관객 화면, 무대 모니터, 방송용 NDI로 동시에 내보낼 수 있어요.",
+    },
+    { q: "언제 출시되고 가격은 얼마인가요?", a: "2026년 11월 11일에 출시해요. 가격은 100,000원이고, 한 번 구매하면 계속 쓰는 영구 라이선스예요." },
+    { q: "어떤 운영체제를 지원하나요?", a: "macOS와 Windows를 모두 지원해요. 프로그램 화면은 한국어, English, 中文, 日本語로 쓸 수 있어요." },
+    { q: "NDI를 지원하나요?", a: "네, NDI로 OBS, vMix, Wirecast 같은 방송 프로그램에 바로 보낼 수 있어요. 다만 macOS Intel 버전에서는 NDI를 쓸 수 없어요." },
+    { q: "스마트폰으로 슬라이드를 넘길 수 있나요?", a: "네, 같은 Wi-Fi에 연결된 스마트폰으로 슬라이드를 넘겨요. Stream Deck으로도 제어할 수 있어요." },
+    { q: "출시 알림은 어떻게 받나요?", a: "이 페이지의 출시 알림 신청에 이메일을 남겨 주세요. 출시되면 한 번만 알려 드리고, 광고 메일은 보내지 않아요." },
+  ],
+};

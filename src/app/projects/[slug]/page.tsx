@@ -7,7 +7,10 @@ import { CtaBand, DivisionDot, Pager } from "@/components/experiments/parts";
 import { divisionHref, projectHref, PROJECTS_PATH } from "@/components/experiments/paths";
 import { ProjectShots } from "@/components/experiments/project-shots";
 import { ButtonLink, SectionHead } from "@/components/ui";
-import { divisionTheme, getDivision, getProject, projects } from "@/lib/content";
+import { JsonLd } from "@/components/seo/json-ld";
+import { pageMetadata } from "@/components/seo/metadata";
+import { divisionTheme, getDivision, getProject, projects, type Project } from "@/lib/content";
+import { breadcrumb, graph, projectWork, webPage } from "@/lib/structured-data";
 
 const t = projectsCopy.detail;
 
@@ -20,19 +23,23 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/projects/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const p = getProject(slug);
-  if (!p) return { title: projectsCopy.meta.notFoundTitle };
-  return {
-    title: p.title,
-    description: p.summary,
-    alternates: { canonical: projectHref(p.slug) },
-    openGraph: {
-      title: p.title,
-      description: p.summary,
-      url: projectHref(p.slug),
-      images: [{ url: p.images.desktop, width: 1440, height: 900, alt: t.alt.desktop(p.client) }],
-    },
-  };
+  if (!p) return { title: projectsCopy.meta.notFoundTitle, robots: { index: false } };
+  return pageMetadata({
+    title: seoTitle(p),
+    ogTitle: p.title,
+    description: seoDescription(p),
+    path: projectHref(p.slug),
+    // OG/Twitter image: file-based ./opengraph-image (an explicit `images` here would override it).
+  });
 }
+
+const seoTitle = (p: Project) => `${p.client} 웹사이트 제작 사례`;
+/** "{summary} Lab98 Dev가 기획부터 디자인, 개발까지 맡아 A, B 등을 담았어요." */
+const seoDescription = (p: Project) =>
+  `${p.summary} Lab98 Dev가 기획부터 디자인, 개발까지 맡아 ${p.highlights
+    .slice(0, 2)
+    .map((h) => h.title)
+    .join(", ")} 등을 담았어요.`;
 
 export default async function ProjectPage({ params }: PageProps<"/projects/[slug]">) {
   const { slug } = await params;
@@ -45,8 +52,21 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
   const division = getDivision(p.division);
   const theme = divisionTheme[p.division];
 
+  const path = projectHref(p.slug);
+  const crumbs = [
+    { name: projectsCopy.meta.title, path: PROJECTS_PATH },
+    { name: p.client, path },
+  ];
+  const work = projectWork(p);
+  const jsonLd = graph(
+    webPage({ path, name: seoTitle(p), description: seoDescription(p), type: "ItemPage", crumbs, extra: { mainEntity: { "@id": work["@id"] }, primaryImageOfPage: work.image } }),
+    work,
+    breadcrumb(path, crumbs),
+  );
+
   return (
     <article>
+      <JsonLd data={jsonLd} />
       <header className="wrap pb-12 pt-8 md:pb-16 md:pt-12">
         <Link href={PROJECTS_PATH} className="label ko-tight inline-flex min-h-11 items-center gap-2 text-gray underline-offset-4 hover:text-ink hover:underline hover:decoration-2">
           {t.back}

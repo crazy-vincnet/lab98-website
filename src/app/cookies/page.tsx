@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/seo/json-ld";
+import { pageMetadata } from "@/components/seo/metadata";
+import { ORG_ID, breadcrumb, graph, webPage } from "@/lib/structured-data";
 import Link from "next/link";
 import { site } from "@/lib/content";
 import { PRIVACY_PATH } from "@/components/experiments/paths";
@@ -9,11 +12,13 @@ import { OpenCookieSettingsButton } from "@/components/legal/open-cookie-setting
  * 쿠키 정책. Facts: the site sets no cookies and loads no third-party scripts; the only browser storage is
  * the consent choice (localStorage `lab98-consent`). If analytics is added, update this page (and /privacy §9) first.
  */
-export const metadata: Metadata = {
-  title: "쿠키 정책",
-  description: `${site.name} 웹사이트가 쓰는 브라우저 저장소와 쓰지 않는 쿠키, 선택을 바꾸는 방법을 안내해요.`,
-  alternates: { canonical: "/cookies" },
-};
+const TITLE = "쿠키 정책";
+const DESCRIPTION = `${site.name} 웹사이트는 쿠키를 쓰지 않아요. 브라우저에 저장하는 동의 선택 하나와 쓰지 않는 것, 선택을 바꾸고 지우는 방법을 안내해요.`;
+
+export const metadata: Metadata = pageMetadata({ title: TITLE, description: DESCRIPTION, path: "/cookies" });
+
+const crumbs = [{ name: TITLE, path: "/cookies" }];
+const jsonLd = graph(webPage({ path: "/cookies", name: TITLE, description: DESCRIPTION, crumbs, extra: { publisher: { "@id": ORG_ID } } }), breadcrumb("/cookies", crumbs));
 
 const EFFECTIVE_DATE = "2026년 11월 1일";
 const mail = <a href={`mailto:${site.email}`}>{site.email}</a>;
@@ -114,13 +119,16 @@ const sections: LegalSection[] = [
 
 export default function CookiesPage() {
   return (
-    <LegalDoc
-      label="Cookies"
-      title="쿠키 정책"
-      intro={<p>Lab98 웹사이트가 브라우저에 무엇을 저장하는지, 무엇을 저장하지 않는지, 선택을 어떻게 바꾸는지 안내해요.</p>}
-      effectiveDate={EFFECTIVE_DATE}
-      sections={sections}
-      history={[{ date: "2026. 11. 01", note: "제정" }]}
-    />
+    <>
+      <JsonLd data={jsonLd} />
+      <LegalDoc
+        label="Cookies"
+        title="쿠키 정책"
+        intro={<p>Lab98 웹사이트가 브라우저에 무엇을 저장하는지, 무엇을 저장하지 않는지, 선택을 어떻게 바꾸는지 안내해요.</p>}
+        effectiveDate={EFFECTIVE_DATE}
+        sections={sections}
+        history={[{ date: "2026. 11. 01", note: "제정" }]}
+      />
+    </>
   );
 }

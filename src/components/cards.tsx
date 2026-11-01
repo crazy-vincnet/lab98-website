@@ -17,10 +17,26 @@ const cardCopy = {
 };
 
 /**
+ * `sizes` default. Content box is at most 1280px (.wrap 1440 − 2×80). Widest card in use is half of it
+ * (home lg first row, services md:grid-cols-2 → ≈628px); 3-col cards (≈411px) over-fetch slightly
+ * rather than ever look soft. Pass `sizes` for a tighter hint in a known grid.
+ */
+const PROJECT_CARD_SIZES = "(min-width: 1280px) 640px, (min-width: 768px) 50vw, 100vw";
+
+/**
  * Image-led project card. Use in grids: `grid gap-6 md:grid-cols-2 xl:grid-cols-3`.
  * The screenshot is 1440×900 (16:10), cropped from the top.
  */
-export function ProjectCard({ project: p, headingLevel = "h3" }: { project: Project; headingLevel?: "h2" | "h3" }) {
+export function ProjectCard({
+  project: p,
+  headingLevel = "h3",
+  sizes = PROJECT_CARD_SIZES,
+}: {
+  project: Project;
+  headingLevel?: "h2" | "h3";
+  /** `next/image` sizes for the screenshot; match the grid the card sits in. */
+  sizes?: string;
+}) {
   const H = headingLevel;
   const theme = divisionTheme[p.division];
   return (
@@ -30,7 +46,7 @@ export function ProjectCard({ project: p, headingLevel = "h3" }: { project: Proj
           src={p.images.desktop}
           alt={cardCopy.shotAlt(p.client)}
           fill
-          sizes="(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw"
+          sizes={sizes}
           className="object-cover object-top"
         />
       </div>

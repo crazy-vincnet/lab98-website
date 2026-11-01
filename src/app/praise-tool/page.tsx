@@ -5,18 +5,34 @@ import { ButtonLink, SectionHead, Tag, cx } from "@/components/ui";
 import { LaunchDday } from "@/components/praise-tool/launch-dday";
 import { LaunchSignupForm } from "@/components/praise-tool/launch-signup-form";
 import { CONTACT_HREF, PRAISE_TOOL_PATH, divisionHref } from "@/components/experiments/paths";
-import { divisionTheme, site } from "@/lib/content";
+import { FaqSection } from "@/components/faq/faq-section";
+import { JsonLd } from "@/components/seo/json-ld";
+import { pageMetadata } from "@/components/seo/metadata";
+import { divisionTheme, faqs, getDivision, site } from "@/lib/content";
 import { praiseTool as P, type PtItem } from "@/lib/praise-tool";
+import { breadcrumb, faqPage, graph, praiseToolApp, webPage } from "@/lib/structured-data";
 
 // Public, content-only product page: the whole route must prerender. The D-day badge is computed in the browser.
 export const ensureStatic = "navigation";
 
-export const metadata: Metadata = {
-  title: { absolute: P.meta.title },
-  description: P.meta.description,
-  alternates: { canonical: PRAISE_TOOL_PATH },
-  openGraph: { title: P.meta.title, description: P.meta.description },
-};
+const title = "Praise Tool — 찬양 가사 송출 프로그램 | Lab98";
+const description =
+  "예배용 찬양 가사 송출 프로그램 Praise Tool로 가사, 설교 슬라이드, 성경 구절, 영상을 한 번에 띄워요. NDI 방송 출력, macOS·Windows 지원, 2026년 11월 11일 출시, 100,000원 영구 라이선스예요.";
+
+export const metadata: Metadata = pageMetadata({ title, absoluteTitle: true, ogTitle: P.meta.title, description, path: PRAISE_TOOL_PATH });
+
+const faithDivision = getDivision("faith");
+const crumbs = [
+  ...(faithDivision ? [{ name: faithDivision.name, path: divisionHref("faith") }] : []),
+  { name: P.hero.title, path: PRAISE_TOOL_PATH },
+];
+const app = praiseToolApp();
+const jsonLd = graph(
+  webPage({ path: PRAISE_TOOL_PATH, name: title, description, type: "ItemPage", crumbs, extra: { mainEntity: { "@id": app["@id"] } } }),
+  app,
+  breadcrumb(PRAISE_TOOL_PATH, crumbs),
+  faqPage(PRAISE_TOOL_PATH, faqs.praiseTool),
+);
 
 const faith = divisionTheme.faith;
 const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -50,6 +66,7 @@ export default function PraiseToolPage() {
   const h = P.hero;
   return (
     <>
+      <JsonLd data={jsonLd} />
       {/* 1. Hero */}
       <section>
         <div className="wrap grid gap-10 pb-14 pt-12 md:gap-14 md:pb-20 md:pt-20 lg:grid-cols-[1fr_1.1fr] lg:items-center xl:pt-24">
@@ -195,11 +212,14 @@ export default function PraiseToolPage() {
         </div>
       </Section>
 
-      {/* 6. 가격 + 출시 알림 신청 */}
+      {/* 6. 자주 묻는 질문 */}
+      <FaqSection items={faqs.praiseTool} index="05" />
+
+      {/* 7. 가격 + 출시 알림 신청 */}
       <Section id="notify" className="bg-concrete">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
           <div>
-            <p className="label text-gray">05 — {P.notify.eyebrow}</p>
+            <p className="label text-gray">06 — {P.notify.eyebrow}</p>
             <h2 className="mt-3 text-h2 text-balance">{P.notify.title}</h2>
             <p className="mt-4 max-w-[520px] text-body text-gray text-pretty">{P.notify.lead}</p>
 
@@ -220,7 +240,7 @@ export default function PraiseToolPage() {
         </div>
       </Section>
 
-      {/* 7. 문의 · Faith 서비스 */}
+      {/* 8. 문의 · Faith 서비스 */}
       <section className="border-t-2 border-ink">
         <div className="wrap flex flex-col gap-4 py-10 md:flex-row md:items-center md:justify-between md:py-12">
           <p className="text-body text-pretty">{P.more.text}</p>

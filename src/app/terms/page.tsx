@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/seo/json-ld";
+import { pageMetadata } from "@/components/seo/metadata";
+import { ORG_ID, breadcrumb, graph, webPage } from "@/lib/structured-data";
 import Link from "next/link";
 import { site } from "@/lib/content";
 import { CONTACT_HREF, PRAISE_TOOL_PATH, PRIVACY_PATH } from "@/components/experiments/paths";
 import { LegalDoc, type LegalSection } from "@/components/legal/legal-doc";
 
 /** 이용약관 — covers the lab98.io website only. Paid services (Dev 제작, AI 교육, Praise Tool 구매) have separate contracts/terms. */
-export const metadata: Metadata = {
-  title: "이용약관",
-  description: `${site.name} 웹사이트(${site.url.replace(/^https?:\/\//, "")}) 이용 조건과 회사·이용자의 권리와 의무를 안내해요.`,
-  alternates: { canonical: "/terms" },
-};
+const TITLE = "이용약관";
+const DESCRIPTION = `${site.name} 웹사이트(${site.url.replace(/^https?:\/\//, "")}) 이용 조건과 회사·이용자의 권리와 의무, 문의·견적의 성격, 지식재산권, 면책과 분쟁 해결 기준을 안내해요.`;
+
+export const metadata: Metadata = pageMetadata({ title: TITLE, description: DESCRIPTION, path: "/terms" });
+
+const crumbs = [{ name: TITLE, path: "/terms" }];
+const jsonLd = graph(webPage({ path: "/terms", name: TITLE, description: DESCRIPTION, crumbs, extra: { publisher: { "@id": ORG_ID } } }), breadcrumb("/terms", crumbs));
 
 const EFFECTIVE_DATE = "2026년 11월 1일";
 /** Keep in sync with site.business.name. */
@@ -155,13 +160,16 @@ const sections: LegalSection[] = [
 
 export default function TermsPage() {
   return (
-    <LegalDoc
-      label="Terms"
-      title="이용약관"
-      intro={<p>{host} 웹사이트를 이용할 때 지켜야 할 조건과 회사·이용자의 권리와 의무를 안내해요. 사이트를 이용하면 이 약관에 동의한 것으로 봐요.</p>}
-      effectiveDate={EFFECTIVE_DATE}
-      sections={sections}
-      history={[{ date: "2026. 11. 01", note: "제정" }]}
-    />
+    <>
+      <JsonLd data={jsonLd} />
+      <LegalDoc
+        label="Terms"
+        title="이용약관"
+        intro={<p>{host} 웹사이트를 이용할 때 지켜야 할 조건과 회사·이용자의 권리와 의무를 안내해요. 사이트를 이용하면 이 약관에 동의한 것으로 봐요.</p>}
+        effectiveDate={EFFECTIVE_DATE}
+        sections={sections}
+        history={[{ date: "2026. 11. 01", note: "제정" }]}
+      />
+    </>
   );
 }

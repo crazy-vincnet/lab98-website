@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/components/seo/metadata";
 import Link from "next/link";
 import { PrivacyRequestForm } from "@/components/privacy-request/privacy-request-form";
 import { privacyRequestCopy as C } from "@/components/privacy-request/copy";
@@ -11,12 +12,7 @@ import { site } from "@/lib/content";
  * Nothing is deleted or changed from here: the team acts after the requester replies to the
  * confirmation email (identity check by email), within 10 days.
  */
-export const metadata: Metadata = {
-  title: C.meta.title,
-  description: C.meta.description,
-  alternates: { canonical: PRIVACY_REQUEST_PATH },
-  robots: { index: false, follow: true },
-};
+export const metadata: Metadata = pageMetadata({ title: C.meta.title, description: C.meta.description, path: PRIVACY_REQUEST_PATH, noindex: true });
 
 const link = "font-bold text-ink underline underline-offset-4 hover:text-red-text";
 

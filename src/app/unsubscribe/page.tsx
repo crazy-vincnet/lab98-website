@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/components/seo/metadata";
 import Link from "next/link";
 import { Suspense } from "react";
 import { UnsubscribeForm, UnsubscribeFormFallback } from "@/components/unsubscribe/unsubscribe-form";
@@ -11,12 +12,7 @@ import { site } from "@/lib/content";
  * The page shell is static; `?email=` is read on the client inside <Suspense>.
  * Bulk / launch mail must skip opted-out addresses: see isOptedOut in src/lib/unsubscribe-server.ts.
  */
-export const metadata: Metadata = {
-  title: C.meta.title,
-  description: C.meta.description,
-  alternates: { canonical: UNSUBSCRIBE_PATH },
-  robots: { index: false, follow: true },
-};
+export const metadata: Metadata = pageMetadata({ title: C.meta.title, description: C.meta.description, path: UNSUBSCRIBE_PATH, noindex: true });
 
 const link = "font-bold text-ink underline underline-offset-4 hover:text-red-text";
 

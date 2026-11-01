@@ -3,7 +3,11 @@ import { ButtonLink } from "@/components/ui";
 import { PROJECTS_PATH } from "@/components/experiments/paths";
 
 // Copy: docs/copy-guide.md §5-5
-export const metadata: Metadata = { title: "페이지를 찾을 수 없어요", robots: { index: false } };
+export const metadata: Metadata = {
+  title: "페이지를 찾을 수 없어요",
+  description: "주소가 바뀌었거나 더 이상 운영하지 않는 페이지예요.",
+  robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
   return (

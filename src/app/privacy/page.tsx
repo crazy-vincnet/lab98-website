@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/seo/json-ld";
+import { pageMetadata } from "@/components/seo/metadata";
+import { ORG_ID, breadcrumb, graph, webPage } from "@/lib/structured-data";
 import Link from "next/link";
 import { site } from "@/lib/content";
 import { COOKIES_PATH, PRAISE_TOOL_PATH, PRIVACY_REQUEST_PATH, UNSUBSCRIBE_PATH } from "@/components/experiments/paths";
@@ -10,11 +13,13 @@ import { ButtonLink } from "@/components/ui";
  * If a form collects new fields, a processor is added, or browser storage changes, update §2/§3/§6/§9,
  * the effective date, and add a history entry.
  */
-export const metadata: Metadata = {
-  title: "개인정보처리방침",
-  description: `${site.name}(${site.business.name})이 문의, 출시 알림 신청, 개인정보 요청, 수신거부를 처리하며 개인정보를 어떻게 수집·이용·보관·파기하는지 안내해요.`,
-  alternates: { canonical: "/privacy" },
-};
+const TITLE = "개인정보처리방침";
+const DESCRIPTION = `${site.name}(${site.business.name})이 문의, 출시 알림 신청, 개인정보 요청, 수신거부를 처리하며 개인정보를 어떻게 수집·이용·보관·파기하는지 안내해요.`;
+
+export const metadata: Metadata = pageMetadata({ title: TITLE, description: DESCRIPTION, path: "/privacy" });
+
+const crumbs = [{ name: TITLE, path: "/privacy" }];
+const jsonLd = graph(webPage({ path: "/privacy", name: TITLE, description: DESCRIPTION, crumbs, extra: { publisher: { "@id": ORG_ID } } }), breadcrumb("/privacy", crumbs));
 
 const EFFECTIVE_DATE = "2026년 11월 1일";
 /** Keep in sync with site.business.name. */
@@ -232,17 +237,20 @@ const sections: LegalSection[] = [
 
 export default function PrivacyPage() {
   return (
-    <LegalDoc
-      label="Privacy"
-      title="개인정보처리방침"
-      intro={
-        <p>
-          {OWNER}(이하 “회사”)은 이용자의 개인정보를 중요하게 생각하고 「개인정보 보호법」을 지켜요. 이 방침은 {host} 웹사이트의 문의 양식, Praise Tool 출시 알림 신청, 개인정보 요청, 수신거부에 적용돼요.
-        </p>
-      }
-      effectiveDate={EFFECTIVE_DATE}
-      sections={sections}
-      history={[{ date: "2026. 11. 01", note: "제정" }]}
-    />
+    <>
+      <JsonLd data={jsonLd} />
+      <LegalDoc
+        label="Privacy"
+        title="개인정보처리방침"
+        intro={
+          <p>
+            {OWNER}(이하 “회사”)은 이용자의 개인정보를 중요하게 생각하고 「개인정보 보호법」을 지켜요. 이 방침은 {host} 웹사이트의 문의 양식, Praise Tool 출시 알림 신청, 개인정보 요청, 수신거부에 적용돼요.
+          </p>
+        }
+        effectiveDate={EFFECTIVE_DATE}
+        sections={sections}
+        history={[{ date: "2026. 11. 01", note: "제정" }]}
+      />
+    </>
   );
 }
