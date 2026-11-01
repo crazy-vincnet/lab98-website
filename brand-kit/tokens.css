@@ -1,0 +1,21 @@
+:root {
+  /* Base */
+  --lab98-black: #111111;
+  --lab98-white: #FFFFFF;
+  --lab98-concrete: #E6E6E3;
+
+  /* Point colors (dot) */
+  --lab98-signal-red: #E8322B; /* Lab98 master */
+  --lab98-web-blue: #2F55FF;   /* Lab98 Web */
+  --lab98-ai-green: #14C38E;   /* Lab98 AI */
+  --lab98-faith-gold: #F2B21B; /* Lab98 Faith */
+
+  /* Type */
+  --lab98-font-logo: "Archivo", "Helvetica Neue", Arial, sans-serif;            /* 800 logo/display, 500 division name */
+  --lab98-font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", sans-serif;      /* 400 body, 700 heading */
+  --lab98-font-mono: "JetBrains Mono", ui-monospace, monospace;                   /* code, labels */
+
+  /* Shape */
+  --lab98-radius: 0;
+  --lab98-border: 2px solid #111111;
+}

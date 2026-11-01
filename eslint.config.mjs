@@ -10,6 +10,10 @@ const eslintConfig = defineConfig([
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
+    // Node QA / Figma snapshot scripts (CommonJS)
+    "tools/**",
+    "brand-kit/**",
+    "design/**",
     "build/**",
     "next-env.d.ts",
   ]),

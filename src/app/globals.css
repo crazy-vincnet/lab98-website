@@ -1,26 +1,160 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Lab98 design tokens — source: lab98-brand/tokens.css (v1.3) + SNS kit contrast work.
+ * Rules: radius 0 · 2px black borders · color ratio white 60 / black 30 / concrete 8 / point 2.
+ * Use the Tailwind utilities generated from @theme below (bg-ink, text-gray, border-ink, text-web …).
+ */
+@theme {
+  /* base */
+  --color-ink: #111111;          /* Lab Black */
+  --color-paper: #ffffff;        /* Paper White */
+  --color-concrete: #e6e6e3;     /* Concrete */
+  --color-gray: #5e5e5a;         /* secondary text on white (6.6:1) */
+  --color-muted: #8a8a85;        /* placeholder / disabled — not for body text */
+  --color-line: #d8d8d3;
+  --color-placeholder: #737370;  /* form placeholder on white (4.76:1) */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* dark surfaces */
+  --color-ink-2: #1f1f1e;        /* raised surface on ink */
+  --color-ink-line: #3a3a38;     /* divider on ink */
+  --color-ink-text: #a3a39e;     /* secondary text on ink (7.2:1) */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* point colors — fills, dots, large type */
+  --color-red: #e8322b;          /* Signal Red · Lab98 master */
+  --color-web: #2f55ff;          /* Web Blue */
+  --color-ai: #14c38e;           /* Node Green */
+  --color-faith: #f2b21b;        /* Light Gold */
+
+  /* point colors — small text (≥4.5:1). *-text on white, *-text-dark on ink */
+  --color-red-text: #de3029;
+  --color-web-text: #2f55ff;
+  --color-ai-text: #0c8560;
+  --color-faith-text: #9a6d00;
+  --color-red-text-dark: #ff6b61;
+  --color-web-text-dark: #7d93ff;
+  --color-ai-text-dark: #14c38e;
+  --color-faith-text-dark: #f2b21b;
+
+  /* type */
+  --font-logo: "Archivo", "Helvetica Neue", Arial, sans-serif;           /* 800 display, 500 division name */
+  --font-sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", sans-serif;     /* 400 body, 700 heading */
+  --font-mono: "JetBrains Mono", "IBM Plex Sans KR", ui-monospace, monospace; /* labels, codes · Plex KR = Hangul fallback */
+
+  /* type scale — from docs/qa-font-size.md (clamp 390→1440). Use text-h1, text-h2, text-lead, text-body, text-meta … */
+  /* Display — Archivo 800 */
+  --text-display-xl: clamp(4.5rem, 2.456rem + 8.381vw, 10rem);   /* 72 → 160 */
+  --text-display-xl--line-height: 0.9;
+  --text-display-xl--font-weight: 800;
+  --text-display-xl--letter-spacing: -0.04em;
+  --text-display: clamp(4rem, 2.7rem + 5.333vw, 7.5rem);          /* 64 → 120 */
+  --text-display--line-height: 0.92;
+  --text-display--font-weight: 800;
+  --text-display--letter-spacing: -0.04em;
+  --text-numeral-lg: clamp(3.5rem, 2.757rem + 3.048vw, 5.5rem);   /* 56 → 88 */
+  --text-numeral-lg--line-height: 1;
+  --text-numeral-lg--font-weight: 800;
+  --text-numeral: clamp(3rem, 2.629rem + 1.524vw, 4rem);          /* 48 → 64 */
+  --text-numeral--line-height: 1;
+  --text-numeral--font-weight: 800;
+
+  /* Korean headings — IBM Plex Sans KR 700 */
+  --text-h1: clamp(2.25rem, 1.6rem + 2.667vw, 4rem);              /* 36 → 64 (768 ≈ 46) */
+  --text-h1--line-height: 1.27;
+  --text-h1--letter-spacing: -0.03em;
+  --text-h1--font-weight: 700;
+  --text-h2: clamp(1.875rem, 1.457rem + 1.714vw, 3rem);           /* 30 → 48 (768 ≈ 36) */
+  --text-h2--line-height: 1.35;
+  --text-h2--letter-spacing: -0.02em;
+  --text-h2--font-weight: 700;
+  --text-h3: clamp(1.5rem, 1.407rem + 0.381vw, 1.75rem);          /* 24 → 28 */
+  --text-h3--line-height: 1.4;
+  --text-h3--letter-spacing: -0.01em;
+  --text-h3--font-weight: 700;
+  --text-title: clamp(1.25rem, 1.157rem + 0.381vw, 1.5rem);       /* 20 → 24 */
+  --text-title--line-height: 1.45;
+  --text-title--font-weight: 700;
+  --text-title-sm: 1.125rem;                                      /* 18 */
+  --text-title-sm--line-height: 1.45;
+  --text-title-sm--font-weight: 700;
+
+  /* Korean text — 400 */
+  --text-lead: clamp(1.125rem, 1.032rem + 0.381vw, 1.375rem);     /* 18 → 22 */
+  --text-lead--line-height: 1.6;
+  --text-body: clamp(1rem, 0.954rem + 0.19vw, 1.125rem);          /* 16 → 18 */
+  --text-body--line-height: 1.7;
+  --text-body-sm: 1rem;                                           /* 16 */
+  --text-body-sm--line-height: 1.6;
+  --text-ui: 1rem;
+  --text-ui--line-height: 1;
+
+  /* Mono */
+  --text-meta: 0.8125rem;                                         /* 13 */
+  --text-meta--line-height: 1.5;
+  --text-meta--letter-spacing: 0.04em;
+  --text-micro: 0.75rem;                                          /* 12 — floor */
+  --text-micro--line-height: 1;
+  --text-micro--letter-spacing: 0.06em;
+  --text-code: clamp(0.8125rem, 0.766rem + 0.19vw, 0.9375rem);    /* 13 → 15 */
+  --text-code--line-height: 1.8;
+
+  /* Quick global fix while migrating: give the default Tailwind sizes Korean line-heights */
+  --text-base--line-height: 1.7;   /* default 1.5 → 58 Korean paragraphs */
+  --text-lg--line-height: 1.7;     /* default 1.556 */
+  --text-xl--line-height: 1.6;     /* default 1.4 → leads on /experiments, /notes, exp-042 */
+  --text-2xl--line-height: 1.45;   /* default 1.333 */
+
+  /* layout */
+  --container-site: 1440px;
+
+  /* motion */
+  --ease-lab: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --animate-blink: blink 1s steps(1) infinite;
+  --animate-rise: rise 0.7s var(--ease-lab) both;
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: none; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  *, ::before, ::after { border-radius: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 18px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  @media (max-width: 767px) { body { font-size: 16px; } }
+  ::selection { background: var(--color-ink); color: var(--color-paper); }
+  :focus-visible { outline: 3px solid var(--color-red); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+}
+
+@layer components {
+  /* Page gutter + max width. Use on every section's inner wrapper. */
+  .wrap { width: 100%; max-width: var(--container-site); margin-inline: auto; padding-inline: 20px; }
+  @media (min-width: 768px) { .wrap { padding-inline: 40px; } }
+  @media (min-width: 1200px) { .wrap { padding-inline: 80px; } }
+
+  /* Mono uppercase label (section eyebrow, codes) */
+  .label { font-family: var(--font-mono); font-size: 14px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.3; }
+}
+
+/* Korean text set in mono / uppercase labels: remove wide tracking.
+   Defined as a utility so it wins over .label (components) and text-meta/micro tokens. */
+@utility ko-tight {
+  letter-spacing: 0;
+  text-transform: none;
 }
