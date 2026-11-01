@@ -111,29 +111,32 @@ export const contactCopy = {
     emailPlaceholder: "you@company.com",
     messageLabel: "문의 내용",
     messagePlaceholder: "해결하고 싶은 문제와 원하는 일정, 예산 범위를 알려 주세요. 정리되지 않아도 괜찮아요.",
-    messageMax: 2000,
     submit: "문의 보내기",
-    submitHint: "문의 보내기를 누르면 메일 앱이 열려요",
-    privacy: "보내 주신 정보는 답장을 위해서만 사용해요.",
+    submitting: "보내는 중…",
+    consentBefore: "문의 답변을 위한",
+    consentLink: "개인정보 수집·이용",
+    consentAfter: "에 동의해요 (필수)",
+    privacy: "이메일·문의 내용은 답변에만 쓰고, 문의 종료 1년 후 삭제해요.",
     errors: {
       emailRequired: "답장받을 이메일을 입력해 주세요.",
       emailInvalid: "이메일 형식을 확인해 주세요. 예: you@company.com",
       messageRequired: "문의 내용을 한 줄 이상 적어 주세요.",
       messageTooLong: "2,000자 안으로 줄여 주세요. 자료는 답장 메일로 보내 주셔도 돼요.",
+      nameTooLong: "이름 또는 회사명은 100자 안으로 적어 주세요.",
+      consentRequired: "개인정보 수집·이용에 동의해 주셔야 문의를 보낼 수 있어요.",
     },
-    mail: {
-      subject: (interest: string, from: string) => `[Lab98 문의] ${interest} · ${from}`,
-      body: (interest: string, name: string, from: string, message: string) =>
-        `문의 분야: ${interest}\n${name ? `이름 또는 회사명: ${name}\n` : ""}답장받을 이메일: ${from}\n\n${message}\n`,
+    // Shown above the form when sending fails; followed by the email address.
+    failure: {
+      rateLimited: "짧은 시간에 문의가 많이 들어와 잠시 막아 두었어요. 10분 뒤 다시 보내 주시거나",
+      server: "문의를 보내지 못했어요. 잠시 뒤 다시 시도해 주시거나",
+      fallbackAfter: "로 직접 메일을 보내 주세요.",
     },
-    // Submitting opens the visitor's mail app (no backend yet), so the success state
-    // asks them to press send there; wording otherwise follows copy guide 6-2.
     success: {
-      eyebrow: "메일 앱을 열었어요",
-      title: "메일 앱에서 보내기를 누르면 문의가 접수돼요. 영업일 기준 2일 안에 입력하신 이메일로 답장드릴게요.",
-      fallbackBefore: "메일 앱이 열리지 않았다면",
-      fallbackAfter: "로 직접 보내 주세요.",
-      reset: "새로 쓰기",
+      eyebrow: "문의가 접수됐어요",
+      title: "문의해 주셔서 감사해요. 영업일 기준 2일 안에 입력하신 이메일로 답장드릴게요.",
+      fallbackBefore: "급한 일이라면",
+      fallbackAfter: "로 바로 연락 주셔도 돼요.",
+      reset: "새 문의 쓰기",
     },
   },
 } as const;

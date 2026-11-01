@@ -1,33 +1,26 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import Link from "next/link";
+import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { Button, cx } from "@/components/ui";
 import type { Division } from "@/lib/content";
+import { FIELDS, LIMITS, validateInquiry, type FieldErrors } from "@/lib/inquiry";
+import { submitInquiry } from "@/app/actions/contact";
+import { PRIVACY_PATH } from "@/components/experiments/paths";
 import { contactCopy } from "./copy";
 
 const t = contactCopy.form;
 
 type Interest = { value: Division; label: string };
-type Errors = { email?: string; message?: string };
 
 const dotBg: Record<Division, string> = { master: "bg-red", web: "bg-web", ai: "bg-ai", faith: "bg-faith" };
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function validate(email: string, message: string): Errors {
-  const e: Errors = {};
-  if (!email.trim()) e.email = t.errors.emailRequired;
-  else if (!EMAIL_RE.test(email.trim())) e.email = t.errors.emailInvalid;
-  if (!message.trim()) e.message = t.errors.messageRequired;
-  else if (message.trim().length > t.messageMax) e.message = t.errors.messageTooLong;
-  return e;
-}
 
 const inputBase =
   "block w-full border-2 bg-paper px-[18px] text-body-sm text-ink placeholder:text-placeholder transition-colors duration-150 hover:bg-concrete/40 focus:bg-paper";
 
 /**
- * Contact form. No backend yet: submitting opens the visitor's mail app with a
- * prefilled message to `to`, then shows a success state.
+ * Contact form. Submits to the `submitInquiry` Server Action (stored in InsForge, team gets an email).
+ * `to` is only shown as a fallback address when sending fails and on the success screen.
  */
 export function ContactForm({ to, interests }: { to: string; interests: Interest[] }) {
   const uid = useId();
@@ -35,41 +28,81 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [consent, setConsent] = useState(false);
   const [submitted, setSubmitted] = useState(false); // a submit was attempted → show live errors
+  const [serverErrors, setServerErrors] = useState<FieldErrors>({});
+  const [failure, setFailure] = useState<"rateLimited" | "server" | null>(null);
   const [sent, setSent] = useState(false);
+  const [pending, startTransition] = useTransition();
+  // Time the form was first shown; the server rejects submissions that come back too fast (bots).
+  const startedAt = useRef(0);
   const successRef = useRef<HTMLHeadingElement>(null);
+  const failureRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const messageRef = useRef<HTMLTextAreaElement>(null);
+  const consentRef = useRef<HTMLInputElement>(null);
 
-  const errors = submitted ? validate(email, message) : {};
+  const live = submitted ? validateInquiry({ interest, name, email, message, consent }) : {};
+  const errors: Partial<Record<keyof FieldErrors, string>> = {};
+  for (const k of ["name", "email", "message", "consent"] as const) {
+    const code = live[k] ?? serverErrors[k];
+    if (code) errors[k] = t.errors[code];
+  }
 
   useEffect(() => {
     if (sent) successRef.current?.focus();
   }, [sent]);
 
+  useEffect(() => {
+    startedAt.current = Date.now();
+  }, []);
+
+  useEffect(() => {
+    if (failure) failureRef.current?.focus();
+  }, [failure]);
+
+  function focusFirst(e: FieldErrors) {
+    const ref = e.name ? nameRef : e.email ? emailRef : e.message ? messageRef : e.consent ? consentRef : null;
+    ref?.current?.focus();
+  }
+
   function onSubmit(ev: FormEvent<HTMLFormElement>) {
     ev.preventDefault();
+    if (pending) return;
     setSubmitted(true);
-    const e = validate(email, message);
-    if (e.email || e.message) {
-      (e.email ? emailRef : messageRef).current?.focus();
+    setServerErrors({});
+    setFailure(null);
+    const e = validateInquiry({ interest, name, email, message, consent });
+    if (Object.keys(e).length) {
+      focusFirst(e);
       return;
     }
-
-    const label = interests.find((i) => i.value === interest)?.label ?? "";
-    const subject = t.mail.subject(label, email.trim());
-    const body = t.mail.body(label, name.trim(), email.trim(), message.trim());
-    // TODO(backend): replace mailto with an API route / form service
-    window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    const fd = new FormData(ev.currentTarget);
+    fd.set(FIELDS.startedAt, String(startedAt.current));
+    startTransition(async () => {
+      try {
+        const res = await submitInquiry(fd);
+        if (res.ok) setSent(true);
+        else if (res.reason === "invalid") {
+          setServerErrors(res.fieldErrors);
+          focusFirst(res.fieldErrors);
+        } else setFailure(res.reason);
+      } catch {
+        setFailure("server");
+      }
+    });
   }
 
   function reset() {
     setName("");
     setEmail("");
     setMessage("");
+    setConsent(false);
     setInterest(interests[0].value);
     setSubmitted(false);
+    setServerErrors({});
+    setFailure(null);
     setSent(false);
   }
 
@@ -101,7 +134,23 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
   }
 
   return (
-    <form noValidate onSubmit={onSubmit} className="flex flex-col gap-6 border-2 border-ink bg-paper p-6 md:p-10" aria-label={t.ariaLabel}>
+    <form noValidate onSubmit={onSubmit} aria-busy={pending} className="flex flex-col gap-6 border-2 border-ink bg-paper p-6 md:p-10" aria-label={t.ariaLabel}>
+      {failure && (
+        <div ref={failureRef} tabIndex={-1} role="alert" className="border-2 border-red bg-paper p-4 text-body-sm text-ink outline-none">
+          {t.failure[failure]}{" "}
+          <a href={`mailto:${to}`} className="break-all font-bold underline underline-offset-4 hover:text-red-text">
+            {to}
+          </a>
+          {t.failure.fallbackAfter}
+        </div>
+      )}
+      {/* Honeypot: hidden from people and assistive tech; bots that fill every field get dropped. */}
+      <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label>
+          Website
+          <input type="text" name={FIELDS.honeypot} tabIndex={-1} autoComplete="off" defaultValue="" />
+        </label>
+      </div>
       <fieldset>
         <legend className="mb-3 text-body-sm font-bold">{t.interestLegend}</legend>
         {/* Stacked on phones so no chip is left alone on a second line; wraps from sm. */}
@@ -118,7 +167,7 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
               >
                 <input
                   type="radio"
-                  name="interest"
+                  name={FIELDS.interest}
                   value={i.value}
                   checked={on}
                   onChange={() => setInterest(i.value)}
@@ -143,15 +192,24 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
           {t.nameLabel}
         </label>
         <input
+          ref={nameRef}
           id={`${uid}-name`}
           type="text"
-          name="name"
+          name={FIELDS.name}
           autoComplete="organization"
+          maxLength={LIMITS.name}
           placeholder={t.namePlaceholder}
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className={cx(inputBase, "h-14 border-ink")}
+          aria-invalid={!!errors.name}
+          aria-describedby={errors.name ? `${uid}-name-error` : undefined}
+          className={cx(inputBase, "h-14", errors.name ? "border-red" : "border-ink")}
         />
+        {errors.name && (
+          <p id={`${uid}-name-error`} className="mt-2 text-body-sm text-red-text">
+            {errors.name}
+          </p>
+        )}
       </div>
 
       <div>
@@ -162,7 +220,7 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
           ref={emailRef}
           id={`${uid}-email`}
           type="email"
-          name="email"
+          name={FIELDS.email}
           required
           autoComplete="email"
           inputMode="email"
@@ -187,7 +245,7 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
         <textarea
           ref={messageRef}
           id={`${uid}-message`}
-          name="message"
+          name={FIELDS.message}
           required
           rows={5}
           placeholder={t.messagePlaceholder}
@@ -204,13 +262,47 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
         )}
       </div>
 
-      <Button type="submit" className="mt-1 w-full">
-        {t.submit} <span aria-hidden>→</span>
+      <div>
+        <label htmlFor={`${uid}-consent`} className="flex min-h-11 cursor-pointer items-start gap-3 text-body-sm">
+          <input
+            ref={consentRef}
+            id={`${uid}-consent`}
+            type="checkbox"
+            name={FIELDS.consent}
+            required
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            aria-invalid={!!errors.consent}
+            aria-describedby={[`${uid}-privacy`, errors.consent ? `${uid}-consent-error` : ""].filter(Boolean).join(" ")}
+            className="mt-[0.2em] size-5 shrink-0 cursor-pointer accent-ink"
+          />
+          <span>
+            {t.consentBefore}{" "}
+            <Link href={PRIVACY_PATH} target="_blank" className="font-bold underline underline-offset-4 hover:text-red-text">
+              {t.consentLink}
+            </Link>
+            {t.consentAfter}
+          </span>
+        </label>
+        <p id={`${uid}-privacy`} className="mt-1 pl-8 text-body-sm text-gray text-pretty">
+          {t.privacy}
+        </p>
+        {errors.consent && (
+          <p id={`${uid}-consent-error`} className="mt-2 pl-8 text-body-sm text-red-text">
+            {errors.consent}
+          </p>
+        )}
+      </div>
+
+      <Button type="submit" className="mt-1 w-full" disabled={pending}>
+        {pending ? (
+          t.submitting
+        ) : (
+          <>
+            {t.submit} <span aria-hidden>→</span>
+          </>
+        )}
       </Button>
-      <p className="-mt-2 text-center text-body-sm text-gray text-pretty">
-        <span className="block">{t.submitHint}</span>
-        <span className="block">{t.privacy}</span>
-      </p>
     </form>
   );
 }

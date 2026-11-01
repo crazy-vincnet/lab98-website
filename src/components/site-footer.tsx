@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { divisions, site } from "@/lib/content";
 import { Lockup } from "@/components/ui";
-import { CONTACT_HREF, HOME_ANCHORS, INSIGHTS_PATH, PROJECTS_PATH, divisionHref } from "@/components/experiments/paths";
+import { CONTACT_HREF, HOME_ANCHORS, INSIGHTS_PATH, PRIVACY_PATH, PROJECTS_PATH, divisionHref } from "@/components/experiments/paths";
 import { serviceLabel } from "@/components/home/copy";
 
 const companyLinks = [
@@ -33,6 +33,9 @@ export function SiteFooter() {
           <span>
             © 2026 {site.name} · {site.url.replace(/^https?:\/\//, "")}
           </span>
+          <Link href={PRIVACY_PATH} className="-my-2.5 py-2.5 font-bold text-paper hover:underline hover:underline-offset-4">
+            개인정보처리방침
+          </Link>
         </div>
       </div>
     </footer>

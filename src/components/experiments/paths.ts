@@ -6,6 +6,7 @@ export const PROJECTS_PATH = "/projects";
 export const INSIGHTS_PATH = "/insights";
 /** Service (division) pages are owned by another route; linked only. */
 export const SERVICES_PATH = "/services";
+export const PRIVACY_PATH = "/privacy";
 
 export const projectHref = (code: string) => `${PROJECTS_PATH}/${code}`;
 export const insightHref = (slug: string) => `${INSIGHTS_PATH}/${slug}`;

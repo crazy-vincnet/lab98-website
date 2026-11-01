@@ -23,7 +23,7 @@ Lab98은 웹사이트, AI 업무 자동화, 신앙 공동체 콘텐츠 프로젝
 4. [페이지와 주소](#4-페이지와-주소)
 5. [디자인 시스템](#5-디자인-시스템)
 6. [콘텐츠 수정 방법](#6-콘텐츠-수정-방법)
-7. [컴포넌트 안내](#7-컴포넌트-안내)
+7. [컴포넌트 안내](#7-컴포넌트-안내) · [문의 폼과 InsForge](#7-1-문의-폼과-insforge)
 8. [품질 기준과 검수 결과](#8-품질-기준과-검수-결과)
 9. [Figma 연동](#9-figma-연동)
 10. [배포 전 체크리스트](#10-배포-전-체크리스트)
@@ -55,7 +55,20 @@ http://localhost:3000 을 엽니다.
 | `npm run lint` | ESLint 검사를 합니다. |
 | `npx next typegen` | 라우트 타입(`PageProps<'/projects/[code]'>` 등)을 다시 만듭니다. |
 
-환경 변수는 아직 없습니다. 문의 메일 발송을 붙이면 `.env.local`에 `RESEND_API_KEY`가 생길 예정입니다. `.env*`는 git에 올라가지 않습니다.
+**환경 변수:** 문의 폼이 동작하려면 `.env.local`이 필요합니다. `.env.example`을 복사해서 값을 채우세요. `.env.local`은 git에 올라가지 않습니다.
+
+```bash
+cp .env.example .env.local
+```
+
+| 변수 | 설명 |
+|---|---|
+| `INSFORGE_URL` | InsForge 프로젝트 주소 |
+| `INSFORGE_API_KEY` | InsForge 관리자 키(`ik_…`). `npx -y @insforge/cli secrets get API_KEY`로 확인. **절대 공개 금지** |
+| `CONTACT_NOTIFY_EMAIL` | 새 문의 알림을 받을 팀 메일 주소 |
+| `INQUIRY_IP_SALT` | 아무 긴 랜덤 문자열 (방문자 IP를 해시할 때 사용) |
+
+모두 서버 전용입니다. `NEXT_PUBLIC_`을 붙이지 마세요. Vercel에 배포할 때도 같은 4개를 **Settings → Environment Variables**에 넣어야 합니다.
 
 ---
 
@@ -68,7 +81,8 @@ http://localhost:3000 을 엽니다.
 | 스타일 | **Tailwind CSS v4** | 토큰은 `src/app/globals.css`의 `@theme`에 있습니다. 설정 파일(`tailwind.config`)은 없습니다. |
 | 폰트 | `@fontsource` (직접 호스팅) | Archivo 500/800, IBM Plex Sans KR 400/700, JetBrains Mono 400/700 |
 | 언어 | TypeScript 5 | |
-| 배포(예정) | Vercel + GitHub | |
+| 백엔드 | **InsForge** (`@insforge/sdk`, `@insforge/cli`) | 문의 저장(Postgres) + 알림 메일. 프로젝트 `subserver` |
+| 배포(예정) | Vercel + GitHub | 저장소: https://github.com/crazy-vincnet/lab98-website |
 
 > ⚠️ **Next.js 16은 예전 버전과 API가 다릅니다.** 코드를 고치기 전에 `node_modules/next/dist/docs/`의 문서를 먼저 보세요. AI 코딩 도구에도 `AGENTS.md`로 같은 안내를 하고 있습니다.
 > - 동적 라우트의 `params`는 **Promise**라서 `await`해야 합니다.
@@ -87,6 +101,8 @@ lab98-app/
 ├── brand-kit/               ← 원본 브랜드 키트: 로고 SVG/PNG, 파비콘, tokens.css/json, 인쇄물
 ├── design/v1-static/        ← 1차 정적 시안 HTML과 스크린샷 (참고용)
 ├── tools/                   ← QA와 Figma 업로드용 Playwright 스크립트
+├── migrations/              ← InsForge DB 마이그레이션 SQL (inquiries 테이블)
+├── .env.example             ← 필요한 환경 변수 목록
 ├── public/brand/            ← 사이트에서 쓰는 로고 SVG (symbol, lockup × 4개 사업부 × 일반/반전)
 └── src/
     ├── app/                 ← 라우트(페이지)
@@ -97,9 +113,13 @@ lab98-app/
     │   ├── services/[slug]/ ← 서비스 (web, ai, faith)
     │   ├── projects/        ← 프로젝트 목록, [code] 상세
     │   ├── insights/        ← 인사이트 목록, [slug] 상세
+    │   ├── privacy/         ← 개인정보처리방침
+    │   ├── actions/contact.ts ← ★ 문의 폼 Server Action (검증 → 저장 → 알림 메일)
     │   ├── not-found.tsx    ← 404
     │   └── icon.png, apple-icon.png
     ├── lib/content.ts       ← ★ 사이트 데이터 (회사 정보, 메뉴, 사업부, 프로젝트, 인사이트)
+    ├── lib/inquiry.ts       ← 문의 폼 검증 규칙 (브라우저·서버 공용)
+    ├── lib/insforge-admin.ts ← InsForge 관리자 클라이언트 (서버 전용)
     └── components/
         ├── ui.tsx           ← 공통 UI (버튼, 태그, 로고, 섹션 제목, 진행률)
         ├── cards.tsx        ← 공통 카드 (ProjectCard, InsightRow)
@@ -137,6 +157,7 @@ lab98-app/
 | `/projects/[code]` | 프로젝트 상세 (예: `/projects/ai-042`) | `app/projects/[code]/page.tsx` | `components/experiments/parts.tsx` |
 | `/insights` | 인사이트 목록 | `app/insights/page.tsx` | `components/notes/*` |
 | `/insights/[slug]` | 인사이트 상세 | `app/insights/[slug]/page.tsx` | `components/notes/note-body.tsx` |
+| `/privacy` | 개인정보처리방침 (푸터에 링크) | `app/privacy/page.tsx` | |
 | 그 외 | 404 | `app/not-found.tsx` | |
 
 - 상세 페이지는 모두 `generateStaticParams`로 **빌드할 때 미리 만들어집니다.**
@@ -233,7 +254,6 @@ lab98-app/
 grep -rn "TODO" src
 ```
 - `TODO(content)`: 실제 콘텐츠로 바꿔야 하는 곳입니다(이메일, SNS, 프로젝트, 인사이트, 팀, 브랜드 스토리, 사업자 정보).
-- `TODO(backend)`: 문의 폼 발송 기능을 붙여야 하는 곳입니다.
 
 ---
 
@@ -266,9 +286,55 @@ grep -rn "TODO" src
 - 터미널 타이핑 모션과 블록 모션이 있습니다.
 - **일시정지 버튼이 있고**, `prefers-reduced-motion`을 지킵니다(`use-reduced-motion.ts`).
 
-### 문의 폼 (`components/home/contact-form.tsx`)
-- 지금은 제출하면 방문자의 **메일 앱이 열리는 `mailto:` 방식**입니다.
-- 실제 발송은 Server Action과 Resend로 바꿀 예정입니다(`docs/feature-plan.md` P0-1).
+### 문의 폼 (`components/home/contact-form.tsx`) → 아래 "문의 폼과 InsForge" 참고
+
+---
+
+## 7-1. 문의 폼과 InsForge
+
+홈 `#contact`의 문의 폼은 **InsForge**에 저장되고, 팀에게 알림 메일이 갑니다.
+
+```
+방문자 → contact-form.tsx (브라우저 검증, 동의 체크)
+       → submitInquiry() Server Action  (src/app/actions/contact.ts, 서버에서만 실행)
+           1. 서버에서 다시 검증 (src/lib/inquiry.ts)
+           2. 스팸 차단: 숨은 입력칸(website)이 채워졌거나 3초 안에 제출되면 저장하지 않고 성공처럼 응답
+           3. 횟수 제한: 같은 방문자 10분에 3건, 사이트 전체 1시간에 30건
+           4. InsForge DB public.inquiries 에 저장
+           5. InsForge 이메일로 CONTACT_NOTIFY_EMAIL 에 알림 (답장하면 문의자에게 바로 감)
+       → 성공 화면 / 실패 시 직접 메일 보내기 안내
+```
+
+**문의 확인 방법**
+- InsForge 대시보드의 Database → `inquiries` 테이블에서 볼 수 있습니다: https://insforge.dev/dashboard/project/464b9576-7a31-44c7-bc69-d0689dfc7cd3
+- `status` 값은 `new` → `replied` → `closed`(또는 `spam`) 순서로 직접 바꿔 관리합니다.
+- `notified = false`는 저장은 됐지만 알림 메일 발송이 실패한 문의입니다. 대시보드에서 확인하세요.
+
+**보안**
+- `inquiries` 테이블은 RLS가 켜져 있고, 공개 키(anon)와 로그인 사용자의 권한을 모두 회수했습니다.
+- 읽기와 쓰기는 서버의 관리자 키로만 할 수 있습니다. 공개 키로 읽거나 쓰면 거부되는 것을 확인했습니다.
+- 방문자 IP는 원본을 저장하지 않고, 솔트를 붙인 SHA-256 해시로만 저장합니다.
+- 알림 메일의 발신 주소는 `noreply@sg8srf86.send.insforge.dev`로 고정입니다. 표시 이름은 "Lab98 웹사이트"입니다. 회사 도메인 발신은 InsForge 대시보드에서 설정합니다.
+- 이메일 발송은 InsForge 유료 플랜(현재 Pro)에서만 됩니다. 시간당 발송 한도가 있습니다.
+
+**DB 구조 바꾸기**
+```bash
+npx -y @insforge/cli db migrations new <이름>
+```
+`migrations/`에 SQL을 쓴 뒤 적용합니다.
+```bash
+npx -y @insforge/cli db migrations up --all
+```
+
+**InsForge 연결 (새 PC에서)**
+```bash
+npx -y @insforge/cli login
+```
+```bash
+npx -y @insforge/cli link --project-id 464b9576-7a31-44c7-bc69-d0689dfc7cd3
+```
+- 접속 정보는 `.insforge/project.json`에 저장되고, git에 올라가지 않습니다.
+- AI 코딩 도구용 InsForge 스킬(`insforge`, `insforge-cli` 등)도 함께 설치됩니다. 안내는 `AGENTS.md`에 있습니다.
 
 ---
 
@@ -283,7 +349,7 @@ grep -rn "TODO" src
 | 가독성·접근성 | 작은 글자 명암비 AA(4.5:1) 통과, 모바일 메뉴 접근성, 터치 영역 44px 이상, 모션 일시정지, 페이지마다 h1 하나 |
 | 카피 | 실험실 말투를 회사 말투로 바꿈, 메뉴와 주소 이름 변경 (experiments → projects 등) |
 
-**마지막 검사 결과 (1440px, 390px):** 10개 페이지 모두 정상입니다.
+**마지막 검사 결과 (1440px, 390px):** 개인정보처리방침을 포함한 모든 페이지가 정상입니다. 문의 폼은 실제 InsForge로 접수와 알림 메일 발송까지 확인했습니다(테스트 데이터는 삭제).
 - 모든 페이지가 200으로 응답합니다(404 페이지는 404).
 - 가로 스크롤과 깨진 이미지가 없습니다.
 - 콘솔 오류가 없습니다.
@@ -350,9 +416,13 @@ node tools/snapshot.js http://localhost:3100 ./snaps 390 / /about /projects
 - [ ] 실제 프로젝트 사례, 인사이트, 팀 정보 준비하기. 없으면 해당 섹션을 숨기고 배포합니다.
 - [ ] 브랜드 스토리("98"의 의미) 쓰기 (선택)
 
+- [ ] Vercel 환경 변수 4개 등록 (`.env.example` 참고)
+- [ ] 개인정보처리방침의 상호와 보호책임자 채우기, 최종 문구 검토 (`app/privacy/page.tsx`의 TODO)
+- [ ] 알림 받을 팀 메일 주소를 `CONTACT_NOTIFY_EMAIL`에 넣기
+
 **개발할 것**
-- [ ] 문의 폼 실제 발송 (Server Action + Resend + 개인정보 동의 체크박스)
-- [ ] 개인정보처리방침 페이지. 문의 폼으로 개인정보를 받으면 법적으로 필요합니다.
+- [x] 문의 폼 실제 발송 (Server Action + InsForge DB + InsForge 이메일 + 동의 체크박스)
+- [x] 개인정보처리방침 페이지
 - [ ] `sitemap.ts`, `robots.ts`, 페이지별 OG 이미지, `manifest.ts`, `favicon.ico`
 - [ ] 방문 분석 (Vercel Analytics 등)
 - [ ] 에러 페이지 (`error.tsx`)
@@ -382,6 +452,8 @@ node tools/snapshot.js http://localhost:3100 ./snaps 390 / /about /projects
 4. **Next.js 개발:** 멀티 에이전트로 홈, 회사 소개, 서비스, 프로젝트, 인사이트를 나눠 개발했습니다.
 5. **멀티 에이전트 검수:** 디자인, 글자 크기, 가독성, 카피(회사 말투), 기능 기획을 검수했습니다. 결과는 모두 반영했습니다.
 6. **Figma 업로드:** 실제 사이트 10페이지를 데스크톱과 모바일로 Figma에 올렸습니다.
+7. **GitHub:** https://github.com/crazy-vincnet/lab98-website 에 올렸습니다.
+8. **InsForge 백엔드:** 문의 폼을 실제로 저장하고 알림 메일을 보내도록 연결했습니다. 개인정보처리방침 페이지도 추가했습니다.
 
 ---
 
