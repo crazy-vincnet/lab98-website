@@ -1,0 +1,8 @@
+# Not needed to build/run the site
+brand-kit/
+design/
+tools/
+docs/
+migrations/
+shots/
+snaps/

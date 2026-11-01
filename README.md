@@ -11,6 +11,7 @@ Lab98은 웹사이트, AI 업무 자동화, 신앙 공동체 콘텐츠 프로젝
 | Figma: 웹사이트 시안 (10페이지 × 데스크톱·모바일) | https://www.figma.com/design/ciPHVUpSdcJ8U23m6MJgSc |
 | Figma: SNS 킷 | https://www.figma.com/design/SumSqGur4kzSZMcT37pOkt |
 | Figma: 브랜드 아이덴티티 (원본) | https://www.figma.com/design/EU1Z3sRefLqD72UqsCZmId |
+| **배포된 사이트** | https://sg8srf86.insforge.site |
 | 예정 도메인 | `https://lab98.co` (`src/lib/content.ts`의 `site.url`) |
 
 ---
@@ -23,7 +24,7 @@ Lab98은 웹사이트, AI 업무 자동화, 신앙 공동체 콘텐츠 프로젝
 4. [페이지와 주소](#4-페이지와-주소)
 5. [디자인 시스템](#5-디자인-시스템)
 6. [콘텐츠 수정 방법](#6-콘텐츠-수정-방법)
-7. [컴포넌트 안내](#7-컴포넌트-안내) · [문의 폼과 InsForge](#7-1-문의-폼과-insforge)
+7. [컴포넌트 안내](#7-컴포넌트-안내) · [문의 폼과 InsForge](#7-1-문의-폼과-insforge) · [배포](#7-2-배포-insforge-호스팅)
 8. [품질 기준과 검수 결과](#8-품질-기준과-검수-결과)
 9. [Figma 연동](#9-figma-연동)
 10. [배포 전 체크리스트](#10-배포-전-체크리스트)
@@ -82,7 +83,7 @@ cp .env.example .env.local
 | 폰트 | `@fontsource` (직접 호스팅) | Archivo 500/800, IBM Plex Sans KR 400/700, JetBrains Mono 400/700 |
 | 언어 | TypeScript 5 | |
 | 백엔드 | **InsForge** (`@insforge/sdk`, `@insforge/cli`) | 문의 저장(Postgres) + 알림 메일. 프로젝트 `subserver` |
-| 배포(예정) | Vercel + GitHub | 저장소: https://github.com/crazy-vincnet/lab98-website |
+| 배포 | **InsForge 호스팅** (내부적으로 Vercel) | https://sg8srf86.insforge.site · 저장소: https://github.com/crazy-vincnet/lab98-website |
 
 > ⚠️ **Next.js 16은 예전 버전과 API가 다릅니다.** 코드를 고치기 전에 `node_modules/next/dist/docs/`의 문서를 먼저 보세요. AI 코딩 도구에도 `AGENTS.md`로 같은 안내를 하고 있습니다.
 > - 동적 라우트의 `params`는 **Promise**라서 `await`해야 합니다.
@@ -338,6 +339,37 @@ npx -y @insforge/cli link --project-id 464b9576-7a31-44c7-bc69-d0689dfc7cd3
 
 ---
 
+## 7-2. 배포 (InsForge 호스팅)
+
+사이트는 InsForge 호스팅에 배포돼 있습니다: **https://sg8srf86.insforge.site**
+
+**다시 배포하기** (코드를 고친 뒤): 먼저 로컬에서 빌드가 되는지 확인합니다.
+```bash
+npm run build
+```
+그다음 배포합니다.
+```bash
+npx -y @insforge/cli deployments deploy .
+```
+- 프로젝트 폴더 전체(`.`)를 올리면 InsForge가 빌드합니다. 1분 정도 걸립니다.
+- `node_modules`, `.next`, `.env*`, `.insforge`는 자동으로 빠집니다.
+- `brand-kit/`, `design/`, `tools/`, `docs/`, `migrations/`는 `.vercelignore`로 뺍니다.
+- GitHub에 push해도 자동 배포되지는 않습니다. 위 명령으로 직접 배포합니다.
+
+**배포 환경 변수:** InsForge에 저장돼 있어서 배포할 때마다 자동으로 적용됩니다.
+```bash
+npx -y @insforge/cli deployments env list
+```
+값을 바꿀 때는 아래 명령을 씁니다.
+```bash
+npx -y @insforge/cli deployments env set CONTACT_NOTIFY_EMAIL hello@lab98.co
+```
+바꾼 뒤에는 다시 배포해야 반영됩니다.
+
+**도메인 연결:** `lab98.co`를 연결하려면 `npx -y @insforge/cli domains ...`를 씁니다. 연결한 뒤에는 `src/lib/content.ts`의 `site.url`을 실제 주소와 맞춥니다. 이 값은 공유 미리보기와 canonical 주소에 쓰입니다.
+
+---
+
 ## 8. 품질 기준과 검수 결과
 
 검수에는 디자인·글자 크기·가독성·카피, 네 개의 AI 에이전트를 나눠 썼습니다. 결과는 모두 코드에 반영했습니다.
@@ -416,7 +448,8 @@ node tools/snapshot.js http://localhost:3100 ./snaps 390 / /about /projects
 - [ ] 실제 프로젝트 사례, 인사이트, 팀 정보 준비하기. 없으면 해당 섹션을 숨기고 배포합니다.
 - [ ] 브랜드 스토리("98"의 의미) 쓰기 (선택)
 
-- [ ] Vercel 환경 변수 4개 등록 (`.env.example` 참고)
+- [x] InsForge 호스팅 배포와 환경 변수 4개 등록
+- [ ] 도메인 `lab98.co` 연결
 - [ ] 개인정보처리방침의 상호와 보호책임자 채우기, 최종 문구 검토 (`app/privacy/page.tsx`의 TODO)
 - [ ] 알림 받을 팀 메일 주소를 `CONTACT_NOTIFY_EMAIL`에 넣기
 
@@ -454,6 +487,7 @@ node tools/snapshot.js http://localhost:3100 ./snaps 390 / /about /projects
 6. **Figma 업로드:** 실제 사이트 10페이지를 데스크톱과 모바일로 Figma에 올렸습니다.
 7. **GitHub:** https://github.com/crazy-vincnet/lab98-website 에 올렸습니다.
 8. **InsForge 백엔드:** 문의 폼을 실제로 저장하고 알림 메일을 보내도록 연결했습니다. 개인정보처리방침 페이지도 추가했습니다.
+9. **배포:** InsForge 호스팅에 올렸습니다(https://sg8srf86.insforge.site). 배포된 사이트에서 문의 접수와 알림 메일 발송까지 확인했습니다.
 
 ---
 
