@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
-import { divisions, notes, projects } from "@/lib/content";
+import { divisions, projects } from "@/lib/content";
+import { findTranslation, getInsights } from "@/lib/insights";
 import {
   COOKIES_PATH,
   INSIGHTS_PATH,
@@ -33,8 +34,27 @@ function entries(path: string, changeFrequency: Entry["changeFrequency"], priori
   }));
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const latestNote = notes.map((n) => n.date).sort().at(-1);
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [koNotes, enNotes] = await Promise.all([getInsights("ko"), getInsights("en")]);
+  const latestNote = koNotes.map((n) => n.date).sort().at(-1);
+  // Posts: one URL per language that has the post; hreflang alternates only when the other language has a translation.
+  const noteEntries = (list: typeof koNotes, others: typeof koNotes, l: (typeof locales)[number]): Entry[] =>
+    list.map((n) => {
+      const twin = findTranslation(n, others);
+      const other = locales.find((x) => x.code !== l.code)!;
+      const url = localizedUrl(insightHref(n.slug), l);
+      const twinUrl = twin && localizedUrl(insightHref(twin.slug), other);
+      const ko = l.code === "ko" ? url : twinUrl;
+      const en = l.code === "en" ? url : twinUrl;
+      return {
+        url,
+        lastModified: n.updated ?? n.date,
+        changeFrequency: "yearly",
+        priority: 0.7,
+        ...(twinUrl && ko && en ? { alternates: { languages: { ko, en, "x-default": ko } } } : {}),
+        ...(n.cover?.url ? { images: [absoluteUrl(n.cover.url)] } : {}),
+      };
+    });
 
   // Each page yields its Korean URL followed by its English twin.
   return [
@@ -45,7 +65,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...entries(PROJECTS_PATH, "monthly", 0.8),
     ...projects.flatMap((p) => entries(projectHref(p.slug), "monthly", 0.8, undefined, [absoluteUrl(p.images.desktop), absoluteUrl(p.images.mobile)])),
     ...entries(INSIGHTS_PATH, "weekly", 0.7, latestNote),
-    ...notes.flatMap((n) => entries(insightHref(n.slug), "yearly", 0.7, n.date)),
+    ...noteEntries(koNotes, enNotes, locales[0]),
+    ...noteEntries(enNotes, koNotes, locales[1]),
     ...entries(PRIVACY_PATH, "yearly", 0.3),
     ...entries(TERMS_PATH, "yearly", 0.3),
     ...entries(COOKIES_PATH, "yearly", 0.3),

@@ -3,11 +3,10 @@ import { InsightRow } from "@/components/cards";
 import { INSIGHTS_PATH } from "@/components/experiments/paths";
 import { getNotesCopy } from "@/components/notes/copy.en";
 import { FeaturedInsight } from "@/components/notes/featured-insight";
-import { sortNotes } from "@/components/notes/sorted";
 import { JsonLd } from "@/components/seo/json-ld";
 import { pageMetadata } from "@/components/seo/metadata";
-import { getContent } from "@/lib/get-content";
 import { localePath, type Locale } from "@/lib/i18n";
+import { getInsights } from "@/lib/insights";
 import { blog, breadcrumb, graph, webPage } from "@/lib/structured-data";
 
 const seo = (locale: Locale) => {
@@ -26,9 +25,9 @@ const seo = (locale: Locale) => {
 
 export const insightsMetadata = (locale: Locale): Metadata => pageMetadata({ ...seo(locale), path: INSIGHTS_PATH, locale });
 
-export function InsightsPage({ locale }: { locale: Locale }) {
+export async function InsightsPage({ locale }: { locale: Locale }) {
   const t = getNotesCopy(locale);
-  const notes = sortNotes(getContent(locale).notes);
+  const notes = await getInsights(locale);
   const [featured, ...rest] = notes;
   const { title, description } = seo(locale);
   const path = localePath(locale, INSIGHTS_PATH);

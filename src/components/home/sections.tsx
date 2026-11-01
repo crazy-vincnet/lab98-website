@@ -5,6 +5,7 @@ import { ButtonLink, SectionHead, Symbol, cx } from "@/components/ui";
 import type { Division, DivisionSlug } from "@/lib/content";
 import { getContent } from "@/lib/get-content";
 import { localePath, type Locale } from "@/lib/i18n";
+import { getInsights } from "@/lib/insights";
 import { ContactForm } from "./contact-form";
 import { anchors, clientShort, routes } from "./copy";
 import { getHomeCopy } from "./copy.en";
@@ -289,11 +290,10 @@ export function Founder({ locale = "ko" }: { locale?: Locale }) {
 
 /* ------------------------------------------------------------- 05 Insights */
 
-export function Insights({ locale = "ko" }: { locale?: Locale }) {
+export async function Insights({ locale = "ko" }: { locale?: Locale }) {
   const lp = (path: string) => localePath(locale, path);
-  const { notes } = getContent(locale);
   const { insightsCopy } = getHomeCopy(locale);
-  const latest = [...notes].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+  const latest = (await getInsights(locale)).slice(0, 3); // static notes + published posts (DB)
   if (latest.length === 0) return null;
   return (
     <Section id={anchors.insights}>

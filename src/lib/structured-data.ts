@@ -259,7 +259,8 @@ export function projectList(items: readonly Project[], locale: Locale = "ko"): N
 /** OG image route for a post (opengraph-image.tsx under /insights/[slug]). English posts reuse the Korean card for now (TODO(en)). */
 export const insightImage = (slug: string) => `${abs(insightHref(slug))}/opengraph-image`;
 
-export function blogPosting(n: Note, locale: Locale = "ko"): Node {
+/** `updated`/`cover` are set for posts that come from the DB (admin blog); static notes only have `date`. */
+export function blogPosting(n: Note & { updated?: string; published?: string; cover?: { url: string } | null }, locale: Locale = "ko"): Node {
   const url = abs(lp(locale, insightHref(n.slug)));
   return {
     "@type": "BlogPosting",
@@ -268,12 +269,12 @@ export function blogPosting(n: Note, locale: Locale = "ko"): Node {
     description: n.excerpt,
     url,
     mainEntityOfPage: ref(`${url}#webpage`),
-    datePublished: n.date,
-    dateModified: n.date,
+    datePublished: n.published ?? n.date,
+    dateModified: n.updated ?? n.published ?? n.date,
     // All current posts are by the founder; map other authors here when they start writing.
     author: ref(PERSON_ID),
     publisher: ref(ORG_ID),
-    image: insightImage(n.slug),
+    image: n.cover?.url ? abs(n.cover.url) : insightImage(n.slug),
     inLanguage: LANG_BY[locale],
     isPartOf: ref(`${abs(lp(locale, INSIGHTS_PATH))}#blog`),
   };

@@ -10,9 +10,9 @@ import { getInsforgeAdmin } from "@/lib/insforge-admin";
 
 export const metadata: Metadata = { title: "대시보드" };
 
-async function count(table: string, filter?: [string, string]) {
-  let q = getInsforgeAdmin().database.from(table).select("id", { count: "exact", head: true });
-  if (filter) q = q.eq(filter[0], filter[1]);
+async function count(table: string, filter?: [string, string | string[]], column = "id") {
+  let q = getInsforgeAdmin().database.from(table).select(column, { count: "exact", head: true });
+  if (filter) q = Array.isArray(filter[1]) ? q.in(filter[0], filter[1]) : q.eq(filter[0], filter[1]);
   const { count: n, error } = await q;
   return error ? null : (n ?? 0);
 }
@@ -20,10 +20,11 @@ async function count(table: string, filter?: [string, string]) {
 export default async function DashboardPage() {
   const admin = await requireAdmin();
   const db = getInsforgeAdmin().database;
-  const [inquiries, signups, privacy, recent] = await Promise.all([
+  const [inquiries, signups, privacy, optouts, recent] = await Promise.all([
     count("inquiries", ["status", "new"]),
     count("launch_signups"),
-    count("privacy_requests", ["status", "new"]),
+    count("privacy_requests", ["status", ["new", "verifying"]]),
+    count("email_optouts", undefined, "email"),
     db.from("audit_log").select("id,actor_email,action,target_type,target_id,created_at").order("created_at", { ascending: false }).limit(8),
   ]);
   const rows = (recent.data ?? []) as Array<{ id: number; actor_email: string; action: string; target_type: string | null; target_id: string | null; created_at: string }>;
@@ -32,7 +33,7 @@ export default async function DashboardPage() {
   return (
     <>
       <PageHeader title="대시보드" description={`${admin.email} 님, 안녕하세요.`} />
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Link href="/admin/inquiries" className="block">
           <Stat label="새 문의" value={show(inquiries)} note="아직 답하지 않은 문의" />
         </Link>
@@ -40,7 +41,10 @@ export default async function DashboardPage() {
           <Stat label="Praise Tool 알림 신청" value={show(signups)} note="전체 신청자 수" />
         </Link>
         <Link href="/admin/privacy" className="block">
-          <Stat label="처리 전 개인정보 요청" value={show(privacy)} note="새로 들어온 요청" />
+          <Stat label="처리 전 개인정보 요청" value={show(privacy)} note="접수·본인 확인 중인 요청" />
+        </Link>
+        <Link href="/admin/optouts" className="block">
+          <Stat label="수신거부" value={show(optouts)} note="안내 메일을 보내지 않는 주소" />
         </Link>
       </div>
 

@@ -12,7 +12,9 @@ src/
   app/(admin)/admin/(auth)/        login, setup, forgot-password + actions.ts (the only actions without requireAdmin)
   app/(admin)/admin/(panel)/       everything behind login; layout.tsx = sidebar/topbar shell
     page.tsx                       dashboard         audit/ search/ (built)
-    inquiries/ launch/ privacy/ optouts/ blog/ content/ projects/ praise-tool/ faq/ legal/ media/   placeholders (<ComingSoon/>)
+    blog/ media/                   built (stage 3, see "Blog + media" below)
+    inquiries/ launch/ privacy/ optouts/ content/ projects/ praise-tool/ faq/ legal/   placeholders (<ComingSoon/>) until their stage lands
+  app/(admin)/admin/api/media/route.ts   media upload + list (adminRoute). Lives under /admin so proxy.ts refreshes the session cookies for it
   components/admin/*               primitives (below)
   lib/admin/*                      server helpers (below)
   lib/site-settings.ts             public-site side: getSiteSettings() "use cache" + tag `site-settings`
@@ -93,6 +95,55 @@ The public site is static (Cache Components). Anything the admin edits that publ
 come from `site_settings` (env `GOOGLE_SITE_VERIFICATION`/`NAVER_SITE_VERIFICATION` only as fallback).
 Never use `Date.now()`/`new Date()` in code that prerenders; admin pages and actions are fine.
 
+## Blog + media (stage 3)
+
+Migration `20261101140000_blog-media-stage3.sql`: `posts.translation_key` (+ unique per language), `posts.division`, `posts.author`,
+`post_versions.cover_media_id`, `media.alt_ko` may not be blank (DB check = backstop for the upload code).
+
+### Media library `/admin/media`
+* Upload = `POST /admin/api/media` (multipart `file`, `alt_ko` required, `alt_en`). The server checks the **real** file type from its bytes
+  (`lib/admin/image-info.ts`: png, jpg, webp, gif; **SVG is rejected** because it can carry script), reads width/height, max 5MB, then
+  uploads with the admin key to the public `media` bucket under a random key (`uploads/YYYY/MM/<uuid>.<ext>`; the user's file name is never used)
+  and inserts the `media` row (`key` + `url`). A failed insert removes the file again.
+  Hosting caveat: serverless hosts cap request bodies (Vercel: 4.5MB), so a 4.5-5MB file can be refused by the host before our 5MB check.
+* The grid shows size, whether the English alt is missing (warning only), and **where each image is used** (post cover, body, SEO image;
+  `getMediaUsage()` reads `posts.cover_media_id`, `seo.og_media_id` and image nodes in `posts.blocks`). **Delete is blocked while it is used.**
+* `<MediaPicker onSelect locale>` (`components/admin/media/media-picker.tsx`) is the reusable modal (native `<dialog>`: library, search by alt, or upload).
+  Used by the editor toolbar (image), cover image and SEO share image. For English posts it warns when `alt_en` is empty and falls back to `alt_ko`.
+* Editing alt text calls `updateTag("posts")` (cover alt is read from the library); alt text already copied into a post body stays as it was.
+
+### Blog `/admin/blog`, `/new`, `/[id]`, `/[id]/preview`
+* Body = Tiptap JSON in `posts.blocks` (`@tiptap/react` + `starter-kit` + `extension-image` + `extension-placeholder`, all pinned to 3.32.2;
+  Link comes with StarterKit, underline/strike are turned off). `lib/post-doc.ts` is the one allowlist: `normalizeDoc()` keeps only
+  paragraph, heading 2/3, bold/italic/code/link, lists, quote, code block, divider, image, hard break, and `sanitizeUrl()` allows only
+  `http(s)`, `mailto:` and site-relative links. It runs in the editor, on every save (server) and again when rendering.
+* Public rendering = `components/notes/rich-body.tsx`: React elements only, **no dangerouslySetInnerHTML**.
+* Status `draft | scheduled | published`, `published_at` (typed in KST). **Scheduled needs no cron**: the public reader treats
+  `status='scheduled' AND published_at <= now()` as live, evaluated inside the cached function (`lib/posts.ts`, `isLive`).
+* Autosave every ~10s (only while the saved status is `draft`; a live/scheduled post is changed only by the explicit save button).
+  Saves carry the `updated_at` the editor loaded; if another tab saved in between the save is refused (no silent overwrite).
+* Versions: every manual save/schedule/publish snapshots title, excerpt, body, SEO and cover into `post_versions` (last 50 kept);
+  restore snapshots the current state first, then applies the old one (title/excerpt/body/SEO/cover; status and slug stay).
+* Translation: "영어/한국어 버전 만들기" creates a sibling draft that shares `translation_key` (same slug if free, else `-en`/`-ko`).
+  hreflang alternates and sitemap `alternates` are emitted only when a sibling exists. Posts and static notes pair by slug when there is no key.
+* Preview `/admin/blog/[id]/preview` renders the saved post with the same `<InsightArticle>` the public page uses.
+* Slug rules: `^[a-z0-9]+(-[a-z0-9]+)*$`, max 80, unique per language (validated before save, DB unique as backstop).
+  A title with no latin letters suggests `post-YYMMDD-xxxx`.
+
+### Public side (`/insights`, `/insights/[slug]`, `/en/insights*`, RSS, sitemap, OG image)
+* `lib/posts.ts`: `getLivePosts(locale)` / `getLivePost(locale, slug)`, `"use cache"` + `cacheTag("posts")` + `cacheLife("minutes")`
+  (revalidate 60s, so a scheduled post shows up about 1-2 minutes after its time). Every post save/publish/delete/restore/translate calls
+  `updateTag("posts")` (draft-to-draft autosaves skip it: nothing public changes). They never throw (DB error -> empty list, retried in a minute).
+* `lib/insights.ts` merges them with the static notes in `content.ts` / `content.en.ts` (same slug + language: **the DB post wins**).
+  `getInsights`, `getInsight`, `getInsightSlugs`, `findTranslation`, `getInsightLanguages`. `starting-lab98` was copied into the DB with
+  `tools/seed-starting-post.mts` (`npx -y tsx --env-file=.env.local tools/seed-starting-post.mts --apply`); delete those two rows and the static
+  note is the fallback again.
+* Slugs added later: `generateStaticParams` lists what is live at build; other slugs render on first visit and are cached (ISR with
+  Cache Components, `dynamicParams` stays on). Unknown/draft/future slugs call `notFound()` (404). `ensureStatic = "navigation"` stays.
+* RSS (`insights/rss.xml`), `sitemap.ts`, the per-post OG image (`insights/[slug]/opengraph-image.tsx`, Korean) and the home "latest insights"
+  block read the same merged list. A post's own SEO share image replaces the generated card in its metadata.
+* Not covered yet: `llms.txt` / `llms-full.txt` (still static notes only), per-post English OG cards (English uses the generic card unless a share image is set).
+
 ## File ownership
 
 | Area | Owner | Notes |
@@ -100,8 +151,8 @@ Never use `Date.now()`/`new Date()` in code that prerenders; admin pages and act
 | `proxy.ts`, `lib/admin/{auth,action,audit,throttle,insforge,env}.ts`, `(admin)/layout.tsx`, `(auth)/**`, `(panel)/layout.tsx`, migration `…_admin-foundation.sql`, `components/admin/*` primitives | Stage 1 | Change only to fix bugs or add a primitive; do not weaken `requireAdmin` |
 | `lib/admin/nav.ts` | shared | each stage flips its own entries to `ready: true` (and may add sub-links) |
 | `(panel)/inquiries`, `launch`, `privacy`, `optouts` + `components/admin/requests/*` | Stage 2 | |
-| `(panel)/blog` + `components/admin/blog/*` (block editor) | Stage 3 | |
+| `(panel)/blog` + `components/admin/blog/*` (block editor), `lib/posts.ts`, `lib/insights.ts`, `lib/post-doc.ts`, `lib/admin/posts.ts`, `components/notes/rich-body.tsx` | Stage 3 | public side reads posts only through `lib/insights.ts` |
 | `(panel)/content`, `projects`, `praise-tool`, `faq`, `legal` + `components/admin/content/*` | Stage 4 | public side reads via cached getters |
-| `(panel)/media` + `components/admin/media/*` | Stage 4 | storage bucket `media` already exists |
+| `(panel)/media` + `components/admin/media/*`, `app/(admin)/admin/api/media`, `lib/admin/{media,image-info}.ts` | Stage 3 | storage bucket `media` already exists |
 | `(panel)/search`, `(panel)/audit`, dashboard `(panel)/page.tsx`, `lib/site-settings.ts` | Stage 1 | |
 | `src/app/(ko)`, `(en)`, `components/pages/*`, `lib/seo.ts` | public site | stages touch these only to read admin-managed data |

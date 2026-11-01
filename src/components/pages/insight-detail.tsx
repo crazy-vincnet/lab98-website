@@ -5,34 +5,41 @@ import { CtaBand, DivisionDot, MetaLine, Pager } from "@/components/experiments/
 import { divisionHref, INSIGHTS_PATH, insightHref, PRAISE_TOOL_PATH } from "@/components/experiments/paths";
 import { getNotesCopy } from "@/components/notes/copy.en";
 import { NoteBody } from "@/components/notes/note-body";
-import { sortNotes } from "@/components/notes/sorted";
+import { RichBody } from "@/components/notes/rich-body";
 import { JsonLd } from "@/components/seo/json-ld";
 import { pageMetadata } from "@/components/seo/metadata";
 import { divisionTheme, formatDate, type DivisionSlug } from "@/lib/content";
-import { getContent } from "@/lib/get-content";
 import { localePath, type Locale } from "@/lib/i18n";
+import { getInsight, getInsightLanguages, getInsights, getInsightSlugs, type InsightItem } from "@/lib/insights";
 import { blogPosting, breadcrumb, graph, webPage } from "@/lib/structured-data";
 
-export const insightStaticParams = (locale: Locale = "ko") => sortNotes(getContent(locale).notes).map((n) => ({ slug: n.slug }));
+/** Static notes + posts that are live at build time. Posts added later are rendered on first visit and cached (tag `posts`). */
+export const insightStaticParams = (locale: Locale = "ko") => getInsightSlugs(locale);
 
 export async function insightMetadata(locale: Locale, params: Promise<{ slug: string }>): Promise<Metadata> {
   const { slug } = await params;
   const notesCopy = getNotesCopy(locale);
-  const note = getContent(locale).getNote(slug);
+  const note = await getInsight(locale, slug);
   if (!note) return { title: notesCopy.meta.notFoundTitle, robots: { index: false } };
+  const meta = pageMetadata({
+    title: notesCopy.meta.detailTitle(note.metaTitle || note.title),
+    absoluteTitle: true,
+    ogTitle: note.metaTitle || note.title,
+    description: note.metaDescription || note.excerpt,
+    path: insightHref(note.slug),
+    type: "article",
+    publishedTime: note.published ?? note.date,
+    modifiedTime: note.updated ?? note.published ?? note.date,
+    authors: [note.author],
+    locale,
+    // A post's own social image (SEO field) replaces the generated card.
+    ...(note.ogImage ? { images: [{ url: note.ogImage.url, alt: note.ogImage.alt || note.title }] } : {}),
+  });
+  // DB posts only list a hreflang twin when the other language really exists (static notes exist in both).
+  const languages = note.source === "db" ? await getInsightLanguages(note, locale) : undefined;
   return {
-    ...pageMetadata({
-      title: notesCopy.meta.detailTitle(note.title),
-      absoluteTitle: true,
-      ogTitle: note.title,
-      description: note.excerpt,
-      path: insightHref(note.slug),
-      type: "article",
-      publishedTime: note.date,
-      modifiedTime: note.date,
-      authors: [note.author],
-      locale,
-    }),
+    ...meta,
+    alternates: note.source === "db" ? { canonical: meta.alternates?.canonical, ...(languages ? { languages } : {}) } : meta.alternates,
     authors: [{ name: note.author, url: localePath(locale, "/about") }],
   };
 }
@@ -40,13 +47,11 @@ export async function insightMetadata(locale: Locale, params: Promise<{ slug: st
 export async function InsightPage({ locale, params }: { locale: Locale; params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const notesCopy = getNotesCopy(locale);
-  const t = notesCopy.detail;
-  const content = getContent(locale);
-  const sortedNotes = sortNotes(content.notes);
   const lp = (path: string) => localePath(locale, path);
-  const note = content.getNote(slug);
+  const note = await getInsight(locale, slug);
   if (!note) notFound();
 
+  const sortedNotes = await getInsights(locale);
   const index = sortedNotes.findIndex((n) => n.slug === note.slug);
   const newer = sortedNotes[index - 1];
   const older = sortedNotes[index + 1];
@@ -63,6 +68,19 @@ export async function InsightPage({ locale, params }: { locale: Locale; params: 
     breadcrumb(path, crumbs, locale),
   );
 
+  return (
+    <>
+      <JsonLd data={jsonLd} />
+      <InsightArticle note={note} locale={locale} newer={newer} older={older} />
+    </>
+  );
+}
+
+/** The article itself (header, body, pager, CTA). Shared by the public page and the admin preview, so they cannot drift. */
+export function InsightArticle({ note, locale, newer, older }: { note: InsightItem; locale: Locale; newer?: InsightItem; older?: InsightItem }) {
+  const notesCopy = getNotesCopy(locale);
+  const t = notesCopy.detail;
+  const lp = (path: string) => localePath(locale, path);
   const explore = [
     ...t.explore.services.map((s) => ({ href: lp(divisionHref(s.slug)), title: s.title, body: s.body, division: s.slug as DivisionSlug })),
     { href: lp(PRAISE_TOOL_PATH), title: t.explore.praiseTool.title, body: t.explore.praiseTool.body, division: "faith" as DivisionSlug },
@@ -70,7 +88,6 @@ export async function InsightPage({ locale, params }: { locale: Locale; params: 
 
   return (
     <>
-      <JsonLd data={jsonLd} />
       <div className="wrap pt-8 md:pt-12">
         <Link href={lp(INSIGHTS_PATH)} className="label ko-tight inline-flex min-h-11 items-center gap-2 text-gray underline-offset-4 hover:text-ink hover:underline hover:decoration-2">
           {t.back}
@@ -101,9 +118,13 @@ export async function InsightPage({ locale, params }: { locale: Locale; params: 
               <span className="text-gray">{t.writtenBy}</span> <span className="font-bold">{note.author}</span>
             </p>
           </header>
-          <div className="pt-10">
-            <NoteBody blocks={note.body} />
-          </div>
+          {note.cover && (
+            <figure className="mt-10">
+              {/* eslint-disable-next-line @next/next/no-img-element -- storage URL, size known from the media library */}
+              <img src={note.cover.url} alt={note.cover.alt} width={note.cover.width ?? undefined} height={note.cover.height ?? undefined} decoding="async" className="h-auto w-full border-2 border-ink" />
+            </figure>
+          )}
+          <div className="pt-10">{note.doc ? <RichBody doc={note.doc} /> : <NoteBody blocks={note.body} />}</div>
           <p className="mt-14 flex flex-wrap gap-x-2 border-t-2 border-ink pt-5 text-body-sm text-gray">
             <span>
               {t.writtenBy} <b className="text-ink">{note.author}</b>
