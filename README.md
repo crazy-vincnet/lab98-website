@@ -69,6 +69,8 @@ cp .env.example .env.local
 | `CONTACT_NOTIFY_EMAIL` | 새 문의 알림을 받을 팀 메일 주소 |
 | `INQUIRY_IP_SALT` | 아무 긴 랜덤 문자열 (방문자 IP를 해시할 때 사용) |
 
+관리자 화면용 변수 3개는 아래 "7-3. 관리자"를 보세요.
+
 모두 서버 전용입니다. `NEXT_PUBLIC_`을 붙이지 마세요. Vercel에 배포할 때도 같은 4개를 **Settings → Environment Variables**에 넣어야 합니다.
 
 ---
@@ -144,6 +146,7 @@ lab98-app/
 | `docs/qa-visual.md` | 디자인 품질 검수 (7/10 → 수정 반영) |
 | `docs/qa-font-size.md` | 글자 크기 검수와 확정 타입 스케일 |
 | `docs/qa-readability.md` | 가독성·명암비·접근성 검수 |
+| `docs/admin.md` | **관리자(/admin) 구조.** 인증·권한 패턴, 파일 소유 구역, 단계별 작업 규칙 |
 
 ---
 
@@ -380,6 +383,31 @@ npx -y @insforge/cli deployments env set CONTACT_NOTIFY_EMAIL hello@lab98.io
 npx -y @insforge/cli domains status lab98.io --json
 ```
 - `site.url`(`src/lib/content.ts`)은 `https://lab98.io`입니다. 공유 미리보기와 canonical 주소에 쓰입니다.
+
+---
+
+## 7-3. 관리자 (`/admin`)
+
+대표님 전용 관리 화면입니다. 한국어 UI, 검색 엔진에는 노출되지 않습니다(`noindex`, `robots.txt`에서 차단, 사이트맵에 없음). 구조와 개발 규칙은 **`docs/admin.md`**.
+
+**인증 방식:** InsForge 이메일+비밀번호 로그인(`@insforge/sdk/ssr`)입니다. 프로젝트의 회원가입이 열려 있어서 로그인만으로는 관리자가 아닙니다. 모든 관리자 페이지와 동작이 `requireAdmin()`을 먼저 호출하고, **인증된 이메일이 `ADMIN_EMAILS`에 있거나 `admins` 테이블에 있을 때만** 통과시킵니다. 로그인 시도는 IP+이메일 기준으로 10분에 5번까지 허용합니다.
+
+| 변수 | 설명 |
+|---|---|
+| `NEXT_PUBLIC_INSFORGE_URL` | InsForge 프로젝트 주소 (인증 SDK용) |
+| `NEXT_PUBLIC_INSFORGE_ANON_KEY` | 공개용 anon 키. `npx -y @insforge/cli secrets get ANON_KEY`. 관리자 키가 아닙니다 |
+| `ADMIN_EMAILS` | 관리자 이메일(쉼표로 구분). 예: `youngjae1009@gmail.com` |
+
+`.env.local`과 호스팅(`npx -y @insforge/cli deployments env set …`) 양쪽에 넣어야 합니다. 값을 바꾸면 다시 배포해야 합니다.
+
+**처음 로그인하는 방법**
+
+1. 배포 후 `https://lab98.io/admin/setup`을 엽니다.
+2. `ADMIN_EMAILS`에 있는 이메일과 새 비밀번호(10자 이상)를 넣고 **인증 코드 받기**를 누릅니다.
+3. 메일로 온 코드를 넣고 **인증하고 시작하기**를 누르면 로그인된 상태로 `/admin`이 열립니다.
+4. 이후에는 `/admin/login`으로 들어갑니다. 비밀번호를 잊었다면 `/admin/forgot-password`.
+
+관리자를 더 추가하려면 `admins` 테이블에 소문자 이메일을 넣고 그 사람이 같은 방법으로 설정합니다. 단, `/admin/setup`은 `ADMIN_EMAILS`에 있는 이메일만 만들 수 있습니다.
 
 ---
 

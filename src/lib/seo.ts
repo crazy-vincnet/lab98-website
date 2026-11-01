@@ -2,7 +2,6 @@
  * Shared SEO helpers: absolute URLs, locales, crawler policy, search-engine verification.
  * Used by app/layout.tsx (root metadata), app/sitemap.ts, app/robots.ts and the insights RSS feed.
  */
-import type { Metadata } from "next";
 import { site } from "@/lib/content";
 import { INSIGHTS_PATH } from "@/components/experiments/paths";
 import type { Locale } from "@/lib/i18n";
@@ -70,16 +69,3 @@ export const WELCOMED_CRAWLERS = [
   "Applebot-Extended",
 ] as const;
 
-/**
- * Search-console verification from server env (optional; set in Vercel/InsForge env, then redeploy —
- * the root layout's metadata is prerendered, so values are read at build time).
- */
-export function siteVerification(): Metadata["verification"] {
-  const google = process.env.GOOGLE_SITE_VERIFICATION?.trim();
-  const naver = process.env.NAVER_SITE_VERIFICATION?.trim();
-  if (!google && !naver) return undefined;
-  return {
-    ...(google ? { google } : {}),
-    ...(naver ? { other: { "naver-site-verification": naver } } : {}),
-  };
-}

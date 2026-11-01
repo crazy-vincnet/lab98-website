@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { site as koSite } from "@/lib/content";
 import { getContent } from "@/lib/get-content";
-import { siteVerification } from "@/lib/seo";
+import { siteVerificationMetadata } from "@/lib/site-settings";
 import type { Locale } from "@/lib/i18n";
 
 /**
@@ -49,7 +49,6 @@ const koMetadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
-  verification: siteVerification(),
 };
 
 
@@ -95,9 +94,17 @@ const enMetadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
-  verification: siteVerification(),
 };
 
 
-/** Root <head> defaults per locale; used by each root layout and by global-not-found. */
+/** Root <head> defaults per locale, without search verification (global-not-found is noindex and uses this). */
 export const rootMetadata = (locale: Locale): Metadata => (locale === "en" ? enMetadata : koMetadata);
+
+/**
+ * Root metadata for the public root layouts (`export const generateMetadata`). Adds the Google/Naver verification
+ * meta tags from site_settings (edited in /admin/search; "use cache" + tag `site-settings`), env as fallback.
+ */
+export const rootMetadataWithVerification = async (locale: Locale): Promise<Metadata> => ({
+  ...rootMetadata(locale),
+  verification: await siteVerificationMetadata(),
+});
