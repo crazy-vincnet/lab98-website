@@ -13,7 +13,7 @@ export const site = {
   tagline: "작게 실험하고 빠르게 배워요",
   description:
     "Lab98은 웹사이트, AI 업무 자동화, 신앙 공동체 콘텐츠 프로젝트를 1주 단위 스프린트로 기획하고 만들어요. 빠르게 오픈하고, 합의한 지표로 성과를 확인해요.",
-  url: "https://lab98.co",
+  url: "https://lab98.io",
   // TODO(content): confirm the public contact address before launch.
   email: "youngjae1009@gmail.com",
   replyTime: "영업일 기준 2일 안에 답장드려요", // TODO(content)

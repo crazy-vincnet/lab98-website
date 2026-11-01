@@ -12,7 +12,7 @@ Lab98은 웹사이트, AI 업무 자동화, 신앙 공동체 콘텐츠 프로젝
 | Figma: SNS 킷 | https://www.figma.com/design/SumSqGur4kzSZMcT37pOkt |
 | Figma: 브랜드 아이덴티티 (원본) | https://www.figma.com/design/EU1Z3sRefLqD72UqsCZmId |
 | **배포된 사이트** | https://sg8srf86.insforge.site |
-| 예정 도메인 | `https://lab98.co` (`src/lib/content.ts`의 `site.url`) |
+| 예정 도메인 | `https://lab98.io` (`src/lib/content.ts`의 `site.url`) |
 
 ---
 
@@ -362,11 +362,24 @@ npx -y @insforge/cli deployments env list
 ```
 값을 바꿀 때는 아래 명령을 씁니다.
 ```bash
-npx -y @insforge/cli deployments env set CONTACT_NOTIFY_EMAIL hello@lab98.co
+npx -y @insforge/cli deployments env set CONTACT_NOTIFY_EMAIL hello@lab98.io
 ```
 바꾼 뒤에는 다시 배포해야 반영됩니다.
 
-**도메인 연결:** `lab98.co`를 연결하려면 `npx -y @insforge/cli domains ...`를 씁니다. 연결한 뒤에는 `src/lib/content.ts`의 `site.url`을 실제 주소와 맞춥니다. 이 값은 공유 미리보기와 canonical 주소에 쓰입니다.
+**도메인 연결 (lab98.io):**
+- `lab98.io`와 `www.lab98.io`는 InsForge 배포에 연결돼 있습니다. `www`는 `lab98.io`로 308 이동합니다(`next.config.ts`).
+- DNS는 Cloudflare에서 관리합니다. Cloudflare 대시보드 → `lab98.io` → DNS → Records에 아래 두 레코드가 있어야 합니다. 둘 다 **Proxy status를 "DNS only"(회색 구름)**로 둡니다.
+
+| Type | Name | Content | Proxy |
+|---|---|---|---|
+| A | `@` | `216.150.16.1` | DNS only |
+| CNAME | `www` | `ffa5587e4bceb6ab.vercel-dns-016.com` | DNS only |
+
+- 상태 확인은 아래 명령으로 합니다. `misconfigured: false`가 나오면 연결된 것입니다.
+```bash
+npx -y @insforge/cli domains status lab98.io --json
+```
+- `site.url`(`src/lib/content.ts`)은 `https://lab98.io`입니다. 공유 미리보기와 canonical 주소에 쓰입니다.
 
 ---
 
@@ -439,7 +452,7 @@ node tools/snapshot.js http://localhost:3100 ./snaps 390 / /about /projects
 **대표님이 준비하거나 정할 것**
 - [ ] GitHub 저장소를 만들고 이 코드를 올리기
 - [ ] Vercel 계정을 만들고 저장소와 연결하기
-- [ ] 도메인 `lab98.co`의 소유를 확인하고, Vercel에 연결하기
+- [ ] 도메인 `lab98.io`의 소유를 확인하고, Vercel에 연결하기
 - [ ] 공개 이메일 정하기. 지금은 **개인 Gmail이 노출**되고 있습니다 → `site.email`
 - [ ] 푸터 사업자 정보: 상호, 대표, 사업자등록번호, 주소
 - [ ] SNS 주소 넣기. 계정이 없으면 링크를 숨깁니다 → `site.social`
@@ -449,7 +462,7 @@ node tools/snapshot.js http://localhost:3100 ./snaps 390 / /about /projects
 - [ ] 브랜드 스토리("98"의 의미) 쓰기 (선택)
 
 - [x] InsForge 호스팅 배포와 환경 변수 4개 등록
-- [ ] 도메인 `lab98.co` 연결
+- [ ] Cloudflare DNS에 A/CNAME 레코드 넣기 (위 "도메인 연결" 표)
 - [ ] 개인정보처리방침의 상호와 보호책임자 채우기, 최종 문구 검토 (`app/privacy/page.tsx`의 TODO)
 - [ ] 알림 받을 팀 메일 주소를 `CONTACT_NOTIFY_EMAIL`에 넣기
 

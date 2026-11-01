@@ -52,7 +52,7 @@
 - **환경 변수(Vercel Project Settings → Environment Variables, Preview와 Production 분리)**
   - `RESEND_API_KEY` (secret)
   - `CONTACT_TO_EMAIL`: 리드를 받을 주소. 결정 필요
-  - `CONTACT_FROM_EMAIL`: 예 `Lab98 <hello@lab98.co>`. lab98.co 도메인 인증이 필요합니다
+  - `CONTACT_FROM_EMAIL`: 예 `Lab98 <hello@lab98.io>`. lab98.io 도메인 인증이 필요합니다
   - `TURNSTILE_SECRET_KEY` (secret), `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
   - (선택) `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 - Preview 환경의 `CONTACT_TO_EMAIL`은 테스트 주소로 지정해, 실제 담당자에게 테스트 메일이 가지 않게 합니다.
@@ -100,7 +100,7 @@
   - ⚠️ metadata는 **얕은 병합(shallow merge)**입니다. 하위 페이지에서 `openGraph`를 지정하면 루트의 `siteName`, `locale`이 사라집니다. 공통값은 `src/lib/seo.ts` 헬퍼에서 합쳐 반환합니다.
   - `cacheComponents` 환경에서 `generateMetadata`가 `params`에 접근하면 요청 시점으로 미뤄집니다. `generateStaticParams`로 slug를 미리 생성해 정적으로 유지합니다.
 - **`src/app/sitemap.ts`**: `MetadataRoute.Sitemap`을 반환합니다. 정적 경로와 `divisions`, `projects`, `insights`를 포함하고, `lastModified`에는 콘텐츠 날짜를 넣습니다.
-- **`src/app/robots.ts`**: 전체 허용, `sitemap: 'https://lab98.co/sitemap.xml'`. Preview 배포는 `VERCEL_ENV !== 'production'`일 때 `disallow: '/'`로 막습니다(Vercel이 preview에 `X-Robots-Tag: noindex`를 붙이지만 이중으로 막습니다).
+- **`src/app/robots.ts`**: 전체 허용, `sitemap: 'https://lab98.io/sitemap.xml'`. Preview 배포는 `VERCEL_ENV !== 'production'`일 때 `disallow: '/'`로 막습니다(Vercel이 preview에 `X-Robots-Tag: noindex`를 붙이지만 이중으로 막습니다).
 - **OG 이미지**
   - `src/app/opengraph-image.tsx`(기본)와 `projects/[slug]/opengraph-image.tsx`, `insights/[slug]/opengraph-image.tsx`, `divisions/[slug]/opengraph-image.tsx`를 만듭니다.
   - `ImageResponse`(`next/og`)로 1200×630 이미지를 생성합니다. 사업부 색상, 심볼(`public/brand/symbol/*`), 제목을 넣고 `alt`, `size`, `contentType`를 export합니다.
@@ -180,11 +180,11 @@
   - GitHub와 연동합니다. `main`은 Production, PR마다 **Preview 배포 URL**이 생성됩니다(클라이언트 검토용).
   - 환경 변수를 Production과 Preview로 분리합니다. Preview에는 Deployment Protection(Vercel 인증)을 켭니다.
   - 리전은 함수 리전을 `icn1`(서울)로 지정합니다.
-- **도메인 `lab98.co`**
-  - Vercel에 `lab98.co`(primary)와 `www.lab98.co`(→ apex로 리다이렉트)를 연결합니다.
+- **도메인 `lab98.io`**
+  - Vercel에 `lab98.io`(primary)와 `www.lab98.io`(→ apex로 리다이렉트)를 연결합니다.
   - DNS는 등록 기관에서 A/CNAME을 설정하거나 네임서버를 Vercel로 위임합니다.
-  - 같은 DNS에 **Resend용 SPF, DKIM, DMARC**와 **메일 수신용 MX**(예: Google Workspace의 `hello@lab98.co`)를 함께 설정합니다.
-- 완료 기준: [ ] `https://lab98.co`가 HTTPS로 열리고 www가 리다이렉트된다. [ ] PR을 열면 Preview URL이 댓글로 달린다. [ ] 메일 테스트 도구(mail-tester 등)에서 SPF/DKIM이 통과한다.
+  - 같은 DNS에 **Resend용 SPF, DKIM, DMARC**와 **메일 수신용 MX**(예: Google Workspace의 `hello@lab98.io`)를 함께 설정합니다.
+- 완료 기준: [ ] `https://lab98.io`가 HTTPS로 열리고 www가 리다이렉트된다. [ ] PR을 열면 Preview URL이 댓글로 달린다. [ ] 메일 테스트 도구(mail-tester 등)에서 SPF/DKIM이 통과한다.
 
 ### P0-10. 실제 콘텐츠로 교체 — 노력도 M (클라이언트 의존)
 
@@ -271,9 +271,9 @@
 **런칭 차단 항목 (이번 주 안에 필요)**
 - [ ] **사업자 정보**: 상호(법인/개인), 대표자명, 사업자등록번호, 사업장 주소, 대표 전화(공개 여부)
 - [ ] **통신판매업 신고 여부**: 사이트에서 결제나 판매를 할 계획이 있는지. 있다면 신고번호
-- [ ] **리드를 받을 이메일** (`CONTACT_TO_EMAIL`) 및 **공개 연락 이메일**. 현재 개인 Gmail이 노출되어 있으므로 `hello@lab98.co` 생성을 권장 → 메일 서비스(Google Workspace 등) 선택
+- [ ] **리드를 받을 이메일** (`CONTACT_TO_EMAIL`) 및 **공개 연락 이메일**. 현재 개인 Gmail이 노출되어 있으므로 `hello@lab98.io` 생성을 권장 → 메일 서비스(Google Workspace 등) 선택
 - [ ] **개인정보 보호책임자** 성명·연락처, 문의 데이터 **보유기간**(권장: 처리 완료 후 1년)
-- [ ] **lab98.co 도메인 소유 확인** 및 DNS 관리 권한(등록 기관 계정)
+- [ ] **lab98.io 도메인 소유 확인** 및 DNS 관리 권한(등록 기관 계정)
 - [ ] **GitHub 조직/계정**과 **Vercel 팀** 소유자(결제 주체)
 - [ ] **공개 가능한 실제 프로젝트** 목록과 각 클라이언트의 이름·로고·수치·후기 공개 동의
 - [ ] 예시 문구(실험, 노트, 팀 소개)를 실제 내용으로 바꿀 담당자와 마감일
@@ -295,6 +295,6 @@
 
 | 기간 | 작업 | 산출물 |
 |---|---|---|
-| **1주차 (런칭)** | GitHub 저장소·Vercel·도메인·DNS(메일 포함) 설정 → 문의 폼(Server Action + Resend + Turnstile + honeypot) → 동의 체크박스·`/privacy`·사업자 푸터 → 페이지별 metadata·`sitemap.ts`·`robots.ts`·`opengraph-image.tsx`·JSON-LD·redirects → `not-found`/`error`/`global-error` → `manifest.ts`·favicon → Vercel Analytics → 접근성·성능 점검 → 실제 콘텐츠 교체 | `https://lab98.co` 공개, Search Console·네이버 서치어드바이저 등록 |
+| **1주차 (런칭)** | GitHub 저장소·Vercel·도메인·DNS(메일 포함) 설정 → 문의 폼(Server Action + Resend + Turnstile + honeypot) → 동의 체크박스·`/privacy`·사업자 푸터 → 페이지별 metadata·`sitemap.ts`·`robots.ts`·`opengraph-image.tsx`·JSON-LD·redirects → `not-found`/`error`/`global-error` → `manifest.ts`·favicon → Vercel Analytics → 접근성·성능 점검 → 실제 콘텐츠 교체 | `https://lab98.io` 공개, Search Console·네이버 서치어드바이저 등록 |
 | **2~4주차** | MDX 콘텐츠 파이프라인과 케이스 스터디 템플릿 → 리드 Google Sheets 아카이브 → RSS·인사이트 필터 → SNS 링크·YouTube 임베드 → (결정 시) 뉴스레터·`/careers`·영어 1페이지 | 비개발자도 PR/Preview로 발행 가능, 첫 케이스 스터디 2~3건 |
 | **나중에** | 가격·패키지 페이지, 문의 위저드, AI 데모·ROI 계산기, Faith 템플릿 갤러리·챌린지, 실험 대시보드, 다크 모드, (필요 시) Sanity 이전·전체 i18n | 사업부별 전환 도구 |

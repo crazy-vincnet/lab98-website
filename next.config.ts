@@ -25,6 +25,13 @@ const nextConfig: NextConfig = {
   // See node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/redirects.md
   async redirects() {
     return [
+      // Canonical host: www.lab98.io → lab98.io
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.lab98.io" }],
+        destination: "https://lab98.io/:path*",
+        permanent: true,
+      },
       ...Object.entries(renamedProjectSlugs).flatMap(([from, to]) => [
         { source: `/experiments/${from}`, destination: `/projects/${to}`, permanent: true },
         { source: `/projects/${from}`, destination: `/projects/${to}`, permanent: true },
