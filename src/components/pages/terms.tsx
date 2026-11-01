@@ -13,13 +13,15 @@ const PATH = "/terms";
 
 
 
-const EFFECTIVE_DATE = "2026년 11월 1일"; // TODO(en): "November 1, 2026" once the English text exists
+const EFFECTIVE_DATE = "2026년 11월 1일";
+const EFFECTIVE_DATE_EN = "November 1, 2026";
 /** Keep in sync with site.business.name. */
 const OWNER = "제이제이드림(JJdream, 브랜드명 Lab98)";
+const OWNER_EN = "JJdream (제이제이드림, brand name Lab98)";
 const host = site.url.replace(/^https?:\/\//, "");
 const mail = <a href={`mailto:${site.email}`}>{site.email}</a>;
 
-const buildSections = (L: Locale): LegalSection[] => [
+const buildSectionsKo = (L: Locale): LegalSection[] => [
   {
     id: "purpose",
     title: "목적",
@@ -155,6 +157,144 @@ const buildSections = (L: Locale): LegalSection[] => [
   },
 ];
 
+const buildSectionsEn = (L: Locale): LegalSection[] => [
+  {
+    id: "purpose",
+    title: "Purpose",
+    body: <p>These Terms set out the conditions and procedures for using the website {host} (the “Site”) operated by {OWNER_EN} (the “Company”), and the rights and duties of the Company and users.</p>,
+  },
+  {
+    id: "definitions",
+    title: "Definitions",
+    body: (
+      <ul>
+        <li>“Site”: the website the Company operates at the {host} domain and its subpages</li>
+        <li>“User”: anyone who visits the Site and uses the Service under these Terms</li>
+        <li>“Service”: the information and features the Company provides free of charge on the Site (described in Section 4)</li>
+      </ul>
+    ),
+  },
+  {
+    id: "notice",
+    title: "Posting and changing the Terms",
+    body: (
+      <ul>
+        <li>The Company posts these Terms on the Site where users can easily find them.</li>
+        <li>The Company may change these Terms as long as the change does not violate applicable laws.</li>
+        <li>When the Terms change, the Company will post the effective date and the reason on the Site starting 7 days before the change takes effect. For changes that are unfavorable to users, the notice starts 30 days before.</li>
+        <li>If you do not agree to the changed Terms, you can stop using the Site.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "service",
+    title: "What the Service includes",
+    body: (
+      <>
+        <p>The Company provides the following services on the Site.</p>
+        <ul>
+          <li>Introductions to the Company and its services (Dev, AI, Faith) and to project case studies</li>
+          <li>
+            Receiving <Link href={localePath(L, CONTACT_HREF)}>inquiries</Link>
+          </li>
+          <li>
+            <Link href={localePath(L, PRAISE_TOOL_PATH)}>Praise Tool</Link> launch notification sign-up
+          </li>
+          <li>Information such as Insights articles</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: "obligations",
+    title: "User obligations",
+    body: (
+      <>
+        <p>Users must not do any of the following.</p>
+        <ul>
+          <li>Enter false information, or use another person&apos;s email address or other information without permission</li>
+          <li>Send forms in bulk using programs or other automated means</li>
+          <li>Interfere with the operation of the Site or harm its security (unauthorized access, sending malicious code, excessive requests, and so on)</li>
+          <li>Infringe the rights of the Company or others, or break the law</li>
+        </ul>
+        <p>If the Company confirms any of these acts, it may decline to process the related inquiry or sign-up, or restrict access.</p>
+      </>
+    ),
+  },
+  {
+    id: "inquiries",
+    title: "Nature of inquiries and quotes",
+    body: (
+      <ul>
+        <li>Submitting an inquiry through the Site, or receiving a quote or consultation, does not by itself create a contract.</li>
+        <li>Dev development contracts, AI training and Praise Tool purchases are each governed by a separate contract or terms, and the individual contract prevails over these Terms.</li>
+        <li>Purchase and refund conditions for Praise Tool will be posted separately before sales begin. The Site does not currently sell anything online.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "ip",
+    title: "Intellectual property",
+    body: (
+      <ul>
+        <li>The Company owns the rights to the content on the Site, including text, images, logos and designs. You may not copy, distribute or modify it for commercial use without the Company&apos;s permission.</li>
+        <li>The screens and names of client sites shown in project case studies belong to the respective organizations, and the Company publishes them with their consent.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "links",
+    title: "External links",
+    body: <p>The Site may contain links to external sites, such as client sites. The Company does not operate those sites and is not responsible for their content or their handling of personal information.</p>,
+  },
+  {
+    id: "changes-service",
+    title: "Changing or suspending the Service",
+    body: (
+      <ul>
+        <li>The Company may change or suspend all or part of the Service when operational or technical needs require it.</li>
+        <li>The Service may be suspended temporarily for equipment maintenance, outages, natural disasters and similar causes. When we can give notice in advance, we will post it on the Site.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "disclaimer",
+    title: "Disclaimer",
+    body: (
+      <ul>
+        <li>Information on the Site is general information provided free of charge, and we do not guarantee that it suits any particular purpose. If you need a specific judgment, please contact us.</li>
+        <li>The Company is not liable for damage caused by the user&apos;s own fault, or for damage arising from use of information provided free of charge. This does not apply to damage caused by the Company&apos;s intent or gross negligence.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "privacy",
+    title: "Privacy",
+    body: (
+      <p>
+        The Company protects users&apos; personal information in accordance with applicable laws. For details, please see the <Link href={localePath(L, PRIVACY_PATH)}>Privacy Policy</Link>.
+      </p>
+    ),
+  },
+  {
+    id: "disputes",
+    title: "Dispute resolution",
+    body: (
+      <ul>
+        <li>The laws of the Republic of Korea apply to these Terms and to use of the Site.</li>
+        <li>If a dispute arises, please contact us first at {mail}. If it cannot be resolved amicably, it will be resolved in the court that has jurisdiction under the Civil Procedure Act.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "addendum",
+    title: "Addendum",
+    body: <p>These Terms take effect on {EFFECTIVE_DATE_EN}.</p>,
+  },
+];
+
+const buildSections = (L: Locale): LegalSection[] => (L === "en" ? buildSectionsEn(L) : buildSectionsKo(L));
+
 const history = {
   ko: [{ date: "2026. 11. 01", note: "제정" }],
   en: [{ date: "2026. 11. 01", note: "Established" }],
@@ -164,7 +304,6 @@ const docMeta: Record<Locale, { title: string; description: string }> = {
   ko: { title: "이용약관", description: `${site.name} 웹사이트(${site.url.replace(/^https?:\/\//, "")}) 이용 조건과 회사·이용자의 권리와 의무, 문의·견적의 성격, 지식재산권, 면책과 분쟁 해결 기준을 안내해요.` },
   en: {
     title: 'Terms of Use',
-    // TODO(en): review wording
     description: 'The conditions for using the Lab98 website, the rights and duties of the company and users, the nature of inquiries and quotes, intellectual property, and limits of liability.',
   },
 };
@@ -183,9 +322,17 @@ export function TermsPage({ locale }: { locale: Locale }) {
         locale={locale}
         label="Terms"
         title={title}
-        // TODO(en): the intro and every section below are still the Korean text on /en
-        intro={<p>{host} 웹사이트를 이용할 때 지켜야 할 조건과 회사·이용자의 권리와 의무를 안내해요. 사이트를 이용하면 이 약관에 동의한 것으로 봐요.</p>}
-        effectiveDate={EFFECTIVE_DATE}
+        intro={
+          locale === "en" ? (
+            <>
+              <p>The conditions you must follow when using the {host} website, and the rights and duties of the Company and users. By using the Site, you are treated as having agreed to these Terms.</p>
+              <p className="mt-3 text-body-sm">This is an English translation for convenience; the Korean version prevails.</p>
+            </>
+          ) : (
+            <p>{host} 웹사이트를 이용할 때 지켜야 할 조건과 회사·이용자의 권리와 의무를 안내해요. 사이트를 이용하면 이 약관에 동의한 것으로 봐요.</p>
+          )
+        }
+        effectiveDate={locale === "en" ? EFFECTIVE_DATE_EN : EFFECTIVE_DATE}
         sections={buildSections(locale)}
         history={[...history[locale]]}
       />

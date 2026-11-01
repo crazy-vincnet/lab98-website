@@ -17,10 +17,11 @@ const PATH = "/cookies";
 
 
 
-const EFFECTIVE_DATE = "2026년 11월 1일"; // TODO(en): "November 1, 2026" once the English text exists
+const EFFECTIVE_DATE = "2026년 11월 1일";
+const EFFECTIVE_DATE_EN = "November 1, 2026";
 const mail = <a href={`mailto:${site.email}`}>{site.email}</a>;
 
-const buildSections = (L: Locale): LegalSection[] => [
+const buildSectionsKo = (L: Locale): LegalSection[] => [
   {
     id: "what",
     title: "쿠키란",
@@ -114,6 +115,102 @@ const buildSections = (L: Locale): LegalSection[] => [
   },
 ];
 
+const buildSectionsEn = (L: Locale): LegalSection[] => [
+  {
+    id: "what",
+    title: "What cookies are",
+    body: <p>A cookie is a small text file that a website stores in a visitor&apos;s browser. Browser storage (localStorage) is a similar way to keep information inside the browser. In this policy, we call both “cookies and similar technologies”.</p>,
+  },
+  {
+    id: "used",
+    title: "What Lab98 uses now",
+    body: (
+      <>
+        <p>This website does not currently set cookies. The only thing it stores in your browser is the item below.</p>
+        <LegalTable
+          caption="Browser storage items in use"
+          columns={["Name", "Type", "Purpose", "Category", "Retention"]}
+          rows={[
+            [
+              <code key="n" className="font-mono text-code">
+                lab98-consent
+              </code>,
+              "Browser storage (localStorage)",
+              "Remembers your cookie consent choice and the date you made it, so we do not ask again on every visit",
+              "Essential",
+              "Until you delete it or change your choice",
+            ],
+          ]}
+        />
+        <p>This value stays only in your browser and is not sent to the Company&apos;s servers.</p>
+      </>
+    ),
+  },
+  {
+    id: "not-used",
+    title: "What we do not use",
+    body: (
+      <ul>
+        <li>We do not use advertising cookies, tracking cookies or analytics (visitor statistics) cookies.</li>
+        <li>We do not load external scripts such as analytics or advertising tools. Fonts are also served directly from this site, not from an external service.</li>
+        <li>There is no login, so there are no login cookies either.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "analytics",
+    title: "If we add analytics cookies",
+    body: (
+      <ul>
+        <li>If we add a visitor statistics tool, we will first update this policy and the Privacy Policy and let you know.</li>
+        <li>That tool will run only if you consent to the “Analytics” category in the cookie settings. If you do not consent, it will not run.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "change",
+    title: "Changing your choice",
+    body: (
+      <>
+        <p>You can reopen the cookie settings at any time with the button below and change your choice. You can also open them from “Cookie settings” at the very bottom of the site.</p>
+        <div>
+          <OpenCookieSettingsButton className="inline-flex min-h-11 cursor-pointer items-center justify-center border-2 border-ink bg-paper px-5 py-3.5 text-[15px] font-bold leading-none text-ink transition-colors hover:bg-ink hover:text-paper">
+            Open cookie settings
+          </OpenCookieSettingsButton>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: "browser",
+    title: "Deleting data in your browser",
+    body: (
+      <>
+        <p>You can delete cookies and similar data stored in your browser in its settings. Menu names may differ slightly by version.</p>
+        <ul>
+          <li>Chrome: Settings → Privacy and security → Third-party cookies (or Site settings) → See all site data and permissions → delete lab98.io</li>
+          <li>Safari (Mac): Settings → Privacy → Manage Website Data → select lab98.io and remove</li>
+          <li>Safari (iPhone): Settings → Apps → Safari → Advanced → Website Data → delete lab98.io</li>
+          <li>Edge: Settings → Cookies and site permissions → Manage and delete cookies and site data → See all cookies and site data → delete lab98.io</li>
+          <li>Firefox: Settings → Privacy &amp; Security → Cookies and Site Data → Manage Data → select lab98.io and remove</li>
+        </ul>
+        <p>If you clear the saved choice, we will ask for your cookie consent again on your next visit.</p>
+      </>
+    ),
+  },
+  {
+    id: "contact",
+    title: "Contact",
+    body: (
+      <p>
+        If you have questions about this Cookie Policy, please email {mail}. For how personal information is handled overall, see the <Link href={localePath(L, PRIVACY_PATH)}>Privacy Policy</Link>.
+      </p>
+    ),
+  },
+];
+
+const buildSections = (L: Locale): LegalSection[] => (L === "en" ? buildSectionsEn(L) : buildSectionsKo(L));
+
 const history = {
   ko: [{ date: "2026. 11. 01", note: "제정" }],
   en: [{ date: "2026. 11. 01", note: "Established" }],
@@ -123,7 +220,6 @@ const docMeta: Record<Locale, { title: string; description: string }> = {
   ko: { title: "쿠키 정책", description: `${site.name} 웹사이트는 쿠키를 쓰지 않아요. 브라우저에 저장하는 동의 선택 하나와 쓰지 않는 것, 선택을 바꾸고 지우는 방법을 안내해요.` },
   en: {
     title: 'Cookie Policy',
-    // TODO(en): review wording
     description: 'The Lab98 website does not use cookies. It explains the one consent choice stored in your browser, what we do not use, and how to change or clear your choice.',
   },
 };
@@ -142,9 +238,17 @@ export function CookiesPage({ locale }: { locale: Locale }) {
         locale={locale}
         label="Cookies"
         title={title}
-        // TODO(en): the intro and every section below are still the Korean text on /en
-        intro={<p>Lab98 웹사이트가 브라우저에 무엇을 저장하는지, 무엇을 저장하지 않는지, 선택을 어떻게 바꾸는지 안내해요.</p>}
-        effectiveDate={EFFECTIVE_DATE}
+        intro={
+          locale === "en" ? (
+            <>
+              <p>What the Lab98 website stores in your browser, what it does not store, and how to change your choice.</p>
+              <p className="mt-3 text-body-sm">This is an English translation for convenience; the Korean version prevails.</p>
+            </>
+          ) : (
+            <p>Lab98 웹사이트가 브라우저에 무엇을 저장하는지, 무엇을 저장하지 않는지, 선택을 어떻게 바꾸는지 안내해요.</p>
+          )
+        }
+        effectiveDate={locale === "en" ? EFFECTIVE_DATE_EN : EFFECTIVE_DATE}
         sections={buildSections(locale)}
         history={[...history[locale]]}
       />

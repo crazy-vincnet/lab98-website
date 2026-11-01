@@ -4,6 +4,7 @@ import { pageMetadata } from "@/components/seo/metadata";
 import { ORG_ID, breadcrumb, graph, webPage } from "@/lib/structured-data";
 import Link from "next/link";
 import { site } from "@/lib/content";
+import { getContent } from "@/lib/get-content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { COOKIES_PATH, PRAISE_TOOL_PATH, PRIVACY_REQUEST_PATH, UNSUBSCRIBE_PATH } from "@/components/experiments/paths";
 import { LegalDoc, LegalTable, type LegalSection } from "@/components/legal/legal-doc";
@@ -18,7 +19,10 @@ const PATH = "/privacy";
 
 
 
-const EFFECTIVE_DATE = "2026년 11월 1일"; // TODO(en): "November 1, 2026" once the English text exists
+const EFFECTIVE_DATE = "2026년 11월 1일";
+const EFFECTIVE_DATE_EN = "November 1, 2026";
+const OWNER_EN = "JJdream (제이제이드림, brand name Lab98)";
+const enBiz = getContent("en").site.business;
 /** Keep in sync with site.business.name. */
 const OWNER = "제이제이드림(JJdream, 브랜드명 Lab98)";
 const biz = site.business;
@@ -30,7 +34,7 @@ const ext = (href: string, label: string) => (
   </a>
 );
 
-const buildSections = (L: Locale): LegalSection[] => [
+const buildSectionsKo = (L: Locale): LegalSection[] => [
   {
     id: "purpose",
     title: "개인정보의 처리 목적",
@@ -232,6 +236,210 @@ const buildSections = (L: Locale): LegalSection[] => [
   },
 ];
 
+const buildSectionsEn = (L: Locale): LegalSection[] => [
+  {
+    id: "purpose",
+    title: "Purposes of processing",
+    body: (
+      <>
+        <p>The Company processes personal information only for the purposes below. If a purpose changes, we will tell you in advance and, where required, ask for your separate consent.</p>
+        <ul>
+          <li>Inquiry form: confirming and answering your inquiry, handling quotes and consultations, and preventing spam and repeated submissions</li>
+          <li>
+            <Link href={localePath(L, PRAISE_TOOL_PATH)}>Praise Tool</Link> launch notification sign-up: sending one email announcing the November 11, 2026 launch, and preventing spam and repeated sign-ups
+          </li>
+          <li>Privacy requests: handling requests to access, correct, delete or suspend processing, verifying identity, and recording the result</li>
+          <li>Unsubscribe: keeping track of people who have opted out so that we do not email them again</li>
+        </ul>
+        <p>We do not use personal information for marketing or advertising.</p>
+      </>
+    ),
+  },
+  {
+    id: "items",
+    title: "Personal information we process",
+    body: (
+      <>
+        <p>We collect personal information only when you type it into a form on this website and submit it. There is no account registration.</p>
+        <LegalTable
+          caption="Items processed by form"
+          columns={["Form", "Required", "Optional", "Collected automatically"]}
+          rows={[
+            ["Inquiry form", "Email, inquiry content, inquiry category", "Name or company name", "IP hash (cannot be reversed), time received"],
+            ["Praise Tool launch notification sign-up", "Email", "Church or organization name", "IP hash (cannot be reversed), time of sign-up"],
+            ["Privacy request", "Email, request type, request details", "None", "Time received"],
+            ["Unsubscribe", "Email", "None", "Time registered"],
+          ]}
+        />
+        <p>An IP hash is a value made from your IP address in a way that cannot be turned back into the original. We use it only to prevent spam and repeated submissions. We do not store the IP address itself.</p>
+      </>
+    ),
+  },
+  {
+    id: "retention",
+    title: "Retention and use period",
+    body: (
+      <>
+        <LegalTable
+          caption="Retention and use period"
+          columns={["Form", "Retention period", "When it is destroyed"]}
+          rows={[
+            ["Inquiry form", "1 year after the inquiry is closed", "Deleted automatically when the period ends"],
+            ["Praise Tool launch notification sign-up", "Until the launch announcement email is sent", "Deleted automatically without delay after sending, and no later than 30 days after the launch date"],
+            ["Privacy request", "The record of the result is kept for 3 years after the request is completed (in case of disputes)", "Deleted when the period ends"],
+            ["Unsubscribe", "Until you ask to be removed from the list", "Deleted without delay on request"],
+          ]}
+        />
+        <p>If another law requires information to be kept for a certain period, we keep it separately for that period. If an inquiry leads to a contract, information related to the contract is managed separately under that contract and the applicable laws.</p>
+      </>
+    ),
+  },
+  {
+    id: "destruction",
+    title: "Destruction procedure and method",
+    body: (
+      <ul>
+        <li>Procedure: information whose retention period has ended or whose purpose has been fulfilled is destroyed by an automatic deletion job that runs regularly. Information that is not covered by automatic deletion is destroyed manually without delay once we have confirmed it.</li>
+        <li>Method: electronic information is deleted from the database in a way that cannot be recovered. Any paper printouts are shredded or incinerated.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "third-party",
+    title: "Provision to third parties",
+    body: <p>The Company does not provide personal information to third parties. The exceptions are where you have separately consented, or where the law specifically provides otherwise (for example, a lawful request from an investigative authority).</p>,
+  },
+  {
+    id: "outsourcing",
+    title: "Outsourced processing and overseas transfer",
+    body: (
+      <>
+        <p>To run the service, we entrust the processing of personal information to the processors below. As a result, personal information is stored and processed outside Korea.</p>
+        <LegalTable
+          caption="Outsourced processing and overseas transfer"
+          columns={["Processor", "Entrusted task", "Transfer location", "Items transferred"]}
+          rows={[
+            ["InsForge", "Database storage and server operation", "Cloud servers in the Asia-Pacific (ap-southeast) region", "All items in Section 2"],
+            ["Amazon Web Services (SES, used through InsForge)", "Sending receipt notification emails and launch announcement emails", "Amazon Web Services cloud servers", "Email address, and the inquiry or sign-up content included in the email body"],
+          ]}
+        />
+        <ul>
+          <li>When and how it is transferred: transferred over encrypted communication (HTTPS) as soon as you submit a form.</li>
+          <li>Retention and use period: the same as in Section 3.</li>
+          <li>How to refuse: if you do not want your information transferred overseas, please email {mail} directly instead of using the form.</li>
+        </ul>
+        <p>If a processor or the entrusted task changes, we will say so in this policy.</p>
+      </>
+    ),
+  },
+  {
+    id: "rights",
+    title: "Your rights and how to exercise them",
+    body: (
+      <>
+        <p>You can ask at any time to access, correct or delete your personal information, to suspend its processing, or to withdraw your consent.</p>
+        <ul>
+          <li>
+            How to ask: use the <Link href={localePath(L, PRIVACY_REQUEST_PATH)}>privacy request form</Link> or email {mail}.
+          </li>
+          <li>Identity check: we confirm it is you by getting a reply from the email address on record.</li>
+          <li>Time to respond: we handle the request and tell you the result within 10 days of receiving it. If we limit or refuse a request as the law allows, we will also tell you why.</li>
+          <li>You can also make a request through a legal representative or an authorized agent. In that case, we need documents that confirm the authorization.</li>
+        </ul>
+        <div>
+          <ButtonLink href={localePath(L, PRIVACY_REQUEST_PATH)} variant="secondary" size="sm" className="min-h-11 no-underline! hover:text-paper!">
+            Make a privacy request
+          </ButtonLink>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: "children",
+    title: "Children under 14",
+    body: <p>The Company does not accept personal information from children under 14. If we learn that information from a child under 14 has been submitted, we will destroy it without delay.</p>,
+  },
+  {
+    id: "cookies",
+    title: "Automatic collection tools: installation, operation and refusal",
+    body: (
+      <>
+        <p>
+          This website does not currently set cookies, and it does not use external analytics or advertising scripts. The only thing it stores in your browser is your cookie consent choice (<code className="font-mono text-code">lab98-consent</code>).
+        </p>
+        <p>
+          If we add a visitor statistics tool, we will update this policy first and make the tool run only if you consent. For details, see the <Link href={localePath(L, COOKIES_PATH)}>Cookie Policy</Link>.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "marketing",
+    title: "Promotional messages and opting out",
+    body: (
+      <>
+        <p>The Company does not currently send promotional messages (marketing emails). If we do in the future, we will get your separate consent in advance as required by Article 50 of the Act on Promotion of Information and Communications Network Utilization and Information Protection, mark the subject line with “(advertisement)”, and include opt-out instructions in every email.</p>
+        <p>
+          If you do not want to receive email, you can opt out at any time on the <Link href={localePath(L, UNSUBSCRIBE_PATH)}>unsubscribe</Link> page.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "security",
+    title: "Security measures",
+    body: (
+      <ul>
+        <li>Encryption in transit: all communication is encrypted with HTTPS.</li>
+        <li>Least access: the database can be reached only with the server&apos;s administrator key. Row-level security (RLS) policies block access with the public key.</li>
+        <li>Data minimization: IP addresses are stored only as hashes that cannot be reversed.</li>
+        <li>Separate storage of secret keys: access keys are kept in the server environment, apart from the source code.</li>
+      </ul>
+    ),
+  },
+  {
+    id: "officer",
+    title: "Privacy officer",
+    body: (
+      <>
+        <p>For questions, complaints or remedies about the handling of personal information, please contact the officer below. We will reply and act without delay.</p>
+        <ul>
+          <li>Privacy officer: {enBiz.representative}, Representative</li>
+          <li>Contact: {mail}</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: "remedy",
+    title: "Remedies for infringement of your rights",
+    body: (
+      <>
+        <p>If you need to report a privacy violation or get advice, you can contact the agencies below.</p>
+        <LegalTable
+          caption="Agencies for remedies"
+          columns={["Agency", "Phone", "Website"]}
+          rows={[
+            ["Personal Information Dispute Mediation Committee", "1833-6972", ext("https://www.kopico.go.kr", "www.kopico.go.kr")],
+            ["Personal Information Infringement Report Center (Korea Internet & Security Agency)", "118", ext("https://privacy.kisa.or.kr", "privacy.kisa.or.kr")],
+            ["Supreme Prosecutors' Office", "1301", ext("https://www.spo.go.kr", "www.spo.go.kr")],
+            ["Korean National Police Agency", "182", ext("https://ecrm.police.go.kr", "ecrm.police.go.kr")],
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "changes",
+    title: "Changes to this policy",
+    body: (
+      <p>This policy applies from {EFFECTIVE_DATE_EN}. If it changes, we will post a notice on this page starting 7 days before the change takes effect, and starting 30 days before for significant changes to your rights. You can see past changes in the revision history below.</p>
+    ),
+  },
+];
+
+const buildSections = (L: Locale): LegalSection[] => (L === "en" ? buildSectionsEn(L) : buildSectionsKo(L));
+
 const history = {
   ko: [{ date: "2026. 11. 01", note: "제정" }],
   en: [{ date: "2026. 11. 01", note: "Established" }],
@@ -241,8 +449,7 @@ const docMeta: Record<Locale, { title: string; description: string }> = {
   ko: { title: "개인정보처리방침", description: `${site.name}(${site.business.name})이 문의, 출시 알림 신청, 개인정보 요청, 수신거부를 처리하며 개인정보를 어떻게 수집·이용·보관·파기하는지 안내해요.` },
   en: {
     title: 'Privacy Policy',
-    // TODO(en): review wording
-    description: 'How Lab98 (JJdream) collects, uses, keeps and deletes personal information when handling inquiries, launch-notification sign-ups, privacy requests and unsubscribe requests.',
+    description: 'How Lab98 (JJdream) collects, uses, keeps and deletes personal information when handling inquiries, Praise Tool launch notification sign-ups, privacy requests and unsubscribe requests.',
   },
 };
 
@@ -260,13 +467,21 @@ export function PrivacyPage({ locale }: { locale: Locale }) {
         locale={locale}
         label="Privacy"
         title={title}
-        // TODO(en): the intro and every section below are still the Korean text on /en
         intro={
-          <p>
-            {OWNER}(이하 “회사”)은 이용자의 개인정보를 중요하게 생각하고 「개인정보 보호법」을 지켜요. 이 방침은 {host} 웹사이트의 문의 양식, Praise Tool 출시 알림 신청, 개인정보 요청, 수신거부에 적용돼요.
-          </p>
+          locale === "en" ? (
+            <>
+              <p>
+                {OWNER_EN} (the “Company”) takes your personal information seriously and complies with the Personal Information Protection Act of Korea. This policy applies to the inquiry form, Praise Tool launch notification sign-up, privacy requests and unsubscribe requests on the {host} website.
+              </p>
+              <p className="mt-3 text-body-sm">This is an English translation for convenience; the Korean version prevails.</p>
+            </>
+          ) : (
+            <p>
+              {OWNER}(이하 “회사”)은 이용자의 개인정보를 중요하게 생각하고 「개인정보 보호법」을 지켜요. 이 방침은 {host} 웹사이트의 문의 양식, Praise Tool 출시 알림 신청, 개인정보 요청, 수신거부에 적용돼요.
+            </p>
+          )
         }
-        effectiveDate={EFFECTIVE_DATE}
+        effectiveDate={locale === "en" ? EFFECTIVE_DATE_EN : EFFECTIVE_DATE}
         sections={buildSections(locale)}
         history={[...history[locale]]}
       />

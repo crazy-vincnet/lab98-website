@@ -46,8 +46,7 @@ export const homeCopyEn: Dict<typeof homeCopy> = {
     index: "02",
     eyebrow: "Projects",
     title: "What we've built",
-    // TODO(en): the strings below are still Korean
-    lead: homeCopy.projectsCopy.lead,
+    lead: "Listening to broadcasts, prayer signatures, donation forms, insurance support lookups. For each organization, we planned, designed and built the features it needed most.",
     more: "View all projects",
     clientsLabel: "Worked with",
     newTab: "(opens in a new tab)",
@@ -79,12 +78,55 @@ export const homeCopyEn: Dict<typeof homeCopy> = {
     infoEmail: "Email",
     infoReply: "Reply",
     form: {
-      // TODO(en): all form strings (labels, privacy notice, errors, success) are still Korean.
       // The privacy notice rows are legal text: have them reviewed before publishing.
-      ...homeCopy.contactCopy.form,
       ariaLabel: "Project inquiry",
+      interestLegend: "Topic",
+      nameLabel: "Name or company (optional)",
+      namePlaceholder: "Jane Kim / ABC Church",
+      emailLabel: "Email for our reply",
+      emailPlaceholder: "you@company.com",
+      messageLabel: "Message",
+      messagePlaceholder: "Tell us what you want to build, your timeline and your budget range. It's fine if it isn't all worked out yet.",
       submit: "Send inquiry",
       submitting: "Sending…",
+      notice: {
+        title: "Collection and use of personal information (required)",
+        rows: [
+          { term: "Purpose", desc: "To read and answer your inquiry, and to give quotes and advice" },
+          {
+            term: "Items",
+            desc: "Email, message, topic, and (optional) name or company",
+            note: "To prevent spam, we also store your IP address after converting it to a hash that cannot be turned back into the address.",
+          },
+          { term: "Retention", desc: "One year after the inquiry is closed" },
+          { term: "Right to refuse", desc: "You do not have to agree. If you do not, we cannot take your inquiry through this form. In that case, please email hello@lab98.io directly." },
+        ],
+      },
+      consentLabel: "I agree to the collection and use of my personal information above (required)",
+      policyBefore: "You can read more in our",
+      policyLink: "Privacy Policy",
+      policyAfter: ".",
+      policyNewTab: "Opens in a new tab",
+      errors: {
+        emailRequired: "Please enter the email we should reply to.",
+        emailInvalid: "Please check the email format. Example: you@company.com",
+        messageRequired: "Please write at least one line.",
+        messageTooLong: "Please keep it under 2,000 characters. You can send any files in a reply email.",
+        nameTooLong: "Please keep the name or company under 100 characters.",
+        consentRequired: "You need to agree to the collection and use of personal information to send an inquiry.",
+      },
+      failure: {
+        rateLimited: "We received a lot of inquiries in a short time, so we paused sending for now. Please try again in 10 minutes, or email",
+        server: "We could not send your inquiry. Please try again shortly, or email",
+        fallbackAfter: " directly.",
+      },
+      success: {
+        eyebrow: "We got your inquiry",
+        title: "Thank you for writing. We will reply to your email within 2 business days.",
+        fallbackBefore: "If it is urgent, you can email",
+        fallbackAfter: " right away.",
+        reset: "Write another inquiry",
+      },
     },
   },
   interestLabel: {
