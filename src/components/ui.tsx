@@ -16,10 +16,12 @@ export function Symbol({ division = "master", inverse = false, size = 40, alt, c
   return <img src={symbolSrc(division, inverse)} width={size} height={size} alt={alt ?? (division === "master" ? "Lab98" : `Lab98 ${divisionTheme[division].name}`)} className={cx("block shrink-0", className)} />;
 }
 
-/** Symbol + wordmark lockup. Native ratio 361:84. */
-export function Lockup({ division = "master", inverse = false, height = 40, className }: { division?: Division; inverse?: boolean; height?: number; className?: string }) {
+/** Symbol + wordmark lockup. Native ratio: master 361.07:84, divisions 294.59:84. */
+export function Lockup({ division = "master", inverse = false, height = 40, alt, className }: { division?: Division; inverse?: boolean; height?: number; alt?: string; className?: string }) {
+  const ratio = (division === "master" ? 361.07 : 294.59) / 84;
+  const label = alt ?? (division === "master" ? "Lab98" : `Lab98 ${divisionTheme[division].name}`);
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={lockupSrc(division, inverse)} height={height} width={Math.round((height * 361) / 84)} alt="Lab98" className={cx("block shrink-0", className)} />;
+  return <img src={lockupSrc(division, inverse)} height={height} width={Math.round(height * ratio)} alt={label} className={cx("block shrink-0", className)} />;
 }
 
 /* ---------- Button ---------- */

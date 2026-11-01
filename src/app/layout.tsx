@@ -8,6 +8,7 @@ import "@fontsource/jetbrains-mono/700.css";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { CookieBanner } from "@/components/consent/cookie-banner";
 import { site } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <SiteFooter />
+        <CookieBanner />
       </body>
     </html>
   );

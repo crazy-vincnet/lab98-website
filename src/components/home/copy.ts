@@ -35,7 +35,7 @@ export function clientShort(p: Pick<Project, "client" | "clientEn">) {
 
 export const heroCopy = {
   label: "Lab98 · Dev · AI · Faith",
-  lead: "웹·프로그램 제작부터 AI 교육, 교회를 위한 소프트웨어까지. 사람이 더 중요한 일에 집중하도록, 쓰기 편한 도구를 만들어요.",
+  lead: "웹·프로그램 제작부터 AI 교육, 교회를 위한 소프트웨어까지. 사람이 더 중요한 일에 집중하도록 쓰기 편한 도구를 만들어요.",
   ctaPrimary: "프로젝트 문의",
   ctaSecondary: "만든 것 보기",
   blockDivisionsLabel: "서비스",
@@ -69,7 +69,7 @@ export const servicesCopy = {
   index: "01",
   eyebrow: "Services",
   title: "필요한 도구를 만들고, 잘 쓰도록 도와요",
-  lead: "웹과 프로그램을 맞춤으로 만들고, AI를 제대로 쓰는 법을 알려 드리고, 교회와 선교단체에 필요한 프로그램을 운영까지 함께해요.",
+  lead: "웹과 프로그램을 맞춤으로 만들고, AI를 제대로 쓰는 법을 알려 드려요. 교회와 선교단체에 필요한 프로그램은 운영까지 함께해요.",
   /** Card hook line per division; falls back to the division headline. */
   hook: { dev: "200만 원부터 · 코드 제공" } as Partial<Record<DivisionSlug, string>>,
   cardFoot: (short: string) => `${short} 서비스 보기`,
@@ -89,7 +89,7 @@ export const processCopy = {
   index: "03",
   eyebrow: "How we work",
   title: "미팅부터 코드 공유까지, 여섯 단계로 만들어요",
-  lead: "시안으로 먼저 확인하고 만들어서 방향이 어긋나지 않아요. 오픈할 때 소스 코드를 함께 넘겨 드려서, 나중에 어디서 관리하더라도 막히지 않아요.",
+  lead: "시안으로 먼저 확인하고 만들어서 방향이 어긋나지 않아요. 오픈할 때는 소스 코드를 함께 넘겨 드려요. 나중에 어디서 관리하든 막힐 일이 없어요.",
   highlight: "Lab98의 약속",
 } as const;
 
@@ -126,10 +126,24 @@ export const contactCopy = {
     messagePlaceholder: "만들고 싶은 것과 원하는 일정, 예산 범위를 알려 주세요. 정리되지 않아도 괜찮아요.",
     submit: "문의 보내기",
     submitting: "보내는 중…",
-    consentBefore: "문의 답변을 위한",
-    consentLink: "개인정보 수집·이용",
-    consentAfter: "에 동의해요 (필수)",
-    privacy: "이메일·문의 내용은 답변에만 쓰고, 문의 종료 1년 후 삭제해요.",
+    notice: {
+      title: "개인정보 수집·이용 안내 (필수)",
+      rows: [
+        { term: "목적", desc: "문의 확인과 답변, 견적·상담" },
+        {
+          term: "항목",
+          desc: "이메일, 문의 내용, 문의 분야, (선택) 이름 또는 회사명",
+          note: "스팸 방지를 위해 접속 IP를 복원할 수 없는 값(해시)으로 바꿔 함께 저장해요.",
+        },
+        { term: "보유 기간", desc: "문의 종료 후 1년" },
+        { term: "거부 안내", desc: "동의하지 않으셔도 돼요. 다만 동의하지 않으면 폼으로 문의를 받을 수 없어요. 이 경우 hello@lab98.io로 직접 메일 주세요." },
+      ],
+    },
+    consentLabel: "위 개인정보 수집·이용에 동의해요 (필수)",
+    policyBefore: "자세한 내용은",
+    policyLink: "개인정보처리방침",
+    policyAfter: "에서 확인할 수 있어요.",
+    policyNewTab: "새 탭에서 열려요",
     errors: {
       emailRequired: "답장받을 이메일을 입력해 주세요.",
       emailInvalid: "이메일 형식을 확인해 주세요. 예: you@company.com",

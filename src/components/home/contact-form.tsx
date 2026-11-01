@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { Button, cx } from "@/components/ui";
+import { PrivacyNotice } from "@/components/consent/privacy-notice";
 import type { Division } from "@/lib/content";
 import { FIELDS, LIMITS, validateInquiry, type FieldErrors } from "@/lib/inquiry";
 import { submitInquiry } from "@/app/actions/contact";
@@ -224,6 +225,7 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
           required
           autoComplete="email"
           inputMode="email"
+          maxLength={LIMITS.email}
           placeholder={t.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -247,6 +249,7 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
           id={`${uid}-message`}
           name={FIELDS.message}
           required
+          autoComplete="off"
           rows={5}
           placeholder={t.messagePlaceholder}
           value={message}
@@ -262,36 +265,39 @@ export function ContactForm({ to, interests }: { to: string; interests: Interest
         )}
       </div>
 
-      <div>
-        <label htmlFor={`${uid}-consent`} className="flex min-h-11 cursor-pointer items-start gap-3 text-body-sm">
-          <input
-            ref={consentRef}
-            id={`${uid}-consent`}
-            type="checkbox"
-            name={FIELDS.consent}
-            required
-            checked={consent}
-            onChange={(e) => setConsent(e.target.checked)}
-            aria-invalid={!!errors.consent}
-            aria-describedby={[`${uid}-privacy`, errors.consent ? `${uid}-consent-error` : ""].filter(Boolean).join(" ")}
-            className="mt-[0.2em] size-5 shrink-0 cursor-pointer accent-ink"
-          />
-          <span>
-            {t.consentBefore}{" "}
-            <Link href={PRIVACY_PATH} target="_blank" className="font-bold underline underline-offset-4 hover:text-red-text">
-              {t.consentLink}
+      <div className="flex flex-col gap-3">
+        <PrivacyNotice id={`${uid}-notice`} copy={t.notice} />
+        <div>
+          <label htmlFor={`${uid}-consent`} className="flex min-h-11 cursor-pointer items-start gap-3 text-body-sm font-bold">
+            <input
+              ref={consentRef}
+              id={`${uid}-consent`}
+              type="checkbox"
+              name={FIELDS.consent}
+              required
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              aria-invalid={!!errors.consent}
+              aria-describedby={[`${uid}-notice`, errors.consent ? `${uid}-consent-error` : ""].filter(Boolean).join(" ")}
+              className="mt-[0.2em] size-5 shrink-0 cursor-pointer accent-ink"
+            />
+            <span>{t.consentLabel}</span>
+          </label>
+          {errors.consent && (
+            <p id={`${uid}-consent-error`} className="mt-2 pl-8 text-body-sm text-red-text">
+              {errors.consent}
+            </p>
+          )}
+          <p className="mt-1 pl-8 text-body-sm text-gray text-pretty">
+            {t.policyBefore}{" "}
+            {/* New tab, so a half-filled form isn't lost. */}
+            <Link href={PRIVACY_PATH} target="_blank" className="font-bold text-ink underline underline-offset-4 hover:text-red-text">
+              {t.policyLink}
+              <span className="sr-only"> ({t.policyNewTab})</span>
             </Link>
-            {t.consentAfter}
-          </span>
-        </label>
-        <p id={`${uid}-privacy`} className="mt-1 pl-8 text-body-sm text-gray text-pretty">
-          {t.privacy}
-        </p>
-        {errors.consent && (
-          <p id={`${uid}-consent-error`} className="mt-2 pl-8 text-body-sm text-red-text">
-            {errors.consent}
+            {t.policyAfter}
           </p>
-        )}
+        </div>
       </div>
 
       <Button type="submit" className="mt-1 w-full" disabled={pending}>

@@ -55,7 +55,6 @@ export async function submitInquiry(formData: FormData): Promise<SubmitResult> {
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
   const ipHash = createHash("sha256").update(`${process.env.INQUIRY_IP_SALT ?? ""}:${ip}`).digest("hex");
-  const userAgent = (h.get("user-agent") ?? "").slice(0, 300) || null;
 
   let db;
   try {
@@ -81,11 +80,11 @@ export async function submitInquiry(formData: FormData): Promise<SubmitResult> {
       {
         interest,
         name: input.name.slice(0, LIMITS.name) || null,
-        email: input.email,
-        message: input.message,
+        email: input.email.slice(0, LIMITS.email),
+        message: input.message.slice(0, LIMITS.message),
         consent_at: new Date().toISOString(),
+        // Salted hash only — used for per-visitor rate limiting, never shown or emailed.
         ip_hash: ipHash,
-        user_agent: userAgent,
       },
     ])
     .select("id");

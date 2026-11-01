@@ -10,7 +10,7 @@ export const notesCopy = {
   index: {
     eyebrow: "INSIGHTS",
     title: "인사이트",
-    lead: "Lab98이 어떤 생각으로 일하는지, 웹과 프로그램, AI 교육, 사역 도구를 만들며 배운 것을 글로 나눠요.",
+    lead: "Lab98이 어떤 생각으로 일하는지, 웹과 프로그램, AI 교육, 사역 도구를 만들며 무엇을 배웠는지 적어 둬요.",
     listLabel: "인사이트 목록",
     moreLabel: "지난 글",
   },
@@ -22,7 +22,7 @@ export const notesCopy = {
     pager: { label: "다른 인사이트", prev: "← 이전 글", next: "다음 글 →" },
     cta: {
       eyebrow: "Contact",
-      title: "함께 만들고 싶은 것이 있나요?",
+      title: "함께 만들고 싶은 게 있나요?",
       lead: "웹사이트나 프로그램 제작, AI 교육, 사역에 필요한 도구까지 편하게 문의해 주세요. 영업일 기준 2일 안에 답장드려요.",
       action: "문의하기",
     },

@@ -23,7 +23,7 @@ export function SiteHeader() {
   // move focus into the menu, close on Escape, and return focus to the toggle.
   useEffect(() => {
     if (!open) return;
-    const behind = [document.getElementById("main"), document.querySelector("body > footer")].filter(Boolean) as HTMLElement[];
+    const behind = [document.getElementById("main"), document.querySelector("body > footer"), document.querySelector("[data-cookie-banner]")].filter(Boolean) as HTMLElement[];
     document.body.style.overflow = "hidden";
     behind.forEach((el) => (el.inert = true));
     menuRef.current?.querySelector<HTMLElement>("a")?.focus();

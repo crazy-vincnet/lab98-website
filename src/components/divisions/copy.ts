@@ -53,21 +53,21 @@ export const divisionCopy = {
     byDivision: {
       dev: { title: "여섯 단계로 진행해요", lead: "미팅부터 마무리까지, 단계마다 직접 확인하시면서 진행해요." },
       ai: { title: "이렇게 시작해요", lead: "문의 한 번이면 대상과 목적에 맞춘 교육을 제안해 드려요." },
-      faith: { title: "이렇게 함께해요", lead: "현장의 이야기를 듣는 것부터 시작해, 배포 이후의 운영까지 이어 가요." },
+      faith: { title: "이렇게 함께해요", lead: "현장 이야기를 듣는 데서 시작해 배포 뒤 운영까지 이어 가요." },
     } satisfies Record<DivisionSlug, { title: string; lead: string }>,
     /** Step emphasised as the division's differentiator (matched by title). */
     highlight: {
       dev: {
         step: "배포 및 코드 공유",
         badge: "Lab98의 차이",
-        note: "만든 결과물은 고객의 것이에요. 소스 코드를 함께 드려서, 나중에 어디서 관리하더라도 막히지 않아요.",
+        note: "만든 결과물은 고객의 것이에요. 소스 코드를 함께 드려서 나중에 어디서 관리하더라도 막히지 않아요.",
       },
     } as Partial<Record<DivisionSlug, { step: string; badge: string; note: string }>>,
   },
   projects: {
     eyebrow: "Projects",
     title: "Dev가 만든 사이트",
-    lead: "기획부터 디자인, 개발까지 맡은 웹사이트예요. 각 기관에 꼭 필요한 기능을 함께 만들었어요.",
+    lead: "기획부터 디자인, 개발까지 맡은 웹사이트예요. 기관마다 필요한 기능을 함께 만들었어요.",
     allCta: "모든 프로젝트 보기",
   },
   praiseTool: {
@@ -82,7 +82,7 @@ export const divisionCopy = {
     primaryCta: "Praise Tool 자세히 보기",
     secondaryCta: "출시 알림 받기",
   },
-  others: { eyebrow: "Other services", title: "다른 사업부도 둘러보세요", lead: "분야는 달라도 기준은 같아요. 기술이 사람을 돕는가예요." },
+  others: { eyebrow: "Other services", title: "다른 사업부도 둘러보세요", lead: "분야는 달라도 기준은 같아요. 기술이 사람을 돕는지 먼저 봐요." },
   divisionCard: { cta: (short: string) => `${short} 서비스 보기` },
   contactBand: {
     eyebrow: "Contact",

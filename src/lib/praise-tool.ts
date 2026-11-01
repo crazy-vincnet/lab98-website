@@ -20,7 +20,7 @@ export const praiseTool = {
     eyebrow: "Lab98 Faith · 첫 제품",
     title: "Praise Tool",
     sub: "예배를 위한 가사·미디어 송출 프로그램",
-    lead: "찬양 가사, 설교 슬라이드, 성경 구절, 영상을 하나의 프로그램에서 준비하고 송출합니다. 관객 화면, 무대 모니터, 방송용 NDI까지 동시에 내보낼 수 있어서 예배 한 번을 이 프로그램 하나로 진행할 수 있습니다.",
+    lead: "찬양 가사, 설교 슬라이드, 성경 구절, 영상을 하나의 프로그램에서 준비하고 송출합니다. 관객 화면, 무대 모니터, 방송용 NDI까지 동시에 내보내니 예배 한 번을 이 프로그램 하나로 진행할 수 있습니다.",
     badges: ["macOS · Windows", "한국어 · English · 中文 · 日本語"],
     priceLabel: "가격",
     price: "100,000원",
@@ -51,7 +51,7 @@ export const praiseTool = {
       { title: "여러 화면 동시 송출", body: "관객 화면, 가사만 나오는 방송용 화면, 무대 모니터를 각각 따로 지정합니다." },
       { title: "방송 연동", body: "NDI와 Syphon(macOS)으로 OBS, vMix, Wirecast 등에 바로 보냅니다." },
       { title: "폰으로 넘기기", body: "같은 Wi-Fi의 스마트폰으로 슬라이드를 조작하고, Stream Deck에서도 제어할 수 있습니다." },
-      { title: "안전한 송출", body: "자동 백업, 프로그램이 갑자기 꺼졌을 때 마지막 송출 상태 복구를 지원합니다." }, // reconstructed
+      { title: "안전한 송출", body: "자동으로 백업하고 프로그램이 갑자기 꺼져도 마지막 송출 상태를 복구합니다." }, // reconstructed
     ] satisfies PtItem[],
   },
 
@@ -64,7 +64,7 @@ export const praiseTool = {
         key: "lyrics",
         title: "가사 준비",
         items: [
-          { title: "붙여 넣기와 가져오기", body: "웹에서 복사한 가사도 이상한 공백을 정리해 줍니다. 텍스트, CCLI SongSelect, OpenLyrics 형식의 곡을 가져올 수 있습니다." }, // reconstructed
+          { title: "붙여 넣기와 가져오기", body: "웹에서 복사해 온 가사의 이상한 공백도 정리해 줍니다. 텍스트, CCLI SongSelect, OpenLyrics 형식의 곡을 가져올 수 있습니다." }, // reconstructed
           { title: "곡 순서(Arrangement)", body: "슬라이드를 복사하지 않고 1절 – 후렴 – 2절 – 후렴 – 브릿지 – 후렴처럼 반복 순서를 만듭니다." }, // reconstructed
           { title: "두 언어 가사", body: "줄 앞에 >를 붙이면 바로 위 줄의 번역이 됩니다. 번역 줄은 원문 아래에 작게 표시됩니다." }, // reconstructed
           { title: "코드와 조옮김", body: "[G]처럼 가사에 코드를 적으면 무대 모니터에만 보이고 관객 화면에는 나오지 않습니다. 코드는 조옮김할 수 있습니다." }, // reconstructed
@@ -85,10 +85,10 @@ export const praiseTool = {
         key: "bible",
         title: "성경 구절",
         items: [
-          { title: "구절 바로 찾기", body: "요한복음 3:16-18, 요 3:16처럼 입력하면 그 구절을 바로 찾습니다." }, // reconstructed
+          { title: "구절 바로 찾기", body: "요한복음 3:16-18, 요 3:16처럼 입력하면 그 구절이 나옵니다." }, // reconstructed
           { title: "단어 검색", body: "‘사랑’, ‘믿음’처럼 단어로 검색할 수도 있습니다." },
           { title: "두 번째 성경", body: "두 번째 성경을 고르면 그 구절이 함께 표시됩니다." }, // reconstructed
-          { title: "성경 파일 추가", body: "성경 본문은 포함되어 있지 않습니다. 갖고 계신 성경 파일(텍스트, CSV, JSON, Zefania XML, OSIS XML)을 추가해서 사용합니다." }, // reconstructed
+          { title: "성경 파일 추가", body: "성경 본문은 들어 있지 않습니다. 갖고 계신 성경 파일(텍스트, CSV, JSON, Zefania XML, OSIS XML)을 추가해서 쓰시면 됩니다." }, // reconstructed
         ],
       },
       {
@@ -97,7 +97,7 @@ export const praiseTool = {
         items: [
           { title: "화면 역할 지정", body: "연결된 디스플레이마다 관객 화면, 관객 화면(가사만), 무대 모니터 역할을 지정합니다. 설정은 기억되고, 케이블을 뽑았다 다시 꽂으면 창이 저절로 돌아옵니다." }, // reconstructed
           { title: "무대 모니터", body: "현재 가사와 다음 슬라이드, 큰 시계, 타이머, 무대 메모, 코드가 표시됩니다. 레이아웃은 직접 바꿀 수 있습니다." }, // reconstructed
-          { title: "레이어 구조", body: "배경, 미디어, 가사, 카운트다운, 로고, 메시지가 겹겹이 쌓입니다. 레이어마다 따로 끄거나, 한 번에 모두 끌 수 있습니다." }, // reconstructed
+          { title: "레이어 구조", body: "배경, 미디어, 가사, 카운트다운, 로고, 메시지가 겹겹이 쌓입니다. 레이어마다 따로 끄거나 한 번에 모두 끌 수 있습니다." }, // reconstructed
           { title: "미디어", body: "이미지, 영상, 오디오를 클릭 한 번으로 송출합니다. 곡에 MR(반주)을 붙여 두고 재생할 수 있습니다." },
           { title: "카운트다운과 로고", body: "“10분 후”나 “11:00까지” 카운트다운을 띄우고, 구석 로고와 하단 자막 메시지를 표시합니다." },
           { title: "리허설 모드(R)", body: "관객 화면은 그대로 둔 채 운영 화면에서만 슬라이드를 미리 넘겨 봅니다." },
@@ -107,11 +107,11 @@ export const praiseTool = {
         key: "broadcast",
         title: "방송·외부 장비 연동",
         items: [
-          { title: "NDI 출력", body: "1920×1080, 30fps로 화면 전체를 보내는 모드와, 투명 배경에 가사만 보내는 모드(방송 자막용)가 있습니다. 미디어 소리도 NDI 오디오로 함께 나갑니다." }, // reconstructed
+          { title: "NDI 출력", body: "1920×1080, 30fps로 화면 전체를 보내는 모드와 투명 배경에 가사만 보내는 모드(방송 자막용)가 있습니다. 미디어 소리도 NDI 오디오로 함께 나갑니다." }, // reconstructed
           { title: "Syphon 출력(macOS)", body: "같은 Mac의 다른 프로그램으로 화면을 보냅니다." }, // reconstructed
           { title: "폰 리모트", body: "같은 Wi-Fi의 스마트폰에서 이전·다음, 검은 화면, 슬라이드 바로가기를 사용합니다. 예배 순서 목록도 볼 수 있습니다." }, // reconstructed
-          { title: "Stream Deck / Bitfocus Companion", body: "HTTP 명령으로 버튼을 만들고, 현재 상태를 버튼에 표시합니다." },
-          { title: "클리커와 풋페달", body: "별도 설정 없이 바로 사용하고, 원하는 키로 바꿀 수 있습니다." },
+          { title: "Stream Deck / Bitfocus Companion", body: "HTTP 명령으로 버튼을 만들고 버튼에 현재 상태를 표시합니다." },
+          { title: "클리커와 풋페달", body: "별도 설정 없이 바로 쓰고 키는 원하는 대로 바꿀 수 있습니다." },
           { title: "두 대의 컴퓨터 연동", body: "두 번째 컴퓨터가 메인 컴퓨터의 송출을 그대로 따라갑니다. 필요한 미디어 파일도 자동으로 가져옵니다." }, // reconstructed
         ],
       },
@@ -120,8 +120,8 @@ export const praiseTool = {
         title: "예배 준비와 관리",
         items: [
           { title: "플레이리스트", body: "예배 순서대로 곡을 담고, 곡이 바뀌어도 이어서 넘깁니다." },
-          { title: "예배 템플릿", body: "“주일 1부”를 템플릿으로 저장해 두고 고르면 같은 구성의 새 예배가 만들어집니다." }, // reconstructed
-          { title: "순서지 인쇄·PDF", body: "키, 템포 등이 담긴 순서표를 만들고 가사도 함께 넣을 수 있습니다." }, // reconstructed
+          { title: "예배 템플릿", body: "“주일 1부”를 템플릿으로 저장해 두고 고르기만 하면 같은 구성으로 새 예배가 생깁니다." }, // reconstructed
+          { title: "순서지 인쇄·PDF", body: "키, 템포 등을 담은 순서표를 만들고 가사도 함께 넣을 수 있습니다." }, // reconstructed
           { title: "곡 사용 기록과 CCLI 리포트", body: "송출한 곡은 자동으로 기록됩니다. 기간을 정해 CSV로 내보낼 수 있습니다." }, // reconstructed
           { title: "곡 라이브러리", body: "곡을 여러 라이브러리로 나눠 관리할 수 있습니다." }, // reconstructed
         ],
@@ -177,10 +177,24 @@ export const praiseTool = {
     emailPlaceholder: "you@church.org",
     orgLabel: "교회·단체명 (선택)",
     orgPlaceholder: "○○교회 청년부",
-    consentBefore: "출시 안내를 위한",
-    consentLink: "개인정보 수집·이용",
-    consentAfter: "에 동의해요 (필수)",
-    privacy: "이메일은 출시 안내에만 쓰고, 안내 후 바로 삭제해요.",
+    notice: {
+      title: "개인정보 수집·이용 안내 (필수)",
+      rows: [
+        { term: "목적", desc: "Praise Tool 출시 안내 메일 1회 발송" },
+        {
+          term: "항목",
+          desc: "이메일, (선택) 교회·단체명",
+          note: "스팸 방지를 위해 접속 IP를 복원할 수 없는 값(해시)으로 바꿔 함께 저장해요.",
+        },
+        { term: "보유 기간", desc: "안내 발송 후 바로 삭제 (늦어도 출시일로부터 30일)" },
+        { term: "거부 안내", desc: "동의하지 않으셔도 돼요. 다만 동의하지 않으면 출시 알림을 받을 수 없어요." },
+      ],
+    },
+    consentLabel: "위 개인정보 수집·이용에 동의해요 (필수)",
+    policyBefore: "자세한 내용은",
+    policyLink: "개인정보처리방침",
+    policyAfter: "에서 확인할 수 있어요.",
+    policyNewTab: "새 탭에서 열려요",
     submit: "출시 알림 신청하기",
     submitting: "신청하는 중…",
     errors: {

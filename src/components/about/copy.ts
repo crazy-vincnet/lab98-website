@@ -30,7 +30,7 @@ export const aboutCopy = {
     index: "02",
     eyebrow: "Divisions",
     title: "세 사업부",
-    lead: "분야는 달라도 기준은 같아요. 기술이 사람을 돕는가예요.",
+    lead: "분야는 달라도 기준은 같아요. 기술이 사람을 돕는지 먼저 봐요.",
     swatchesLabel: "점 하나로 구분해요",
     swatchesBody: "Lab98 로고의 점은 포인트 색이에요. 회사를 대표할 때는 시그널 레드, 사업부마다 블루, 그린, 골드 점을 써요.",
     /** Brand color names (brand file). Roles come from divisions[].role. */
@@ -43,15 +43,15 @@ export const aboutCopy = {
     title: "일하는 원칙",
     items: [
       { code: "TOOL", title: "기술은 도구예요", body: "무엇을 만들 수 있는지보다, 이걸 쓰는 사람이 더 편해지는지를 먼저 물어요." },
-      { code: "CODE", title: "코드까지 드려요", body: "만든 결과물은 고객의 것이에요. 오픈과 함께 소스 코드를 넘겨 드려서, 나중에 어디서 관리하더라도 막히지 않아요." },
-      { code: "OWN", title: "끝까지 책임져요", body: "기획부터 개발까지 한 사람이 끝까지 책임져요. 지금은 파운더가 직접 고객과 이야기하고 만들어요." },
+      { code: "CODE", title: "코드까지 드려요", body: "만든 결과물은 고객의 것이에요. 오픈과 함께 소스 코드를 넘겨 드려서 나중에 어디서 관리하더라도 막히지 않아요." },
+      { code: "OWN", title: "끝까지 책임져요", body: "기획부터 개발까지 한 사람이 맡아요. 지금은 파운더가 직접 고객과 이야기하고 만들어요." },
     ],
   },
   team: {
     index: "04",
     eyebrow: "Team",
     title: "함께 만드는 사람들",
-    lead: "지금은 파운더 혼자 시작했어요. 함께할 멤버를 찾고 있어요.",
+    lead: "파운더 혼자 시작했고, 지금 함께할 멤버를 찾고 있어요.",
     monogram: "VJ",
     openBadge: "OPEN ROLE",
     openCta: "지원하기",

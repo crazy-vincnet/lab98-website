@@ -1,7 +1,20 @@
 import Link from "next/link";
 import { divisions, site } from "@/lib/content";
 import { Lockup, cx } from "@/components/ui";
-import { CONTACT_HREF, HOME_ANCHORS, INSIGHTS_PATH, PRAISE_TOOL_PATH, PRIVACY_PATH, PROJECTS_PATH, divisionHref } from "@/components/experiments/paths";
+import {
+  CONTACT_HREF,
+  COOKIES_PATH,
+  HOME_ANCHORS,
+  INSIGHTS_PATH,
+  PRAISE_TOOL_PATH,
+  PRIVACY_PATH,
+  PRIVACY_REQUEST_PATH,
+  PROJECTS_PATH,
+  TERMS_PATH,
+  UNSUBSCRIBE_PATH,
+  divisionHref,
+} from "@/components/experiments/paths";
+import { OpenCookieSettingsButton } from "@/components/legal/open-cookie-settings-button";
 import { routes } from "@/components/home/copy";
 
 const companyLinks = [
@@ -12,6 +25,19 @@ const companyLinks = [
   { label: "인사이트", href: INSIGHTS_PATH },
   { label: "문의", href: CONTACT_HREF },
 ];
+
+/** Order is fixed: 개인정보처리방침 (bold, must be prominent) → 이용약관 → 쿠키 정책 → 쿠키 설정 → 개인정보 요청 → 수신거부. */
+const legalLinks = [
+  { label: "개인정보처리방침", href: PRIVACY_PATH, strong: true },
+  { label: "이용약관", href: TERMS_PATH, strong: false },
+  { label: "쿠키 정책", href: COOKIES_PATH, strong: false },
+];
+const requestLinks = [
+  { label: "개인정보 요청", href: PRIVACY_REQUEST_PATH },
+  { label: "수신거부", href: UNSUBSCRIBE_PATH },
+];
+/** ≥44px touch target; text stays in the mono meta row. */
+const legalLinkClass = "inline-flex min-h-11 items-center px-2 hover:text-paper hover:underline hover:underline-offset-4";
 
 const host = site.url.replace(/^https?:\/\//, "");
 
@@ -45,16 +71,34 @@ export function SiteFooter() {
         </p>
         <div className="mt-10 flex flex-col gap-3 border-t border-ink-line pt-6 font-mono text-meta text-ink-text">
           <p className="ko-tight">{businessLine.join(" · ")}</p>
-          <div className="flex flex-col justify-between gap-2 md:flex-row">
+          <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center md:gap-8">
             <span>
               © 2026 {site.name} · {host} ·{" "}
               <a href={`mailto:${site.email}`} className="-my-2.5 inline-block py-2.5 hover:text-paper hover:underline hover:underline-offset-4">
                 {site.email}
               </a>
             </span>
-            <Link href={PRIVACY_PATH} className="-my-2.5 self-start py-2.5 font-bold text-paper hover:underline hover:underline-offset-4">
-              개인정보처리방침
-            </Link>
+            <nav aria-label="약관 및 정책" className="-my-2.5">
+              <ul className="ko-tight -mx-2 flex flex-wrap items-center md:justify-end">
+                {legalLinks.map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className={cx(legalLinkClass, l.strong && "font-bold text-paper")}>
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <OpenCookieSettingsButton className={cx(legalLinkClass, "cursor-pointer")} />
+                </li>
+                {requestLinks.map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className={legalLinkClass}>
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </div>
       </div>

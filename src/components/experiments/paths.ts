@@ -8,6 +8,12 @@ export const INSIGHTS_PATH = "/insights";
 export const SERVICES_PATH = "/services";
 export const PRIVACY_PATH = "/privacy";
 export const PRAISE_TOOL_PATH = "/praise-tool";
+export const TERMS_PATH = "/terms";
+export const COOKIES_PATH = "/cookies";
+/** 개인정보 열람·정정·삭제·처리정지 요청 */
+export const PRIVACY_REQUEST_PATH = "/privacy/request";
+/** 이메일 수신거부 */
+export const UNSUBSCRIBE_PATH = "/unsubscribe";
 
 export const projectHref = (slug: string) => `${PROJECTS_PATH}/${slug}`;
 export const insightHref = (slug: string) => `${INSIGHTS_PATH}/${slug}`;
