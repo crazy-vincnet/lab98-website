@@ -2,9 +2,12 @@
 
 import { createHash } from "node:crypto";
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { getInsforgeAdmin } from "@/lib/insforge-admin";
 import { LAUNCH_PRODUCT } from "@/lib/launch-signup";
 import { UNSUBSCRIBE_FIELDS, normalizeEmail, validateUnsubscribe, type UnsubscribeResult } from "@/lib/unsubscribe";
+import { confirmationsPaused, requestUnsubscribeConfirmation } from "@/lib/unsubscribe-confirm";
+import { verifyUnsubscribeToken } from "@/lib/unsubscribe-token";
 
 /** Humans need at least this long to fill the form (shorter than the others: it is one prefilled field). */
 const MIN_FILL_MS = 1500;
@@ -39,9 +42,12 @@ const str = (fd: FormData, k: string) => {
 };
 
 /**
- * 이메일 수신거부: validate → spam checks → rate limit → upsert into `email_optouts` (lowercased)
- * → optionally delete matching `launch_signups`. Returns success whether or not the address was known,
- * so the page never reveals which addresses exist. No email is sent (they just asked us to stop).
+ * 이메일 수신거부, in two modes:
+ *  1. Valid signed token for this exact address (link from our mail): validate → spam checks → rate limit → upsert into
+ *     `email_optouts` (lowercased) → optionally delete matching `launch_signups`.
+ *  2. No/invalid token (someone typed an address): NEVER opt out. Answer "confirmation sent" and, only if the address
+ *     is a known recipient, mail it one signed link (cooldown + global cap, see unsubscribe-confirm.ts). The answer and
+ *     timing are the same whether or not the address is known.
  */
 export async function unsubscribeEmail(formData: FormData): Promise<UnsubscribeResult> {
   const raw = str(formData, UNSUBSCRIBE_FIELDS.email);
@@ -49,15 +55,19 @@ export async function unsubscribeEmail(formData: FormData): Promise<UnsubscribeR
   if (Object.keys(fieldErrors).length) return { ok: false, reason: "invalid", fieldErrors };
   const email = normalizeEmail(raw);
   const cancelLaunch = str(formData, UNSUBSCRIBE_FIELDS.cancelLaunch) === "on";
+  const verified = verifyUnsubscribeToken(email, str(formData, UNSUBSCRIBE_FIELDS.token));
+  const kind = verified ? "unsubscribed" : "confirmationSent";
 
   // Bots: honeypot filled or submitted impossibly fast → pretend success, store nothing.
   const startedAt = Number(str(formData, UNSUBSCRIBE_FIELDS.startedAt));
-  if (str(formData, UNSUBSCRIBE_FIELDS.honeypot) || !startedAt || Date.now() - startedAt < MIN_FILL_MS) return { ok: true };
+  if (str(formData, UNSUBSCRIBE_FIELDS.honeypot) || !startedAt || Date.now() - startedAt < MIN_FILL_MS) return { ok: true, kind };
 
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
   const ipHash = createHash("sha256").update(`${process.env.INQUIRY_IP_SALT ?? ""}:${ip}`).digest("hex");
   if (limited(ipHash, PER_IP.max, PER_IP.windowMin)) return { ok: false, reason: "rateLimited" };
+
+  if (!verified) return confirmByMail(email, str(formData, UNSUBSCRIBE_FIELDS.locale) === "en" ? "en" : "ko");
 
   let db;
   try {
@@ -92,5 +102,27 @@ export async function unsubscribeEmail(formData: FormData): Promise<UnsubscribeR
       return { ok: false, reason: "server" };
     }
   }
-  return { ok: true };
+  return { ok: true, kind: "unsubscribed" };
+}
+
+/**
+ * Tokenless path. The lookup, cooldown and mail all run AFTER the response (`after`), so the visible answer and its
+ * timing are identical for known and unknown addresses. Only the site-wide cap is answered synchronously: it is
+ * checked before (and independent of) the address, so it reveals nothing about it.
+ */
+async function confirmByMail(email: string, lang: "ko" | "en"): Promise<UnsubscribeResult> {
+  try {
+    if (await confirmationsPaused()) return { ok: false, reason: "mail" };
+  } catch (e) {
+    console.error("[unsubscribe] confirmation cap check failed", e);
+    return { ok: false, reason: "server" };
+  }
+  after(async () => {
+    try {
+      await requestUnsubscribeConfirmation(email, lang);
+    } catch (e) {
+      console.error("[unsubscribe] confirmation flow failed", e);
+    }
+  });
+  return { ok: true, kind: "confirmationSent" };
 }

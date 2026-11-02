@@ -1,6 +1,7 @@
 # Admin (`/admin`) architecture
 
-Owner-only back office. Korean UI. Stage 1 (foundation) is done; stages 2-4 build on it.
+Owner-only back office. Korean UI. All planned stages are built: 1 foundation, 2 requests, 3 blog + media, 4a content engine, 4b all site copy.
+Project overview, env vars and the operations runbook: [README](../README.md). Copy editing engine: [admin-content.md](admin-content.md).
 
 ## Layout
 
@@ -10,11 +11,12 @@ src/
   app/api/auth/refresh/route.ts    createRefreshAuthRouter() (SDK token refresh)
   app/(admin)/layout.tsx           ROOT layout #3: <html lang="ko">, noindex, imports ../styles, Suspense, no site chrome
   app/(admin)/admin/(auth)/        login, setup, forgot-password + actions.ts (the only actions without requireAdmin)
+  app/(admin)/admin/(preview)/     content preview (iframe / new tab), no sidebar
   app/(admin)/admin/(panel)/       everything behind login; layout.tsx = sidebar/topbar shell
     page.tsx                       dashboard         audit/ search/ (built)
     blog/ media/                   built (stage 3, see "Blog + media" below)
     inquiries/ launch/ privacy/ optouts/   built (stage 2)
-    content/ projects/ praise-tool/ faq/ legal/   built (stage 4a): content override engine, see docs/admin-content.md
+    content/ projects/ praise-tool/ faq/ legal/   built (stage 4a engine, 4b registry): see docs/admin-content.md
   app/(admin)/admin/api/media/route.ts   media upload + list (adminRoute). Lives under /admin so proxy.ts refreshes the session cookies for it
   components/admin/*               primitives (below)
   lib/admin/*                      server helpers (below)
@@ -70,7 +72,7 @@ bodies in `audit` meta. Data access always uses `getInsforgeAdmin()` (RLS is on 
 | `action.ts` | `adminAction(fn)`, `adminRoute(fn)` |
 | `audit.ts` | `audit(actor, action, target?, meta?)` -> `audit_log`; never throws |
 | `flash.ts` | `redirectWithFlash(path, "ok"\|"error", text)` -> toast on the next page |
-| `nav.ts` | Sidebar sections. Set `ready: true` when you replace a placeholder |
+| `nav.ts` | Sidebar sections (every entry is `ready: true` now; `ready: false` would render `<ComingSoon/>`) |
 | `format.ts` | `formatKst(iso)` |
 | `throttle.ts`, `insforge.ts`, `env.ts`, `auth-state.ts`, `search.ts` | sign-in plumbing / search page logic |
 
@@ -82,11 +84,13 @@ bodies in `audit` meta. Data access always uses `getInsforgeAdmin()` (RLS is on 
 44px touch targets, Korean "해요체" copy. Add new generic pieces here; feature-specific components go in a feature subfolder
 (`components/admin/<feature>/`).
 
-## Database (one migration, applied)
+## Database (all applied)
 
-`admins`, `audit_log`, `login_attempts`, `site_settings`, `content_entries` (+`content_versions`), `posts` (+`post_versions`),
-`media` (+ public storage bucket `media`), `inquiry_replies`, `mail_campaigns`; `inquiries` gained `admin_note`, `replied_at`
-(its `status` already allows new|replied|closed|spam). Later stages should add columns/tables only with a new migration.
+Foundation (`20261101120000_admin-foundation.sql`): `admins`, `audit_log`, `login_attempts`, `site_settings`, `content_entries` (+`content_versions`),
+`posts` (+`post_versions`), `media` (+ public storage bucket `media`), `inquiry_replies`, `mail_campaigns`; `inquiries` gained `admin_note`, `replied_at`
+(its `status` allows new|replied|closed|spam). Later migrations: `…120001_admin-requests` (campaign send state, privacy request notes), `…140000_blog-media-stage3`,
+`…150000_content-engine-stage4a`. The public-form tables (`inquiries`, `launch_signups`, `privacy_requests`, `email_optouts`, `unsubscribe_confirmations`) and the
+retention function are listed in the README (section 6). Add columns/tables only with a new migration; every table has RLS on and no policies (service key only).
 
 ## Cache & public pages
 
@@ -145,9 +149,19 @@ Migration `20261101140000_blog-media-stage3.sql`: `posts.translation_key` (+ uni
   block read the same merged list. A post's own SEO share image replaces the generated card in its metadata.
 * Not covered yet: `llms.txt` / `llms-full.txt` (still static notes only), per-post English OG cards (English uses the generic card unless a share image is set).
 
-## Content override engine (stage 4a)
+## Requests (stage 2)
 
-See **docs/admin-content.md** (API `getCopy`, registry, conversion recipe, pitfalls). Migration `20261101150000_content-engine-stage4a.sql` adds `draft` columns to `content_entries`.
+* `/admin/inquiries`: list/detail, reply (sent through InsForge email, stored in `inquiry_replies`, `reply-to` = `hello@lab98.io`), status, note, spam, delete.
+* `/admin/launch`: Praise Tool sign-ups + the launch mail. Flow: compose -> **test mail to yourself is required** -> real send in chunks of 8 (1.2s apart,
+  recipients are claimed via `notified_at` before sending so nobody is mailed twice) -> pauses when InsForge's hourly cap (10-50 mails, plan dependent) is hit ->
+  resume. Opt-outs are skipped (fail-closed if the lookup fails); every mail carries a per-recipient signed unsubscribe link (`lib/unsubscribe-token.ts`, env `UNSUBSCRIBE_SECRET`).
+  Max 5 new campaigns per hour. CSV export at `/api/admin/launch/export`.
+* `/admin/privacy`: data-subject requests (due date = receipt + 10 days) and `/admin/privacy/erase` (preview, then erase by email across tables; audit stores a hash, not the address).
+* `/admin/optouts`: add/remove/export. Tokenless `/unsubscribe` requests only trigger a confirmation mail (cooldown + caps in `unsubscribe_confirmations`).
+
+## Content override engine (stages 4a + 4b)
+
+See **docs/admin-content.md** (API `getCopy`, registered documents, conversion recipe, pitfalls). Migration `20261101150000_content-engine-stage4a.sql` adds `draft` columns to `content_entries`. Stage 4b registered all site copy (ko + en), FAQ, Praise Tool, legal documents and SEO meta.
 
 ## File ownership
 
@@ -157,7 +171,7 @@ See **docs/admin-content.md** (API `getCopy`, registry, conversion recipe, pitfa
 | `lib/admin/nav.ts` | shared | each stage flips its own entries to `ready: true` (and may add sub-links) |
 | `(panel)/inquiries`, `launch`, `privacy`, `optouts` + `components/admin/requests/*` | Stage 2 | |
 | `(panel)/blog` + `components/admin/blog/*` (block editor), `lib/posts.ts`, `lib/insights.ts`, `lib/post-doc.ts`, `lib/admin/posts.ts`, `components/notes/rich-body.tsx` | Stage 3 | public side reads posts only through `lib/insights.ts` |
-| `(panel)/content`, `projects`, `praise-tool`, `faq`, `legal` + `components/admin/content/*` | Stage 4 | public side reads via cached getters |
+| `(panel)/content`, `projects`, `praise-tool`, `faq`, `legal`, `(preview)` + `components/admin/content/*`, `lib/copy-store.ts`, `lib/content-registry*.ts`, `lib/site-content.ts` | Stage 4 | public side reads via `getCopy` / `getSiteContent` |
 | `(panel)/media` + `components/admin/media/*`, `app/(admin)/admin/api/media`, `lib/admin/{media,image-info}.ts` | Stage 3 | storage bucket `media` already exists |
 | `(panel)/search`, `(panel)/audit`, dashboard `(panel)/page.tsx`, `lib/site-settings.ts` | Stage 1 | |
 | `src/app/(ko)`, `(en)`, `components/pages/*`, `lib/seo.ts` | public site | stages touch these only to read admin-managed data |

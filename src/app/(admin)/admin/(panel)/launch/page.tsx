@@ -18,7 +18,7 @@ import { UUID_RE } from "@/lib/admin/requests/mail";
 import { LAUNCH_DEFAULT } from "@/lib/admin/requests/pure";
 import { getInsforgeAdmin } from "@/lib/insforge-admin";
 import { LAUNCH_PRODUCT } from "@/lib/launch-signup";
-import { unsubscribeUrl } from "@/lib/unsubscribe";
+import { unsubscribeUrl } from "@/lib/unsubscribe-token";
 import { deleteSignups, discardCampaign, resendCampaignTest, retryCampaignFailures } from "./actions";
 
 export const metadata: Metadata = { title: "Praise Tool 알림" };

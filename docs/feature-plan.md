@@ -4,6 +4,8 @@
 > 기준 스택: Next.js 16.4.3 (App Router, `cacheComponents: true`), React 19.3, Tailwind v4, Vercel 배포 예정
 > API 이름은 프로젝트에 번들된 문서(`node_modules/next/dist/docs/`) 기준으로 확인했습니다.
 
+> **상태 (2026-11-02): 이 문서는 초기 기획 기록입니다.** 문의 폼, 개인정보처리방침, sitemap/robots/OG/manifest/JSON-LD, 영어 버전, 관리자, 출시 알림이 구현됐고, 배포는 Vercel이 아니라 InsForge 호스팅입니다. 아래 표와 체크리스트는 당시 기준이며, 현재 상태와 남은 일은 [README](../README.md)를 보세요.
+
 ## 0. 현재 상태 요약
 
 | 항목 | 현재 | 런칭 시 필요 |

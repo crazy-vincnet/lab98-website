@@ -59,6 +59,7 @@ export function pageMetadata({
     },
     openGraph: type === "article" ? { ...common, type: "article", publishedTime, modifiedTime, authors } : { ...common, type: "website" },
     twitter: { card: "summary_large_image", title: social, description, ...(twitterImages && { images: twitterImages }) },
-    ...(noindex && { robots: { index: false, follow: true } }),
+    // Noindex pages carry personal data or signed links in the URL (e.g. /unsubscribe?email=…&t=…): send no Referer.
+    ...(noindex && { robots: { index: false, follow: true }, referrer: "no-referrer" as const }),
   };
 }

@@ -2,6 +2,6 @@ import { UnsubscribePage, unsubscribeMetadata } from "@/components/pages/unsubsc
 
 export const generateMetadata = () => unsubscribeMetadata("ko");
 
-export default function Page() {
-  return <UnsubscribePage locale="ko" />;
+export default function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  return <UnsubscribePage locale="ko" searchParams={searchParams} />;
 }

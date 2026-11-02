@@ -21,7 +21,7 @@ export function textToHtml(text: string): string {
     .join("");
 }
 
-const WRAP_STYLE = "font-family:-apple-system,'Apple SD Gothic Neo',sans-serif;font-size:15px;line-height:1.7;color:#111";
+export const WRAP_STYLE = "font-family:-apple-system,'Apple SD Gothic Neo',sans-serif;font-size:15px;line-height:1.7;color:#111";
 
 /** Whole email: escaped body + a small gray footer (footerHtml must already be safe HTML built by us). */
 export function renderMail(bodyText: string, footerHtml: string): string {
@@ -33,6 +33,27 @@ export const replyFooterHtml = () =>
 
 export const launchFooterHtml = (unsubscribeUrl: string) =>
   `Praise Tool 출시 알림을 신청하셔서 보내드렸어요. 이 메일에는 답장하실 수 있고, 문의는 <a href="mailto:${esc(SUPPORT_EMAIL)}">${esc(SUPPORT_EMAIL)}</a> 로 받아요.<br>더 이상 받고 싶지 않으시면 <a href="${esc(unsubscribeUrl)}">수신거부</a> 해 주세요.<br>Lab98`;
+
+/**
+ * "Confirm your unsubscribe" mail sent from /unsubscribe. `url` is the signed link (built by us, escaped here).
+ * Korean for the Korean page, English for /en.
+ */
+export function unsubscribeConfirmMail(lang: "ko" | "en", url: string): { subject: string; html: string } {
+  const ko = lang === "ko";
+  const intro = ko
+    ? "안녕하세요, Lab98입니다.\n\n이 주소로 이메일 수신거부 요청이 들어왔어요. 직접 요청하셨다면 아래 버튼을 눌러 수신거부를 마쳐 주세요."
+    : "Hello, this is Lab98.\n\nSomeone asked to unsubscribe this address from our email. If that was you, press the button below to finish.";
+  const label = ko ? "수신거부 완료하기" : "Finish unsubscribing";
+  const outro = ko
+    ? "요청하신 적이 없다면 이 메일은 무시하셔도 돼요. 아무것도 바뀌지 않아요."
+    : "If you didn't ask for this, you can ignore this email. Nothing will change.";
+  const button = `<p style="margin:0 0 14px"><a href="${esc(url)}" style="display:inline-block;background:#111;color:#fff;padding:12px 20px;text-decoration:none;font-weight:700">${esc(label)}</a></p><p style="margin:0 0 14px;color:#5e5e5a;font-size:13px;word-break:break-all">${esc(url)}</p>`;
+  const footer = `${esc(outro)}<br>${replyFooterHtml()}`;
+  return {
+    subject: ko ? "[Lab98] 수신거부를 확인해 주세요" : "[Lab98] Please confirm your unsubscribe",
+    html: `<div style="${WRAP_STYLE}">${textToHtml(intro)}${button}<hr style="border:0;border-top:1px solid #ddd;margin:20px 0 12px"><div style="color:#5e5e5a;font-size:13px;line-height:1.6">${footer}</div></div>`,
+  };
+}
 
 /** Strip control characters from text input and normalise line endings. */
 export const clean = (s: string) => s.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").replace(/\r\n?/g, "\n");

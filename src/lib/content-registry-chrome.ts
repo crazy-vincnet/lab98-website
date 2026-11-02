@@ -172,6 +172,13 @@ export const CHROME_CONTENT_DOCS: ContentDoc[] = [
       "inline.before": "아래 안내 문장 · 앞부분",
       "inline.middle": "아래 안내 문장 · 가운데",
       "inline.after": "아래 안내 문장 · 끝",
+      "form.submitConfirm": "양식 · 확인 메일 받기 버튼 (링크 없이 주소를 입력한 경우)",
+      "form.verified.badge": "양식 · 링크로 확인된 주소 표시",
+      "form.verified.hint": "양식 · 확인된 주소 안내",
+      "form.confirmNotice": "양식 · 확인 메일 안내",
+      "form.invalidLink": "양식 · 잘못된 링크 안내",
+      "form.failure.mail": "오류 · 확인 메일 일시 중단",
+      "form.sent.*": "확인 메일 발송 완료 화면",
     },
   },
 

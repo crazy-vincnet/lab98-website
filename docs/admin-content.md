@@ -13,7 +13,10 @@ code defaults (tree of strings/objects/arrays)  +  content_entries.data (flat { 
 | --- | --- |
 | `src/lib/copy-merge.ts` | PURE helpers (client-safe): `flattenStrings`, `mergeOverrides`, `pruneOverrides`, `validateOverrides`, `tokensOf`, `isEditableLeaf` |
 | `src/lib/copy-store.ts` | `server-only`. **`getCopy`**, `getCopyPreview`, `enableCopyPreview`, `CONTENT_TAG`, `contentTag(key)` |
-| `src/lib/content-registry.ts` | `CONTENT_DOCS` (the registry), groups, `getDoc`, the TODO list for converters |
+| `src/lib/content-registry.ts` | `CONTENT_DOCS` (the registry: `home.hero`, `chrome.footer` + the four files below), groups, `getDoc` |
+| `src/lib/content-registry-{site,pages,chrome,legal}.ts` | the rest of the registry, split by area so edits never collide (see "Registered documents") |
+| `src/lib/site-content.ts` | `getSiteContent(locale)` / `getPraiseToolCopy(locale)`: `content.ts` data + published overrides, plus the `*Defaults` projections the registry uses |
+| `src/components/<area>/load.ts` | per-area loaders that call `getCopy` for the page sections (home, about, divisions, experiments, notes, privacy-request, unsubscribe) |
 | `src/lib/admin/content.ts` | DB layer: `getRow/listRows/saveDraft/publish/discardDraft/listVersions/getVersion` |
 | `src/lib/admin/content-tree.ts` | defaults tree -> serializable form model (labels, grouping) |
 | `src/app/(admin)/admin/(panel)/content/` | list page, `[key]` editor page, `actions.ts` (save draft / publish / discard / restore) |
@@ -78,11 +81,28 @@ Publishing: `publishAction` calls `updateTag(contentTag(key))` (Server Action). 
 }
 ```
 
-Registered now (wired end to end): `home.hero` (`Hero`), `chrome.footer` (`SiteFooter`). Everything else is the TODO block at the bottom of the registry file
-(group, key proposal, exact default-module path and accessor).
+Every editable copy file is registered and wired end to end (the converter TODO list is finished and removed).
 
 Automatic hiding: strings whose last key is `href|src|url|slug|id|path|icon|image|class|color|theme|lang|locale|tone|variant|anchor|rel|target|htmlFor|…`
 or whose value looks like a URL / site path / anchor are never editable (`isEditableLeaf`). Numbers, booleans and functions are never editable either.
+
+## Registered documents
+
+| Group (admin page) | Keys | Registry file |
+| --- | --- | --- |
+| 사이트 공통 (`/admin/content`) | `site.info` (name, slogans, description, reply time, founder/business labels), `site.nav`, `chrome.header`, `chrome.footer`, `chrome.skip`, `chrome.cookieBanner`, `chrome.legalDoc`, `chrome.notFound` | `content-registry-site.ts`, `-chrome.ts`, `content-registry.ts` |
+| 홈 (`/admin/content`) | `home.hero`, `home.trust`, `home.praise`, `home.services`, `home.projects`, `home.process`, `home.founder`, `home.insights`, `home.contact` | `content-registry.ts`, `-pages.ts` |
+| 서비스 / 소개 (`/admin/content`) | `divisions.data` (per division: role, headline, summary, description, services, process, facts, status), `divisions.copy`, `about.copy` | `-site.ts`, `-pages.ts` |
+| 프로젝트 (`/admin/projects`) | `projects.data` (title, summary, highlights per project), `projects.page` | `-site.ts`, `-pages.ts` |
+| Praise Tool (`/admin/praise-tool`) | `praise-tool.page` (whole product page; price and launch strings are hidden because search data depends on them) | `-site.ts` |
+| FAQ (`/admin/faq`) | `faq.home`, `faq.dev`, `faq.ai`, `faq.faith`, `faq.praise-tool` | `-site.ts` |
+| 인사이트 화면 / 문의·개인정보 화면 (`/admin/content`) | `insights.page`, `privacy-request.form`, `unsubscribe.form` | `-pages.ts`, `-chrome.ts` |
+| 법적 문서 (`/admin/legal`) | `legal.privacy`, `legal.terms`, `legal.cookies` (publish needs a change note; the editor shows a legal warning) | `-legal.ts` |
+| SEO·메타 (`/admin/content`) | `seo.root`, `seo.home`, `seo.about`, `seo.services`, `seo.projects`, `seo.insights`, `seo.praise-tool`, `seo.og` (preview is a search-result snippet, not the page) | `-chrome.ts` |
+
+Not editable here, by design: blog posts (own editor, `posts` table), emails, admin UI text, URLs, prices, dates, image paths, and anything that is not a string.
+Content that is part of the legal package (privacy policy, terms, cookies) is text only; the retention table values are editable text but the real
+deletion schedule lives in the database function `purge_expired_personal_data()`.
 
 ## Converting a copy file (recipe)
 
@@ -99,7 +119,7 @@ or whose value looks like a URL / site path / anchor are never editable (`isEdit
 6. **Placeholders**: if a default is a function (`(n) => \`${n}개 기관\``) it is NOT editable. If you want it editable, change the default to a template string with a token
    (`"{n}개 기관과 함께했어요"`) and fill it in the component with a tiny `fill(template, { n })` helper. The editor enforces the same `{token}` set.
 7. **Verify**: `npx tsc --noEmit`; open `/admin/content/<key>?locale=ko`, edit a field, save draft, open the preview, publish; check the public page; discard/restore.
-8. Remove the entry from the TODO block in the registry. Do NOT change unrelated copy files or the key of an existing doc.
+8. Do NOT change unrelated copy files or the key of an existing doc.
 
 ## Pitfalls
 

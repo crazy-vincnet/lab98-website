@@ -4,15 +4,16 @@
  * Table: public.email_optouts (server-only, admin key; emails stored lowercased).
  */
 
-import { site } from "@/lib/content";
-import { UNSUBSCRIBE_PATH } from "@/components/experiments/paths";
-
 export const UNSUBSCRIBE_LIMITS = { email: 254 } as const;
 
 /** Form field names. `website` is a honeypot (hidden from people, filled by bots). */
 export const UNSUBSCRIBE_FIELDS = {
   email: "email",
   cancelLaunch: "cancelLaunch",
+  /** Signed token from the link in our mail (hidden field). Without a valid one the action sends a confirmation mail instead. */
+  token: "t",
+  /** Page language, so the confirmation mail matches it. */
+  locale: "locale",
   startedAt: "startedAt",
   honeypot: "website",
 } as const;
@@ -34,16 +35,11 @@ export function validateUnsubscribe(v: { email: string }): UnsubscribeFieldError
 export const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 /**
- * Absolute unsubscribe link with the address prefilled. Put it in the body of every bulk / launch mail
- * (InsForge also adds its own List-Unsubscribe header; this link covers our own opt-out list).
- */
-export const unsubscribeUrl = (email: string) => `${site.url}${UNSUBSCRIBE_PATH}?email=${encodeURIComponent(email)}`;
-
-/**
- * What the Server Action returns. Always `ok: true` for a valid address, whether or not it was known,
- * so the page never reveals which addresses exist.
+ * What the Server Action returns. `unsubscribed`: a valid signed link opted the address out. `confirmationSent`: no valid
+ * token, so we (maybe) mailed a signed link; the answer is identical whether or not the address is known, so the page
+ * never reveals which addresses exist. `mail`: confirmation mails are paused site-wide (same for every address).
  */
 export type UnsubscribeResult =
-  | { ok: true }
+  | { ok: true; kind: "unsubscribed" | "confirmationSent" }
   | { ok: false; reason: "invalid"; fieldErrors: UnsubscribeFieldErrors }
-  | { ok: false; reason: "rateLimited" | "server" };
+  | { ok: false; reason: "rateLimited" | "server" | "mail" };

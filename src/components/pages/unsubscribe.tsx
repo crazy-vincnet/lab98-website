@@ -6,11 +6,15 @@ import { UnsubscribeForm, UnsubscribeFormFallback } from "@/components/unsubscri
 import { loadUnsubscribeCopy } from "@/components/unsubscribe/load";
 import { PRIVACY_PATH, PRIVACY_REQUEST_PATH, UNSUBSCRIBE_PATH } from "@/components/experiments/paths";
 import { getContent } from "@/lib/get-content";
+import { verifyUnsubscribeToken } from "@/lib/unsubscribe-token";
+import { normalizeEmail, UNSUBSCRIBE_LIMITS } from "@/lib/unsubscribe";
+import type { UnsubscribeFormCopy } from "@/components/unsubscribe/copy.en";
 import { localePath, type Locale } from "@/lib/i18n";
 
 /**
  * 이메일 수신거부. Adds the address to public.email_optouts (and optionally deletes launch_signups).
- * The page shell is static; `?email=` is read on the client inside <Suspense>.
+ * The page shell is static; `?email=…&t=…` is read on the server inside <Suspense> (UnsubscribeFormGate) and the
+ * signed token is verified there, so the secret never reaches the browser.
  * Bulk / launch mail must skip opted-out addresses: see isOptedOut in src/lib/unsubscribe-server.ts.
  */
 export const unsubscribeMetadata = async (locale: Locale): Promise<Metadata> => {
@@ -20,7 +24,30 @@ export const unsubscribeMetadata = async (locale: Locale): Promise<Metadata> => 
 
 const link = "font-bold text-ink underline underline-offset-4 hover:text-red-text";
 
-export async function UnsubscribePage({ locale }: { locale: Locale }) {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
+
+/** Verifies the link's token against its address, then renders the client form in "verified" or "confirm by mail" mode. */
+async function UnsubscribeFormGate({ locale, searchParams, copy, to }: { locale: Locale; searchParams?: SearchParams; copy: UnsubscribeFormCopy; to: string }) {
+  const q = searchParams ? await searchParams : {};
+  const email = first(q.email).trim().slice(0, UNSUBSCRIBE_LIMITS.email);
+  const t = first(q.t);
+  const verified = !!email && !!t && verifyUnsubscribeToken(normalizeEmail(email), t);
+  return (
+    <UnsubscribeForm
+      to={to}
+      locale={locale}
+      copy={copy}
+      initialEmail={email}
+      token={verified ? t : ""}
+      verified={verified}
+      invalidLink={!!t && !verified}
+      requestHref={localePath(locale, PRIVACY_REQUEST_PATH)}
+    />
+  );
+}
+
+export async function UnsubscribePage({ locale, searchParams }: { locale: Locale; searchParams?: SearchParams }) {
   const C = await loadUnsubscribeCopy(locale);
   const { site } = getContent(locale);
   const lp = (path: string) => localePath(locale, path);
@@ -56,7 +83,7 @@ export async function UnsubscribePage({ locale }: { locale: Locale }) {
         </div>
 
         <Suspense fallback={<UnsubscribeFormFallback />}>
-          <UnsubscribeForm to={site.email} locale={locale} copy={C.form} />
+          <UnsubscribeFormGate locale={locale} searchParams={searchParams} copy={C.form} to={site.email} />
         </Suspense>
       </div>
     </section>

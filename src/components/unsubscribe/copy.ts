@@ -23,7 +23,14 @@ export const unsubscribeCopy = {
     cancelLaunchHint: "신청 기록을 바로 지워요.",
     notice: "수신거부 처리를 위해 이메일을 수신거부 목록에 보관해요.",
     submit: "수신거부하기",
+    submitConfirm: "확인 메일 받기",
     submitting: "처리하는 중…",
+    verified: {
+      badge: "메일 링크로 확인된 주소예요",
+      hint: "이 주소만 수신거부할 수 있어요. 다른 주소는 직접 입력해 확인 메일을 받아 주세요.",
+    },
+    confirmNotice: "다른 사람이 대신 수신거부하지 못하도록, 주소를 입력하면 그 주소로 확인 메일을 보내요. 메일 속 링크를 누르면 수신거부가 끝나요.",
+    invalidLink: "링크가 올바르지 않거나 주소가 달라요. 아래에 주소를 입력하면 확인 메일을 보내 드려요.",
     errors: {
       emailRequired: "수신거부할 이메일을 입력해 주세요.",
       emailInvalid: "이메일 형식을 확인해 주세요. 예: you@example.com",
@@ -31,7 +38,17 @@ export const unsubscribeCopy = {
     failure: {
       rateLimited: "짧은 시간에 요청이 많이 들어와 잠시 막아 두었어요. 10분 뒤 다시 시도해 주시거나",
       server: "처리하지 못했어요. 잠시 뒤 다시 시도해 주시거나",
+      mail: "지금은 확인 메일을 보내기 어려워요. 잠시 뒤 다시 시도해 주시거나",
       fallbackAfter: "로 수신거부를 요청해 주세요.",
+    },
+    sent: {
+      eyebrow: "확인 메일 발송",
+      title: "확인 메일을 보냈어요. 메일 속 링크를 누르면 수신거부가 끝나요.",
+      body: "신청하셨거나 저희가 메일을 보낸 적 있는 주소로만 보내요. 몇 분 안에 오지 않으면 스팸함을 확인해 주세요.",
+      fallbackBefore: "받지 못했거나 다른 주소라면",
+      fallbackMiddle: "로 요청해 주세요. 또는",
+      request: "개인정보 요청",
+      fallbackAfter: "양식을 이용해도 돼요.",
     },
     success: {
       eyebrow: "수신거부 완료",

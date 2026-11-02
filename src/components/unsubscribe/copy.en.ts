@@ -27,7 +27,14 @@ export const unsubscribeCopyEn: Dict<typeof unsubscribeCopy> = {
     cancelLaunchHint: "We delete the signup record right away.",
     notice: "To process your unsubscribe request, we keep your email address on an unsubscribe list.",
     submit: "Unsubscribe",
+    submitConfirm: "Send confirmation email",
     submitting: "Processing…",
+    verified: {
+      badge: "Address verified by the link in our email",
+      hint: "This only unsubscribes this address. For another address, type it in yourself and we'll send it a confirmation email.",
+    },
+    confirmNotice: "So nobody can unsubscribe someone else, we send a confirmation email to the address you enter. Press the link in it to finish.",
+    invalidLink: "That link isn't valid or the address doesn't match. Enter the address below and we'll send you a confirmation email.",
     errors: {
       emailRequired: "Enter the email address to unsubscribe.",
       emailInvalid: "Check the email format. Example: you@example.com",
@@ -35,7 +42,17 @@ export const unsubscribeCopyEn: Dict<typeof unsubscribeCopy> = {
     failure: {
       rateLimited: "Too many requests came in at once, so we paused them for now. Try again in 10 minutes, or ask us to unsubscribe you at",
       server: "We couldn't process that. Try again in a moment, or ask us to unsubscribe you at",
+      mail: "We can't send confirmation emails right now. Try again in a little while, or ask us to unsubscribe you at",
       fallbackAfter: ".",
+    },
+    sent: {
+      eyebrow: "Confirmation sent",
+      title: "We've sent a confirmation email. Press the link in it to finish unsubscribing.",
+      body: "We only send it to addresses that signed up or that we've emailed before. If it doesn't arrive in a few minutes, check your spam folder.",
+      fallbackBefore: "If it doesn't arrive, or the address is a different one, write to",
+      fallbackMiddle: ". You can also use the",
+      request: "Privacy requests",
+      fallbackAfter: "form.",
     },
     success: {
       eyebrow: "Unsubscribed",

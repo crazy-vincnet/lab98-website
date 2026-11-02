@@ -7,8 +7,8 @@ import { normalizeEmail } from "@/lib/unsubscribe";
  *
  * RULE for any bulk or launch-notice mail (e.g. the Praise Tool launch email to launch_signups):
  *   1. skip every recipient for which `isOptedOut(email)` is true (or use `filterOptedOut` for a batch), and
- *   2. include an unsubscribe link in the body: `unsubscribeUrl(email)` from `@/lib/unsubscribe`
- *      → `${site.url}${UNSUBSCRIBE_PATH}?email=...`.
+ *   2. include an unsubscribe link in the body: `unsubscribeUrl(email)` from `@/lib/unsubscribe-token`
+ *      → `${site.url}/unsubscribe?email=…&t=<signed token>` (one token per recipient; never reuse another address's link).
  * Transactional replies to someone's own inquiry / privacy request are not affected.
  *
  * Throws if the lookup fails, so a sender fails closed instead of mailing someone who opted out.

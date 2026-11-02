@@ -142,7 +142,7 @@ export const privacyEn: LegalDocCopy = {
       heading: "Promotional messages and opting out",
       blocks: [
         { p: "The Company does not currently send promotional messages (marketing emails). If we do in the future, we will get your separate consent in advance as required by Article 50 of the Act on Promotion of Information and Communications Network Utilization and Information Protection, mark the subject line with “(advertisement)”, and include opt-out instructions in every email." },
-        { p: "If you do not want to receive email, you can opt out at any time on the [unsubscribe](link:unsubscribe) page." },
+        { p: "If you do not want to receive email, you can opt out at any time on the [unsubscribe](link:unsubscribe) page. The unsubscribe link in an email we sent takes effect immediately. If you type an address in yourself, so that nobody can opt out someone else, we send one confirmation email, only to an address already on our list, and the request takes effect when you press the link in it. To prevent repeated sends we keep an irreversible hash of that address for at most one day." },
       ],
     },
     {

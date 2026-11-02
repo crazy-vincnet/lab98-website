@@ -7,7 +7,7 @@ import { getRecipients, type Failure } from "@/lib/admin/requests/launch";
 import { sendMail, sleep, UUID_RE } from "@/lib/admin/requests/mail";
 import { clean, cleanSubject, launchFooterHtml, renderMail, SUPPORT_EMAIL } from "@/lib/admin/requests/pure";
 import { getInsforgeAdmin } from "@/lib/insforge-admin";
-import { unsubscribeUrl } from "@/lib/unsubscribe";
+import { unsubscribeUrl } from "@/lib/unsubscribe-token";
 
 const str = (fd: FormData, k: string) => (typeof fd.get(k) === "string" ? (fd.get(k) as string) : "");
 const SUBJECT_MAX = 150;
